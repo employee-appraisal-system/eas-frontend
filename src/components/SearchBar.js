@@ -10,7 +10,11 @@ export default function BasicTextFields() {
       noValidate
       autoComplete="off"
     >
-      <TextField id="standard-basic" placeholder="Type your question here" variant="standard" />
+      <TextField
+        id="standard-basic"
+        placeholder="Type your question here"
+        variant="standard"
+      />
     </Box>
   );
 }
