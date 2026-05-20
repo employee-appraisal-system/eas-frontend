@@ -1,8 +1,6 @@
 import axios from "axios";
 
-// const API_URL = "http://localhost:8000/auth"; // Corrected to match backend
-const API_URL = process.env.REACT_APP_BASE_URL; // from .env file
-console.log("API_URL from env: ", API_URL);  // Debug line
+const API_URL = process.env.REACT_APP_BASE_URL;
 
 export const login_auth = async (employee_id, password) => {
   try {

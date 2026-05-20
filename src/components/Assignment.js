@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, Box, Card, Snackbar, Alert,Typography,Grid } from "@mui/material";
-import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
+import { Group as PanelGroup, Panel, Separator as PanelResizeHandle } from 'react-resizable-panels';
 import DataGridDemo from "./SelectEmployee"; 
 import CheckboxList from "./SelectQuestion"; 
 import Backdrop from '@mui/material/Backdrop';   
