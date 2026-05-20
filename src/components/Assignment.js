@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, Box, Card, Snackbar, Alert,Typography,Grid } from "@mui/material";
-import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
+import { Group, Panel, Separator } from "react-resizable-panels";
 import DataGridDemo from "./SelectEmployee"; 
 import CheckboxList from "./SelectQuestion"; 
 import Backdrop from '@mui/material/Backdrop';   
@@ -84,7 +84,7 @@ export default function Assignment({ cycleId, onClose,cycleName }) {
           </Grid>
         </Grid>
 
-        <PanelGroup direction="horizontal">
+        <Group direction="horizontal">
           {/* Left Panel - Employee Selection */}
           <Panel defaultSize={50} minSize={30} maxSize={70} >
             <Box >
@@ -93,7 +93,7 @@ export default function Assignment({ cycleId, onClose,cycleName }) {
           </Panel>
 
           {/* Resize feature */}
-          <PanelResizeHandle style={{ width: "5px", background: "#ccc", cursor: "ew-resize" }} />
+          <Separator style={{ width: "5px", background: "#ccc", cursor: "ew-resize" }} />
 
           {/* Right Panel - Question Selection */}
           <Panel defaultSize={50} minSize={30} maxSize={70}>
@@ -101,7 +101,7 @@ export default function Assignment({ cycleId, onClose,cycleName }) {
               <CheckboxList onSelect={handleQuestionSelection} selectedQuestions={selectedQuestions} />
             </Box>
           </Panel>
-        </PanelGroup>
+        </Group>
       </Card>
 
       {/* Bottom Buttons */}

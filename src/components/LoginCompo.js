@@ -38,6 +38,7 @@ const Login = () => {
         setOpen(true);
       }
     } catch (err) {
+      console.error("Login error:", err);
       setError(err || "Login failed. Please try again.");
       setOpen(true);
     } finally {
