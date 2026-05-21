@@ -23,7 +23,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-const API_URL = process.env.REACT_APP_BASE_URL;
+const API_URL = import.meta.env.VITE_API_URL;
 export default function CheckboxList({ onSelect }) {
   const [questions, setQuestions] = useState([]);
   const [checked, setChecked] = useState([]);

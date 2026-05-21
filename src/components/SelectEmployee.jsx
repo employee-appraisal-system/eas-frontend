@@ -8,8 +8,10 @@ import {
   GridToolbarExport,
   GridToolbarQuickFilter,
 } from '@mui/x-data-grid';
+import { Skeleton } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
-const API_URL = process.env.REACT_APP_BASE_URL;
+const API_URL = import.meta.env.VITE_API_URL;
 
 function CustomToolbar() {
   return (
@@ -18,31 +20,37 @@ function CustomToolbar() {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
+        p: 1,
       }}
     >
-      <Box>
-        <GridToolbarFilterButton />
+      {/* Left Side - Filters, Columns, Export */}
+      <Box sx={{ display: 'flex', gap: 1 }}>
         <GridToolbarColumnsButton />
+        <GridToolbarFilterButton />
         <GridToolbarExport />
       </Box>
-      <Box>
+
+      {/* Right Side - Search Bar */}
+      <Box sx={{ width: '250px' }}>
         <GridToolbarQuickFilter />
       </Box>
     </GridToolbarContainer>
   );
 }
 
-export default function DataGridDemo() {
+export default function DataGridDemo({ onSelect }) {
   const [rows, setRows] = React.useState([]);
   const [employeeMap, setEmployeeMap] = React.useState({});
   const [originalRows, setOriginalRows] = React.useState([]);
   const [selectedIds, setSelectedIds] = React.useState([]);
+  const navigate = useNavigate();
+  const [loadingEmployees, setLoadingEmployees] = React.useState(true);
 
   React.useEffect(() => {
+    setLoadingEmployees(true);
     fetch(`${API_URL}/`)
       .then((response) => response.json())
       .then((data) => {
-        // Mapping of employee_id to employee_name
         const empMap = {};
         data.forEach((emp) => {
           empMap[emp.employee_id] = emp.employee_name;
@@ -62,26 +70,26 @@ export default function DataGridDemo() {
         setRows(formattedData);
         setOriginalRows(formattedData);
       })
-      .catch((error) => console.error('Error fetching data:', error));
+      .catch((error) => console.error('Error fetching data:', error))
+      .finally(() => setLoadingEmployees(false));
   }, []);
 
-  // Function to reorder rows based on selection and restore deselected rows
   const handleRowSelection = (selectedRowIds) => {
     setSelectedIds(selectedRowIds);
-
-    if (selectedRowIds.length === 0) {
-      setRows(originalRows); // If nothing is selected, reseting to original order
-      return;
-    }
-
-    const selectedRows = originalRows.filter((row) =>
+    const selectedEmployees = originalRows.filter((row) =>
       selectedRowIds.includes(row.id)
     );
-    const unselectedRows = originalRows.filter(
+    const unselectedEmployees = originalRows.filter(
       (row) => !selectedRowIds.includes(row.id)
     );
 
-    setRows([...selectedRows, ...unselectedRows]);
+    const newOrderedRows = [...selectedEmployees, ...unselectedEmployees];
+
+    setRows(newOrderedRows);
+
+    if (onSelect) {
+      onSelect(selectedEmployees);
+    }
   };
 
   const columns = [
@@ -99,21 +107,43 @@ export default function DataGridDemo() {
   const getRowHeight = () => 35;
 
   return (
-    <Box
-      item
-      sx={{ height: 600, width: '90%', overflow: 'auto', ml: 5, mt: 20 }}
-    >
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        pageSizeOptions={[5]}
-        checkboxSelection
-        disableRowSelectionOnClick
-        slots={{ toolbar: CustomToolbar }}
-        onRowSelectionModelChange={handleRowSelection}
-        selectionModel={selectedIds}
-        rowHeight={getRowHeight()}
-      />
-    </Box>
+    <>
+      {loadingEmployees ? (
+        <Box sx={{ width: '100%', mt: 2 }}>
+          {[...Array(20)].map((_, index) => (
+            <Skeleton
+              key={index}
+              variant="rectangular"
+              height={30}
+              sx={{
+                mb: 1,
+                bgcolor: '#e6e9ed',
+                opacity: 0.3,
+              }}
+            />
+          ))}
+        </Box>
+      ) : (
+        <DataGrid
+          sx={{
+            height: 500,
+            overflow: 'auto',
+            '& .MuiDataGrid-columnHeaderTitle': {
+              fontWeight: 'bold',
+            },
+          }}
+          rows={rows}
+          columns={columns}
+          pageSizeOptions={[5]}
+          checkboxSelection
+          disableRowSelectionOnClick
+          slots={{ toolbar: CustomToolbar }}
+          onRowSelectionModelChange={handleRowSelection}
+          selectionModel={selectedIds}
+          rowHeight={getRowHeight()}
+          hideFooter
+        />
+      )}
+    </>
   );
 }

@@ -12,7 +12,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { login_auth } from '../services/login';
 import CardMedia from '@mui/material/CardMedia';
-import logo from './logo.jpg';
+import logo from '../assets/titled_logo.jpg';
 
 const Login = () => {
   const [email, setEmail] = useState('');
