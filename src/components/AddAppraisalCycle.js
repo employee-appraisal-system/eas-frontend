@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   Button,
   Typography,
@@ -13,33 +13,32 @@ import {
   Radio,
   RadioGroup,
   Box,
-} from "@mui/material";
-import Grid from "@mui/material/Grid";
-import AddIcon from "@mui/icons-material/Add";
-import TextField from "@mui/material/TextField";
-import DeleteIcon from "@mui/icons-material/Delete";
-import CloseIcon from "@mui/icons-material/Close";
+} from '@mui/material';
+import Grid from '@mui/material/Grid';
+import AddIcon from '@mui/icons-material/Add';
+import TextField from '@mui/material/TextField';
+import DeleteIcon from '@mui/icons-material/Delete';
+import CloseIcon from '@mui/icons-material/Close';
 import {
   createAppraisalCycle,
   createStage,
   createParameter,
-} from "../services/AddAppraisalCycle";
-import { useNavigate } from "react-router-dom";
-import Backdrop from '@mui/material/Backdrop';    //1
-import CircularProgress from '@mui/material/CircularProgress';    //2
-
+} from '../services/AddAppraisalCycle';
+import { useNavigate } from 'react-router-dom';
+import Backdrop from '@mui/material/Backdrop'; //1
+import CircularProgress from '@mui/material/CircularProgress'; //2
 
 const AddAppraisalCycle = ({ onClose }) => {
   // Appraisal Cycle State
-  const [cycleName, setCycleName] = useState("");
-  const [description, setDescription] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [status, setStatus] = useState("");
+  const [cycleName, setCycleName] = useState('');
+  const [description, setDescription] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [status, setStatus] = useState('');
 
   // Validation Errors
-  const [startDateError, setStartDateError] = useState("");
-  const [endDateError, setEndDateError] = useState("");
+  const [startDateError, setStartDateError] = useState('');
+  const [endDateError, setEndDateError] = useState('');
   const [stageErrors, setStageErrors] = useState({});
 
   const [errorMessage, setErrorMessage] = useState('');
@@ -48,19 +47,18 @@ const AddAppraisalCycle = ({ onClose }) => {
   // Snackbar State
   const [snackbar, setSnackbar] = useState({
     open: false,
-    message: "",
-    severity: "success",
+    message: '',
+    severity: 'success',
   });
 
   // Stages State
   const [stages, setStages] = useState([
-    { name: "Setup", startDate: "", endDate: "" },
-    { name: "Self Assessment", startDate: "", endDate: "" },
-    { name: "Lead Assessment", startDate: "", endDate: "" },
-    { name: "HR/VL Validation", startDate: "", endDate: "" },
-    { name: "Closure", startDate: "", endDate: "" },
+    { name: 'Setup', startDate: '', endDate: '' },
+    { name: 'Self Assessment', startDate: '', endDate: '' },
+    { name: 'Lead Assessment', startDate: '', endDate: '' },
+    { name: 'HR/VL Validation', startDate: '', endDate: '' },
+    { name: 'Closure', startDate: '', endDate: '' },
   ]);
-
 
   const [parameterErrors, setParameterErrors] = useState({});
 
@@ -69,8 +67,8 @@ const AddAppraisalCycle = ({ onClose }) => {
   // Parameters State
   const [parameters, setParameters] = useState([
     {
-      name: "Overall Performance Rating",
-      helptext: "",
+      name: 'Overall Performance Rating',
+      helptext: '',
       employee: true,
       teamLead: true,
       fixed: true,
@@ -78,26 +76,26 @@ const AddAppraisalCycle = ({ onClose }) => {
   ]);
 
   const handleCancel = () => {
-    setCycleName("");
-    setDescription("");
-    setStartDate("");
-    setEndDate("");
-    setStatus("");
+    setCycleName('');
+    setDescription('');
+    setStartDate('');
+    setEndDate('');
+    setStatus('');
 
     // Reset stages to the initial state
     setStages([
-      { name: "Setup", startDate: "", endDate: "" },
-      { name: "Self Assessment", startDate: "", endDate: "" },
-      { name: "Lead Assessment", startDate: "", endDate: "" },
-      { name: "HR/VL Validation", startDate: "", endDate: "" },
-      { name: "Closure", startDate: "", endDate: "" },
+      { name: 'Setup', startDate: '', endDate: '' },
+      { name: 'Self Assessment', startDate: '', endDate: '' },
+      { name: 'Lead Assessment', startDate: '', endDate: '' },
+      { name: 'HR/VL Validation', startDate: '', endDate: '' },
+      { name: 'Closure', startDate: '', endDate: '' },
     ]);
 
     // Reset parameters to the initial state
     setParameters([
       {
-        name: "Overall Performance Rating",
-        helptext: "",
+        name: 'Overall Performance Rating',
+        helptext: '',
         employee: true,
         teamLead: true,
         fixed: true,
@@ -105,11 +103,9 @@ const AddAppraisalCycle = ({ onClose }) => {
     ]);
 
     // Reset validation errors
-    setStartDateError("");
-    setEndDateError("");
+    setStartDateError('');
+    setEndDateError('');
     setStageErrors({});
-
-    
   };
 
   const [formValid, setFormValid] = useState(false);
@@ -121,38 +117,38 @@ const AddAppraisalCycle = ({ onClose }) => {
   const validateForm = () => {
     let valid = true;
     // Check basic cycle details
-  if (!cycleName.trim()) {
-    valid = false;
-  }
-  
-  if (!description.trim()) {
-    valid = false;
-  }
+    if (!cycleName.trim()) {
+      valid = false;
+    }
+
+    if (!description.trim()) {
+      valid = false;
+    }
     if (!status) {
       valid = false;
     }
     if (!startDate) {
-      setStartDateError("Start date is required");
+      setStartDateError('Start date is required');
       valid = false;
     } else {
-      setStartDateError("");
+      setStartDateError('');
     }
 
     if (!endDate) {
-      setEndDateError("End date is required");
+      setEndDateError('End date is required');
       valid = false;
     } else if (startDate > endDate) {
-      setEndDateError("End date must be after start date");
+      setEndDateError('End date must be after start date');
       valid = false;
     } else {
-      setEndDateError("");
+      setEndDateError('');
     }
 
     if (startDate && endDate && startDate > endDate) {
-      setEndDateError("End date must be after start date");
+      setEndDateError('End date must be after start date');
       valid = false;
     } else {
-      setEndDateError("");
+      setEndDateError('');
     }
 
     let newStageErrors = {};
@@ -167,14 +163,14 @@ const AddAppraisalCycle = ({ onClose }) => {
         stage.startDate &&
         (stage.startDate < startDate || stage.startDate > endDate)
       ) {
-        error.start = "Start date must be within cycle period";
+        error.start = 'Start date must be within cycle period';
         valid = false;
       }
       if (stage.endDate && stage.endDate < stage.startDate) {
-        error.end = "End date must be after start date";
+        error.end = 'End date must be after start date';
         valid = false;
       } else if (stage.endDate && stage.endDate > endDate) {
-        error.end = "End date must be within cycle period";
+        error.end = 'End date must be within cycle period';
         valid = false;
       }
       // Ensure each stage starts after the previous stage ends
@@ -197,12 +193,12 @@ const AddAppraisalCycle = ({ onClose }) => {
     parameters.forEach((param, index) => {
       let error = {};
       if (!param.name.trim()) {
-        error.name = "Parameter name is required";
+        error.name = 'Parameter name is required';
         valid = false;
       }
       if (!param.employee && !param.teamLead) {
         error.selection =
-          "At least one selection (Employee or Team Lead) is required";
+          'At least one selection (Employee or Team Lead) is required';
         valid = false;
       }
       newParameterErrors[index] = error;
@@ -215,8 +211,8 @@ const AddAppraisalCycle = ({ onClose }) => {
 
   const handleSave = async () => {
     try {
-      console.log("Saving Appraisal Cycle...");
-      setSaving(true);        
+      console.log('Saving Appraisal Cycle...');
+      setSaving(true);
       // Step 1: Save Appraisal Cycle details
       const cycleData = await createAppraisalCycle({
         cycle_name: cycleName,
@@ -252,22 +248,21 @@ const AddAppraisalCycle = ({ onClose }) => {
 
       setSnackbar({
         open: true,
-        message: "Cycle Created Successfully!",
-        severity: "success",
+        message: 'Cycle Created Successfully!',
+        severity: 'success',
       });
       // Refresh form after 2 seconds
-    setTimeout(() => {
-      handleCancel();  // Clear the form
-    }, 2000);
- 
+      setTimeout(() => {
+        handleCancel(); // Clear the form
+      }, 2000);
     } catch (error) {
       setSnackbar({
         open: true,
         message: `Error: ${error.message}`,
-        severity: "error",
+        severity: 'error',
       });
-    }finally {
-      setSaving(false); // Hide loading backdrop             
+    } finally {
+      setSaving(false); // Hide loading backdrop
     }
   };
 
@@ -275,8 +270,8 @@ const AddAppraisalCycle = ({ onClose }) => {
     setParameters([
       ...parameters,
       {
-        name: "",
-        helptext: "",
+        name: '',
+        helptext: '',
         employee: false,
         teamLead: false,
         fixed: false,
@@ -291,14 +286,14 @@ const AddAppraisalCycle = ({ onClose }) => {
 
   const navigate = useNavigate();
 
-   // Format today's date as YYYY-MM-DD for comparison
+  // Format today's date as YYYY-MM-DD for comparison
   const today = new Date().toISOString().split('T')[0];
   const handleDateChange = (e) => {
     const selectedDate = e.target.value;
-    
+
     // Always update the state to show what the user is typing
     setStartDate(selectedDate);
-    
+
     //if the date is earlier than today (while typing)
     if (selectedDate && selectedDate < today) {
       setError(true);
@@ -311,49 +306,49 @@ const AddAppraisalCycle = ({ onClose }) => {
 
   return (
     <>
-    <Card sx={{ p: 3, width: "95%", margin: "auto", mt: 2, mb: 3 }}>
-      <Grid container alignItems="center">
-        <Grid size={11}>
-          <Typography variant="h6" color="primary">
-            Add Appraisal Cycle
-          </Typography>
+      <Card sx={{ p: 3, width: '95%', margin: 'auto', mt: 2, mb: 3 }}>
+        <Grid container alignItems="center">
+          <Grid size={11}>
+            <Typography variant="h6" color="primary">
+              Add Appraisal Cycle
+            </Typography>
+          </Grid>
+          <Grid size={1} sx={{ textAlign: 'right' }}>
+            <IconButton onClick={() => navigate('/hr-home')} color="error">
+              <CloseIcon />
+            </IconButton>
+          </Grid>
         </Grid>
-        <Grid size={1} sx={{ textAlign: "right" }}>
-          <IconButton onClick={() => navigate("/hr-home")} color="error">
-            <CloseIcon />
-          </IconButton>
-        </Grid>
-      </Grid>
-      <CardContent>
-        <Card sx={{ p: 1, width: "100%" }}>
-          <Typography color="primary" fontWeight="bold">
-            Appraisal Cycle Details
-          </Typography>
-          <CardContent>
-            {/* Appraisal Cycle Inputs */}
-            <Grid container spacing={2}>
-              <Grid size={12}>
-                <TextField
-                  fullWidth
-                  label="Appraisal Cycle Name"
-                  required
-                  value={cycleName}
-                  onChange={(e) => setCycleName(e.target.value)}
-                />
-              </Grid>
-              <Grid size={12}>
-                <TextField
-                  fullWidth
-                  label="Description"
-                  required
-                  multiline
-                  rows={2}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                />
-              </Grid>
-              <Grid size={6}>
-                 <TextField
+        <CardContent>
+          <Card sx={{ p: 1, width: '100%' }}>
+            <Typography color="primary" fontWeight="bold">
+              Appraisal Cycle Details
+            </Typography>
+            <CardContent>
+              {/* Appraisal Cycle Inputs */}
+              <Grid container spacing={2}>
+                <Grid size={12}>
+                  <TextField
+                    fullWidth
+                    label="Appraisal Cycle Name"
+                    required
+                    value={cycleName}
+                    onChange={(e) => setCycleName(e.target.value)}
+                  />
+                </Grid>
+                <Grid size={12}>
+                  <TextField
+                    fullWidth
+                    label="Description"
+                    required
+                    multiline
+                    rows={2}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
+                </Grid>
+                <Grid size={6}>
+                  <TextField
                     fullWidth
                     label="Start Date"
                     type="date"
@@ -366,280 +361,282 @@ const AddAppraisalCycle = ({ onClose }) => {
                       min: today, // sets today as the minimum for the date picker
                     }}
                   />
+                </Grid>
+                <Grid size={6}>
+                  <TextField
+                    fullWidth
+                    label="End Date"
+                    type="date"
+                    InputLabelProps={{ shrink: true }}
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    error={!!endDateError}
+                    helperText={endDateError}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <FormControl component="fieldset">
+                    <Typography>Status</Typography>
+                    <RadioGroup
+                      row
+                      value={status}
+                      onChange={(e) => setStatus(e.target.value)}
+                    >
+                      <FormControlLabel
+                        value="active"
+                        control={<Radio />}
+                        label="Active"
+                      />
+                      <FormControlLabel
+                        value="inactive"
+                        control={<Radio />}
+                        label="Inactive"
+                      />
+                    </RadioGroup>
+                  </FormControl>
+                </Grid>
               </Grid>
-              <Grid size={6}>
-                <TextField
-                  fullWidth
-                  label="End Date"
-                  type="date"
-                  InputLabelProps={{ shrink: true }}
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  error={!!endDateError}
-                  helperText={endDateError}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormControl component="fieldset">
-                  <Typography>Status</Typography>
-                  <RadioGroup
-                    row
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
-                  >
-                    <FormControlLabel
-                      value="active"
-                      control={<Radio />}
-                      label="Active"
-                    />
-                    <FormControlLabel
-                      value="inactive"
-                      control={<Radio />}
-                      label="Inactive"
-                    />
-                  </RadioGroup>
-                </FormControl>
-              </Grid>
-            </Grid>
-          </CardContent>
-        </Card>
-        {/* Stages Section */}
-        <Card sx={{ p: 1, width: "100%", mt: 1 }}>
-          <CardContent>
-            <Grid container spacing={2} sx={{ mt: 1 }}>
-              <Grid size={4}>
-                <Typography fontWeight="bold" sx={{ color: "primary.main" }}>
-                  Stages
-                </Typography>
-              </Grid>
-              <Grid size={4}>
-                <Typography
-                  fontWeight="bold"
-                  sx={{ ml: 2, color: "primary.main" }}
-                >
-                  Start Date
-                </Typography>
-              </Grid>
-              <Grid size={4}>
-                <Typography
-                  fontWeight="bold"
-                  sx={{ ml: 2, color: "primary.main" }}
-                >
-                  End Date
-                </Typography>
-              </Grid>
-            </Grid>
-
-            {stages.map((stage, index) => (
-              <Grid
-                container
-                spacing={2}
-                key={index}
-                sx={{ mt: 1, alignItems: "center" }}
-              >
+            </CardContent>
+          </Card>
+          {/* Stages Section */}
+          <Card sx={{ p: 1, width: '100%', mt: 1 }}>
+            <CardContent>
+              <Grid container spacing={2} sx={{ mt: 1 }}>
                 <Grid size={4}>
-                  <Typography
-                    sx={{ fontWeight: "bold", color: "primary.main" }}
-                  >
-                    {stage.name}
+                  <Typography fontWeight="bold" sx={{ color: 'primary.main' }}>
+                    Stages
                   </Typography>
                 </Grid>
                 <Grid size={4}>
-                  <TextField
-                    fullWidth
-                    type="date"
-                    InputLabelProps={{ shrink: true }}
-                    value={stage.startDate}
-                    onChange={(e) => {
-                      const newStages = [...stages];
-                      newStages[index].startDate = e.target.value;
-                      setStages(newStages);
-                    }}
-                    error={!!stageErrors[index]?.start}
-                    helperText={stageErrors[index]?.start}
-                  />
+                  <Typography
+                    fontWeight="bold"
+                    sx={{ ml: 2, color: 'primary.main' }}
+                  >
+                    Start Date
+                  </Typography>
                 </Grid>
                 <Grid size={4}>
-                  <TextField
-                    fullWidth
-                    type="date"
-                    InputLabelProps={{ shrink: true }}
-                    value={stage.endDate}
-                    onChange={(e) => {
-                      const newStages = [...stages];
-                      newStages[index].endDate = e.target.value;
-                      setStages(newStages);
-                    }}
-                    error={!!stageErrors[index]?.end}
-                    helperText={stageErrors[index]?.end}
-                  />
+                  <Typography
+                    fontWeight="bold"
+                    sx={{ ml: 2, color: 'primary.main' }}
+                  >
+                    End Date
+                  </Typography>
                 </Grid>
               </Grid>
-            ))}
-          </CardContent>
-        </Card>
-        {/* Parameters Section */}
 
-        <Card sx={{ p: 2, width: "100%", mt: 1 }}>
-          <CardContent>
-            {/* Header Row */}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 2,
-                flexWrap: "wrap",
-              }}
-            >
-              <Typography
-                fontWeight="bold"
-                sx={{ flex: 2, color: "primary.main" }}
-              >
-                Parameters For Lead Assessment
-              </Typography>
-              <Typography
-                fontWeight="bold"
-                sx={{ flex: 2, color: "primary.main" }}
-              >
-                Help Text
-              </Typography>
-              <Typography
-                fontWeight="bold"
-                sx={{ flex: 1, color: "primary.main" }}
-              >
-                Employee
-              </Typography>
-              <Typography
-                fontWeight="bold"
-                sx={{ flex: 1, color: "primary.main" }}
-              >
-                Team Lead
-              </Typography>
-            </Box>
+              {stages.map((stage, index) => (
+                <Grid
+                  container
+                  spacing={2}
+                  key={index}
+                  sx={{ mt: 1, alignItems: 'center' }}
+                >
+                  <Grid size={4}>
+                    <Typography
+                      sx={{ fontWeight: 'bold', color: 'primary.main' }}
+                    >
+                      {stage.name}
+                    </Typography>
+                  </Grid>
+                  <Grid size={4}>
+                    <TextField
+                      fullWidth
+                      type="date"
+                      InputLabelProps={{ shrink: true }}
+                      value={stage.startDate}
+                      onChange={(e) => {
+                        const newStages = [...stages];
+                        newStages[index].startDate = e.target.value;
+                        setStages(newStages);
+                      }}
+                      error={!!stageErrors[index]?.start}
+                      helperText={stageErrors[index]?.start}
+                    />
+                  </Grid>
+                  <Grid size={4}>
+                    <TextField
+                      fullWidth
+                      type="date"
+                      InputLabelProps={{ shrink: true }}
+                      value={stage.endDate}
+                      onChange={(e) => {
+                        const newStages = [...stages];
+                        newStages[index].endDate = e.target.value;
+                        setStages(newStages);
+                      }}
+                      error={!!stageErrors[index]?.end}
+                      helperText={stageErrors[index]?.end}
+                    />
+                  </Grid>
+                </Grid>
+              ))}
+            </CardContent>
+          </Card>
+          {/* Parameters Section */}
 
-            {/* Parameters List */}
-            {parameters.map((param, index) => (
+          <Card sx={{ p: 2, width: '100%', mt: 1 }}>
+            <CardContent>
+              {/* Header Row */}
               <Box
-                key={index}
                 sx={{
-                  display: "flex",
-                  alignItems: "center",
+                  display: 'flex',
+                  alignItems: 'center',
                   gap: 2,
-                  flexWrap: "wrap",
-                  mt: 1,
+                  flexWrap: 'wrap',
                 }}
               >
-                <TextField
-                  fullWidth
-                  sx={{ flex: 2 }}
-                  disabled={param.fixed}
-                  value={param.name}
-                  onChange={(e) => {
-                    const newParams = [...parameters];
-                    newParams[index].name = e.target.value;
-                    setParameters(newParams);
-                  }}
-                />
-                <TextField
-                  fullWidth
-                  sx={{ flex: 2 }}
-                  value={param.helptext}
-                  onChange={(e) => {
-                    const newParams = [...parameters];
-                    newParams[index].helptext = e.target.value;
-                    setParameters(newParams);
-                  }}
-                />
-                <Box
-                  sx={{ flex: 1, display: "flex", justifyContent: "center" }}
+                <Typography
+                  fontWeight="bold"
+                  sx={{ flex: 2, color: 'primary.main' }}
                 >
-                  <Checkbox
-                    checked={param.employee}
-                    disabled={param.fixed}
-                    onChange={(e) => {
-                      const newParams = [...parameters];
-                      newParams[index].employee = e.target.checked;
-                      setParameters(newParams);
-                    }}
-                  />
-                </Box>
-                <Box
-                  sx={{ flex: 1, display: "flex", justifyContent: "center" }}
+                  Parameters For Lead Assessment
+                </Typography>
+                <Typography
+                  fontWeight="bold"
+                  sx={{ flex: 2, color: 'primary.main' }}
                 >
-                  <Checkbox
-                    checked={param.teamLead}
-                    disabled={param.fixed}
-                    onChange={(e) => {
-                      const newParams = [...parameters];
-                      newParams[index].teamLead = e.target.checked;
-                      setParameters(newParams);
-                    }}
-                  />
-                </Box>
-                <Box
-                  sx={{
-                    flex: "none",
-                    display: "flex",
-                    justifyContent: "center",
-                  }}
+                  Help Text
+                </Typography>
+                <Typography
+                  fontWeight="bold"
+                  sx={{ flex: 1, color: 'primary.main' }}
                 >
-                  <IconButton
-                    disabled={param.fixed}
-                    onClick={() => removeParameter(index)}
-                    color="error"
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </Box>
+                  Employee
+                </Typography>
+                <Typography
+                  fontWeight="bold"
+                  sx={{ flex: 1, color: 'primary.main' }}
+                >
+                  Team Lead
+                </Typography>
               </Box>
-            ))}
 
-            {/* Add Button */}
-            <Box sx={{ display: "flex", justifyContent: "flex-start", mt: 2 }}>
-              <IconButton color="primary" onClick={addParameter}>
-                <AddIcon />
-              </IconButton>
-            </Box>
-          </CardContent>
-        </Card>
+              {/* Parameters List */}
+              {parameters.map((param, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2,
+                    flexWrap: 'wrap',
+                    mt: 1,
+                  }}
+                >
+                  <TextField
+                    fullWidth
+                    sx={{ flex: 2 }}
+                    disabled={param.fixed}
+                    value={param.name}
+                    onChange={(e) => {
+                      const newParams = [...parameters];
+                      newParams[index].name = e.target.value;
+                      setParameters(newParams);
+                    }}
+                  />
+                  <TextField
+                    fullWidth
+                    sx={{ flex: 2 }}
+                    value={param.helptext}
+                    onChange={(e) => {
+                      const newParams = [...parameters];
+                      newParams[index].helptext = e.target.value;
+                      setParameters(newParams);
+                    }}
+                  />
+                  <Box
+                    sx={{ flex: 1, display: 'flex', justifyContent: 'center' }}
+                  >
+                    <Checkbox
+                      checked={param.employee}
+                      disabled={param.fixed}
+                      onChange={(e) => {
+                        const newParams = [...parameters];
+                        newParams[index].employee = e.target.checked;
+                        setParameters(newParams);
+                      }}
+                    />
+                  </Box>
+                  <Box
+                    sx={{ flex: 1, display: 'flex', justifyContent: 'center' }}
+                  >
+                    <Checkbox
+                      checked={param.teamLead}
+                      disabled={param.fixed}
+                      onChange={(e) => {
+                        const newParams = [...parameters];
+                        newParams[index].teamLead = e.target.checked;
+                        setParameters(newParams);
+                      }}
+                    />
+                  </Box>
+                  <Box
+                    sx={{
+                      flex: 'none',
+                      display: 'flex',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <IconButton
+                      disabled={param.fixed}
+                      onClick={() => removeParameter(index)}
+                      color="error"
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Box>
+                </Box>
+              ))}
 
-        <Grid container justifyContent="flex-end" sx={{ mt: 3 }}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSave}
-            disabled={!formValid}
-            sx={{ mt: 3 }}
+              {/* Add Button */}
+              <Box
+                sx={{ display: 'flex', justifyContent: 'flex-start', mt: 2 }}
+              >
+                <IconButton color="primary" onClick={addParameter}>
+                  <AddIcon />
+                </IconButton>
+              </Box>
+            </CardContent>
+          </Card>
+
+          <Grid container justifyContent="flex-end" sx={{ mt: 3 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSave}
+              disabled={!formValid}
+              sx={{ mt: 3 }}
+            >
+              Save
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleCancel}
+              color="error"
+              sx={{ mt: 3, ml: 3 }}
+            >
+              Cancel
+            </Button>
+          </Grid>
+
+          <Snackbar
+            open={snackbar.open}
+            autoHideDuration={4000}
+            onClose={() => setSnackbar({ ...snackbar, open: false })}
+            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
           >
-            Save
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleCancel}
-            color="error"
-            sx={{ mt: 3, ml: 3 }}
-          >
-            Cancel
-          </Button>
-        </Grid>
-
-        <Snackbar
-          open={snackbar.open}
-          autoHideDuration={4000}
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        >
-          <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
-        </Snackbar>
-      </CardContent>
-    </Card>
-    <Backdrop
-    sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-    open={saving}     
-  >
-    <CircularProgress color="inherit" />
-  </Backdrop>
-  </>
+            <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
+          </Snackbar>
+        </CardContent>
+      </Card>
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={saving}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+    </>
   );
 };
 

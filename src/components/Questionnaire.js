@@ -1,6 +1,6 @@
-import * as React from "react";
-import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import * as React from 'react';
+import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // External libraries (MUI)
 import {
@@ -20,18 +20,18 @@ import {
   Select,
   Skeleton,
   Tooltip,
-} from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+} from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
 
 //MUI Icons
-import AddIcon from "@mui/icons-material/Add";
-import CloseIcon from "@mui/icons-material/Close";
+import AddIcon from '@mui/icons-material/Add';
+import CloseIcon from '@mui/icons-material/Close';
 
 //Custom components
-import CustomToolbar from "./CustomeToolbar";
+import CustomToolbar from './CustomeToolbar';
 
 //API services
-import { fetchQuestions, addQuestion } from "../services/questionnaireService";
+import { fetchQuestions, addQuestion } from '../services/questionnaireService';
 
 export default function Questionnaire({ onClose }) {
   const navigate = useNavigate();
@@ -40,22 +40,22 @@ export default function Questionnaire({ onClose }) {
   const [error, setError] = useState(null);
 
   // Add question hooks.
-  const [question_text, setQuestionText] = useState("");
-  const [question_type, setQuestionType] = useState("");
-  const [mcqOptions, setMcqOptions] = useState([""]);
-  const [yesNoLabels, setYesNoLabels] = useState(["Yes", "No"]);
+  const [question_text, setQuestionText] = useState('');
+  const [question_type, setQuestionType] = useState('');
+  const [mcqOptions, setMcqOptions] = useState(['']);
+  const [yesNoLabels, setYesNoLabels] = useState(['Yes', 'No']);
   const [loadingQuestions, setLoadingquestions] = React.useState(true);
 
   const [snackbar, setSnackbar] = useState({
     open: false,
-    message: "",
-    severity: "success",
+    message: '',
+    severity: 'success',
   });
-  let vertical = "bottom";
-  let horizontal = "center";
+  let vertical = 'bottom';
+  let horizontal = 'center';
   // Add MCQ option
   const handleAddMcqOption = () => {
-    setMcqOptions([...mcqOptions, ""]);
+    setMcqOptions([...mcqOptions, '']);
   };
 
   // Update MCQ option
@@ -86,17 +86,17 @@ export default function Questionnaire({ onClose }) {
     if (!question_text || !question_type) {
       setSnackbar({
         open: true,
-        message: "Question text and type are required.",
-        severity: "error",
+        message: 'Question text and type are required.',
+        severity: 'error',
       });
       return;
     }
 
-    if (question_text.trim() === "") {
+    if (question_text.trim() === '') {
       setSnackbar({
         open: true,
-        message: "Question text cannot be empty.",
-        severity: "error",
+        message: 'Question text cannot be empty.',
+        severity: 'error',
       });
       return;
     }
@@ -104,55 +104,55 @@ export default function Questionnaire({ onClose }) {
     if (question_text.length > 250) {
       setSnackbar({
         open: true,
-        message: "Question text should be less than 250 characters.",
-        severity: "error",
+        message: 'Question text should be less than 250 characters.',
+        severity: 'error',
       });
       return;
     }
 
     let options = null;
 
-    if (question_type === "MCQ" || question_type === "Single Choice") {
+    if (question_type === 'MCQ' || question_type === 'Single Choice') {
       options = mcqOptions
-        .filter((opt) => opt.trim() !== "")
+        .filter((opt) => opt.trim() !== '')
         .map((opt) => ({ option_text: opt }));
       if (options.length === 0) {
         setSnackbar({
           open: true,
           message:
-            "At least one option is required for MCQ or Single Choice questions.",
-          severity: "error",
+            'At least one option is required for MCQ or Single Choice questions.',
+          severity: 'error',
         });
         return;
       }
 
-      if (mcqOptions.some((opt) => opt.trim() === "")) {
+      if (mcqOptions.some((opt) => opt.trim() === '')) {
         setSnackbar({
           open: true,
-          message: "Options cannot be empty.",
-          severity: "error",
+          message: 'Options cannot be empty.',
+          severity: 'error',
         });
       }
     }
 
-    if (question_type === "Yes/No") {
+    if (question_type === 'Yes/No') {
       options = yesNoLabels
-        .filter((opt) => opt.trim() !== "")
+        .filter((opt) => opt.trim() !== '')
         .map((opt) => ({ option_text: opt }));
       if (options.length === 0) {
         setSnackbar({
           open: true,
-          message: "Yes/No options cannot be empty.",
-          severity: "error",
+          message: 'Yes/No options cannot be empty.',
+          severity: 'error',
         });
         return;
       }
 
-      if (yesNoLabels.some((opt) => opt.trim() === "")) {
+      if (yesNoLabels.some((opt) => opt.trim() === '')) {
         setSnackbar({
           open: true,
-          message: "Yes/No labels cannot be empty.",
-          severity: "error",
+          message: 'Yes/No labels cannot be empty.',
+          severity: 'error',
         });
         return;
       }
@@ -170,23 +170,23 @@ export default function Questionnaire({ onClose }) {
       handleCancel();
       setSnackbar({
         open: true,
-        message: "Question added successfully!",
-        severity: "success",
+        message: 'Question added successfully!',
+        severity: 'success',
       });
     } catch (error) {
       setSnackbar({
         open: true,
         message: `Error: ${error.message}`,
-        severity: "error",
+        severity: 'error',
       });
     }
   };
 
   const handleCancel = () => {
-    setQuestionText("");
-    setQuestionType("");
-    setMcqOptions([""]);
-    setYesNoLabels(["Yes", "No"]);
+    setQuestionText('');
+    setQuestionType('');
+    setMcqOptions(['']);
+    setYesNoLabels(['Yes', 'No']);
   };
 
   // Fetch question list.
@@ -196,7 +196,7 @@ export default function Questionnaire({ onClose }) {
       const data = await fetchQuestions();
       setQuestions(data);
     } catch (err) {
-      setError("Failed to load questions");
+      setError('Failed to load questions');
     } finally {
       setLoadingquestions(false);
     }
@@ -208,8 +208,8 @@ export default function Questionnaire({ onClose }) {
 
   const columns = useMemo(
     () => [
-      { field: "question_id", headerName: "Q. No.", width: 90 },
-      { field: "question_text", headerName: "Questions", width: 500 },
+      { field: 'question_id', headerName: 'Q. No.', width: 90 },
+      { field: 'question_text', headerName: 'Questions', width: 500 },
     ],
     [handleSave]
   );
@@ -222,14 +222,14 @@ export default function Questionnaire({ onClose }) {
           <Typography
             variant="h6"
             color="primary"
-            fontWeight={"bold"}
-            sx={{ padding: "10px" }}
+            fontWeight={'bold'}
+            sx={{ padding: '10px' }}
           >
             Questionnaire
           </Typography>
         </Grid>
-        <Grid size={1} sx={{ textAlign: "right" }}>
-          <IconButton onClick={() => navigate("/hr-home")} color="error">
+        <Grid size={1} sx={{ textAlign: 'right' }}>
+          <IconButton onClick={() => navigate('/hr-home')} color="error">
             <CloseIcon />
           </IconButton>
         </Grid>
@@ -237,8 +237,8 @@ export default function Questionnaire({ onClose }) {
 
       <Box
         sx={{
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
           mb: 2,
         }}
       >
@@ -246,16 +246,16 @@ export default function Questionnaire({ onClose }) {
           sx={{
             flex: 1,
             ml: 1.5,
-            height: "93vh",
+            height: '93vh',
             mr: 2,
-            border: "1px solid",
-            borderColor: "#e1e1e3",
+            border: '1px solid',
+            borderColor: '#e1e1e3',
             borderRadius: 1,
           }}
         >
           {/* Left Panel */}
           {loadingQuestions ? (
-            <Box sx={{ width: "90%", p: 2 }}>
+            <Box sx={{ width: '90%', p: 2 }}>
               {[...Array(20)].map((_, index) => (
                 <Skeleton
                   key={index}
@@ -263,7 +263,7 @@ export default function Questionnaire({ onClose }) {
                   height={28}
                   sx={{
                     mb: 1,
-                    bgcolor: "#e6e9ed",
+                    bgcolor: '#e6e9ed',
                     opacity: 0.3,
                   }}
                 />
@@ -276,11 +276,11 @@ export default function Questionnaire({ onClose }) {
               getRowId={(row) => row.question_id}
               slots={{ toolbar: CustomToolbar }}
               sx={{
-                "& .MuiDataGrid-columnHeaderTitle": {
-                  fontWeight: "bold",
+                '& .MuiDataGrid-columnHeaderTitle': {
+                  fontWeight: 'bold',
                 },
-                maxWidth: "100%",
-                border: "none",
+                maxWidth: '100%',
+                border: 'none',
               }}
               hideFooter
             />
@@ -290,42 +290,42 @@ export default function Questionnaire({ onClose }) {
         <Card
           sx={{
             flex: 1,
-            pr: "5px",
-            pl: "10px",
+            pr: '5px',
+            pl: '10px',
             mr: 1.5,
-            height: "93vh",
-            border: "1px solid",
-            borderColor: "#e1e1e3",
+            height: '93vh',
+            border: '1px solid',
+            borderColor: '#e1e1e3',
             borderRadius: 1,
           }}
         >
           <CardContent
-            sx={{ display: "flex", flexDirection: "column", height: "100%" }}
+            sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}
           >
-            <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
+            <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
               <Box
                 sx={{
-                  display: "flex",
-                  justifyContent: "flex-start",
+                  display: 'flex',
+                  justifyContent: 'flex-start',
                   mb: 2,
-                  color: "#3b7dda",
+                  color: '#3b7dda',
                 }}
               >
                 <Typography
                   variant="h6"
                   color="primary"
-                  sx={{ fontSize: "16px" }}
+                  sx={{ fontSize: '16px' }}
                 >
                   Add a new question
                 </Typography>
               </Box>
               <Box
                 sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
                   gap: 2,
-                  width: "100%",
+                  width: '100%',
                   mt: 2,
                 }}
               >
@@ -344,12 +344,12 @@ export default function Questionnaire({ onClose }) {
                       sx={{ flex: 1, mr: 10 }}
                       InputProps={{
                         sx: {
-                          "&::placeholder": {
-                            fontSize: "14px",
-                            color: "#888",
+                          '&::placeholder': {
+                            fontSize: '14px',
+                            color: '#888',
                             opacity: 1,
                           },
-                          fontSize: "14px",
+                          fontSize: '14px',
                         },
                       }}
                     />
@@ -363,12 +363,12 @@ export default function Questionnaire({ onClose }) {
                     sx={{ flex: 1, mr: 10 }}
                     InputProps={{
                       sx: {
-                        "&::placeholder": {
-                          fontSize: "14px",
-                          color: "#888",
+                        '&::placeholder': {
+                          fontSize: '14px',
+                          color: '#888',
                           opacity: 1,
                         },
-                        fontSize: "14px",
+                        fontSize: '14px',
                       },
                     }}
                   />
@@ -376,9 +376,9 @@ export default function Questionnaire({ onClose }) {
                 <FormControl sx={{ minWidth: 160 }}>
                   <InputLabel
                     sx={{
-                      backgroundColor: "white",
-                      top: "-5px",
-                      fontSize: "16px",
+                      backgroundColor: 'white',
+                      top: '-5px',
+                      fontSize: '16px',
                     }}
                   >
                     Question Type
@@ -392,10 +392,10 @@ export default function Questionnaire({ onClose }) {
                     label="Question_Type"
                     sx={{
                       height: 40,
-                      "& .MuiMenuItem-root": {
-                        fontSize: "10px",
-                        padding: "12px 16px",
-                        minHeight: "20px",
+                      '& .MuiMenuItem-root': {
+                        fontSize: '10px',
+                        padding: '12px 16px',
+                        minHeight: '20px',
                       },
                     }}
                   >
@@ -407,28 +407,28 @@ export default function Questionnaire({ onClose }) {
                 </FormControl>
               </Box>
 
-              {question_type === "MCQ" && (
+              {question_type === 'MCQ' && (
                 <Box
                   sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    width: "50%",
-                    minWidth: "250px",
-                    padding: "7px",
-                    marginTop: "15px",
-                    borderRadius: "8px",
-                    bgcolor: "background.paper",
-                    maxHeight: "600px",
+                    display: 'flex',
+                    flexDirection: 'column',
+                    width: '50%',
+                    minWidth: '250px',
+                    padding: '7px',
+                    marginTop: '15px',
+                    borderRadius: '8px',
+                    bgcolor: 'background.paper',
+                    maxHeight: '600px',
                   }}
                 >
                   <Typography
                     variant="subtitle1"
                     sx={{
-                      fontSize: "16px",
+                      fontSize: '16px',
                       fontWeight: 500,
-                      color: "#202124",
-                      alignSelf: "flex-start",
-                      marginBottom: "10px",
+                      color: '#202124',
+                      alignSelf: 'flex-start',
+                      marginBottom: '10px',
                     }}
                   >
                     Options
@@ -437,23 +437,23 @@ export default function Questionnaire({ onClose }) {
                   <Box
                     sx={{
                       flex: 1,
-                      overflowY: "auto",
-                      display: "flex",
-                      flexDirection: "column",
-                      maxHeight: "250px",
-                      gap: "10px",
-                      paddingRight: "4px", // optional: for better scroll space
+                      overflowY: 'auto',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      maxHeight: '250px',
+                      gap: '10px',
+                      paddingRight: '4px', // optional: for better scroll space
                     }}
                   >
                     {mcqOptions.map((option, index) => (
                       <Box
                         key={index}
                         sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "4px",
-                          borderRadius: "4px",
-                          padding: "2px 6px",
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          borderRadius: '4px',
+                          padding: '2px 6px',
                         }}
                       >
                         <TextField
@@ -467,9 +467,9 @@ export default function Questionnaire({ onClose }) {
                           InputProps={{
                             disableUnderline: false,
                             sx: {
-                              fontSize: "14px",
-                              padding: "8px 0",
-                              background: "transparent",
+                              fontSize: '14px',
+                              padding: '8px 0',
+                              background: 'transparent',
                             },
                           }}
                         />
@@ -477,11 +477,11 @@ export default function Questionnaire({ onClose }) {
                           onClick={() => handleRemoveMcqOption(index)}
                           disabled={mcqOptions.length === 1}
                           sx={{
-                            fontSize: "18px",
-                            color: "#5f6368",
-                            transition: "color 0.2s",
-                            "&:hover": {
-                              color: "#d93025",
+                            fontSize: '18px',
+                            color: '#5f6368',
+                            transition: 'color 0.2s',
+                            '&:hover': {
+                              color: '#d93025',
                             },
                           }}
                         >
@@ -494,13 +494,13 @@ export default function Questionnaire({ onClose }) {
                   <IconButton
                     onClick={handleAddMcqOption}
                     sx={{
-                      alignSelf: "flex-start",
-                      fontSize: "25px",
-                      color: "#5f6368",
-                      textTransform: "none",
-                      marginTop: "10px",
-                      "&:hover": {
-                        color: "#1a73e8",
+                      alignSelf: 'flex-start',
+                      fontSize: '25px',
+                      color: '#5f6368',
+                      textTransform: 'none',
+                      marginTop: '10px',
+                      '&:hover': {
+                        color: '#1a73e8',
                       },
                     }}
                   >
@@ -509,28 +509,28 @@ export default function Questionnaire({ onClose }) {
                 </Box>
               )}
 
-              {question_type === "Single Choice" && (
+              {question_type === 'Single Choice' && (
                 <Box
                   sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    width: "50%",
-                    minWidth: "250px",
-                    padding: "7px",
-                    marginTop: "15px",
-                    borderRadius: "8px",
-                    bgcolor: "background.paper",
-                    maxHeight: "600px",
+                    display: 'flex',
+                    flexDirection: 'column',
+                    width: '50%',
+                    minWidth: '250px',
+                    padding: '7px',
+                    marginTop: '15px',
+                    borderRadius: '8px',
+                    bgcolor: 'background.paper',
+                    maxHeight: '600px',
                   }}
                 >
                   <Typography
                     variant="subtitle1"
                     sx={{
-                      fontSize: "16px",
+                      fontSize: '16px',
                       fontWeight: 500,
-                      color: "#202124",
-                      alignSelf: "flex-start",
-                      marginBottom: "10px",
+                      color: '#202124',
+                      alignSelf: 'flex-start',
+                      marginBottom: '10px',
                     }}
                   >
                     Options
@@ -539,23 +539,23 @@ export default function Questionnaire({ onClose }) {
                   <Box
                     sx={{
                       flex: 1,
-                      overflowY: "auto",
-                      display: "flex",
-                      flexDirection: "column",
-                      maxHeight: "250px",
-                      gap: "10px",
-                      paddingRight: "4px",
+                      overflowY: 'auto',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      maxHeight: '250px',
+                      gap: '10px',
+                      paddingRight: '4px',
                     }}
                   >
                     {mcqOptions.map((option, index) => (
                       <Box
                         key={index}
                         sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "4px",
-                          borderRadius: "4px",
-                          padding: "2px 6px",
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          borderRadius: '4px',
+                          padding: '2px 6px',
                         }}
                       >
                         <TextField
@@ -569,9 +569,9 @@ export default function Questionnaire({ onClose }) {
                           InputProps={{
                             disableUnderline: false,
                             sx: {
-                              fontSize: "14px",
-                              padding: "8px 0",
-                              background: "transparent",
+                              fontSize: '14px',
+                              padding: '8px 0',
+                              background: 'transparent',
                             },
                           }}
                         />
@@ -579,11 +579,11 @@ export default function Questionnaire({ onClose }) {
                           onClick={() => handleRemoveMcqOption(index)}
                           disabled={mcqOptions.length === 1}
                           sx={{
-                            fontSize: "18px",
-                            color: "#5f6368",
-                            transition: "color 0.2s",
-                            "&:hover": {
-                              color: "#d93025",
+                            fontSize: '18px',
+                            color: '#5f6368',
+                            transition: 'color 0.2s',
+                            '&:hover': {
+                              color: '#d93025',
                             },
                           }}
                         >
@@ -596,13 +596,13 @@ export default function Questionnaire({ onClose }) {
                   <IconButton
                     onClick={handleAddMcqOption}
                     sx={{
-                      alignSelf: "flex-start",
-                      fontSize: "25px",
-                      color: "#5f6368",
-                      textTransform: "none",
-                      marginTop: "10px",
-                      "&:hover": {
-                        color: "#1a73e8",
+                      alignSelf: 'flex-start',
+                      fontSize: '25px',
+                      color: '#5f6368',
+                      textTransform: 'none',
+                      marginTop: '10px',
+                      '&:hover': {
+                        color: '#1a73e8',
                       },
                     }}
                   >
@@ -611,28 +611,28 @@ export default function Questionnaire({ onClose }) {
                 </Box>
               )}
 
-              {question_type === "Yes/No" && (
+              {question_type === 'Yes/No' && (
                 <Box
                   sx={{
-                    display: "flex",
-                    flexDirection: "column",
+                    display: 'flex',
+                    flexDirection: 'column',
                     gap: 2,
-                    width: "50%", //changed width
-                    minWidth: "300px",
+                    width: '50%', //changed width
+                    minWidth: '300px',
                     padding: 2,
                     mt: 2,
-                    borderRadius: "8px",
-                    bgcolor: "background.paper",
+                    borderRadius: '8px',
+                    bgcolor: 'background.paper',
                     maxHeight: 200,
-                    overflowY: "auto",
+                    overflowY: 'auto',
                   }}
                 >
                   <Typography
                     variant="subtitle1"
                     sx={{
                       fontWeight: 500,
-                      fontSize: "16px",
-                      color: "#202124",
+                      fontSize: '16px',
+                      color: '#202124',
                     }}
                   >
                     Labels
@@ -642,20 +642,20 @@ export default function Questionnaire({ onClose }) {
                     <Box
                       key={index}
                       sx={{
-                        display: "flex",
-                        alignItems: "center",
+                        display: 'flex',
+                        alignItems: 'center',
                         gap: 1,
-                        borderRadius: "4px",
+                        borderRadius: '4px',
                       }}
                     >
                       <TextField
-                        sx={{ width: "90%" }}
+                        sx={{ width: '90%' }}
                         variant="standard"
                         value={yesNoLabels[index]}
                         onChange={(e) =>
                           handleYesNoLabelChange(index, e.target.value)
                         }
-                        placeholder={index === 0 ? "Yes" : "No"}
+                        placeholder={index === 0 ? 'Yes' : 'No'}
                       />
                     </Box>
                   ))}
@@ -664,10 +664,10 @@ export default function Questionnaire({ onClose }) {
 
               <Box
                 sx={{
-                  display: "flex",
-                  justifyContent: "flex-end",
+                  display: 'flex',
+                  justifyContent: 'flex-end',
                   gap: 1,
-                  mt: "auto",
+                  mt: 'auto',
                   mb: 5,
                   ml: 2,
                 }}

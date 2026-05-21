@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { 
+import {
   Box,
   Drawer,
   List,
@@ -34,41 +34,45 @@ const AppLayout = ({ children, onNavigate, activePage }) => {
     setOpen(!open);
   };
 
-  const Toolbar = props => <div style={{ padding: '16px'}} {...props} />;
+  const Toolbar = (props) => <div style={{ padding: '16px' }} {...props} />;
   const menuItems = [
-    { 
-      text: 'Appraisal Cycle Setup', 
-      icon: <DashboardIcon />, 
-      id: 'hr-dashboard' 
+    {
+      text: 'Appraisal Cycle Setup',
+      icon: <DashboardIcon />,
+      id: 'hr-dashboard',
     },
-    { 
-      text: 'Assessment', 
-      icon: <AssessmentIcon />, 
-      id: 'assessment' 
-    }
+    {
+      text: 'Assessment',
+      icon: <AssessmentIcon />,
+      id: 'assessment',
+    },
   ];
 
   const drawer = (
-    <div >
-      <Toolbar >
-        <Typography variant="h6" noWrap component="div" color='primary' sx={{ fontWeight: 'bold', textAlign: 'center' }}>
-         Admin Panel
+    <div>
+      <Toolbar>
+        <Typography
+          variant="h6"
+          noWrap
+          component="div"
+          color="primary"
+          sx={{ fontWeight: 'bold', textAlign: 'center' }}
+        >
+          Admin Panel
         </Typography>
       </Toolbar>
       <Divider />
       <List>
         {menuItems.map((item) => (
           <ListItem key={item.text} disablePadding>
-            <ListItemButton 
+            <ListItemButton
               selected={activePage === item.id}
               onClick={() => {
                 onNavigate(item.id);
                 handleDrawerToggle(); // Always close drawer on click
               }}
             >
-              <ListItemIcon>
-                {item.icon}
-              </ListItemIcon>
+              <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} />
             </ListItemButton>
           </ListItem>
@@ -77,12 +81,10 @@ const AppLayout = ({ children, onNavigate, activePage }) => {
     </div>
   );
 
-  
-
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      
+
       {/* Toggle button for the drawer */}
       <Box sx={{ position: 'fixed', top: 0, left: 16, zIndex: 1200 }}>
         <IconButton
@@ -90,39 +92,39 @@ const AppLayout = ({ children, onNavigate, activePage }) => {
           aria-label="open drawer"
           edge="start"
           onClick={handleDrawerToggle}
-          sx={{ 
+          sx={{
             backgroundColor: 'white',
             boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
             '&:hover': {
               backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            }
+            },
           }}
         >
           <MenuIcon />
         </IconButton>
       </Box>
-      
+
       <Drawer
         variant="temporary"
         open={open}
         onClose={handleDrawerToggle}
         ModalProps={{
-          keepMounted: true, 
+          keepMounted: true,
         }}
-        sx={{ 
+        sx={{
           '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
         }}
       >
         {drawer}
       </Drawer>
-      
+
       {/* Main content */}
       <Box
         component="main"
-        sx={{ 
-          flexGrow: 1, 
-          p: 3, 
-          width: '100%'
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          width: '100%',
         }}
       >
         {children}

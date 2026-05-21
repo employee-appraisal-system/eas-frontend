@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import {
   Button,
   Typography,
@@ -14,39 +14,39 @@ import {
   Radio,
   RadioGroup,
   Box,
-} from "@mui/material";
-import Grid from "@mui/material/Grid";
-import AddIcon from "@mui/icons-material/Add";
-import TextField from "@mui/material/TextField";
-import DeleteIcon from "@mui/icons-material/Delete";
-import CloseIcon from "@mui/icons-material/Close";
-import Backdrop from "@mui/material/Backdrop";
-import CircularProgress from "@mui/material/CircularProgress";
-import RefreshOutlinedIcon from "@mui/icons-material/RefreshOutlined";
-import { useNavigate } from "react-router-dom";
-import { cycleById, editAppraisalCycle } from "../services/EditAppraisalCycle";
+} from '@mui/material';
+import Grid from '@mui/material/Grid';
+import AddIcon from '@mui/icons-material/Add';
+import TextField from '@mui/material/TextField';
+import DeleteIcon from '@mui/icons-material/Delete';
+import CloseIcon from '@mui/icons-material/Close';
+import Backdrop from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
+import RefreshOutlinedIcon from '@mui/icons-material/RefreshOutlined';
+import { useNavigate } from 'react-router-dom';
+import { cycleById, editAppraisalCycle } from '../services/EditAppraisalCycle';
 
 const EditAppraisalCycle = () => {
   const [cycle, setCycle] = useState(null);
   const { cycle_id } = useParams();
 
   // Appraisal Cycle State
-  const [cycleName, setCycleName] = useState("");
-  const [description, setDescription] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [status, setStatus] = useState("");
+  const [cycleName, setCycleName] = useState('');
+  const [description, setDescription] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [status, setStatus] = useState('');
 
   // Validation Errors
-  const [startDateError, setStartDateError] = useState("");
-  const [endDateError, setEndDateError] = useState("");
+  const [startDateError, setStartDateError] = useState('');
+  const [endDateError, setEndDateError] = useState('');
   const [stageErrors, setStageErrors] = useState({});
 
   // Snackbar State
   const [snackbar, setSnackbar] = useState({
     open: false,
-    message: "",
-    severity: "success",
+    message: '',
+    severity: 'success',
   });
 
   //Save state
@@ -54,11 +54,11 @@ const EditAppraisalCycle = () => {
 
   // Stages State
   const [stages, setStages] = useState([
-    { name: "Setup", startDate: "", endDate: "" },
-    { name: "Self Assessment", startDate: "", endDate: "" },
-    { name: "Lead Assessment", startDate: "", endDate: "" },
-    { name: "HR/VL Validation", startDate: "", endDate: "" },
-    { name: "Closure", startDate: "", endDate: "" },
+    { name: 'Setup', startDate: '', endDate: '' },
+    { name: 'Self Assessment', startDate: '', endDate: '' },
+    { name: 'Lead Assessment', startDate: '', endDate: '' },
+    { name: 'HR/VL Validation', startDate: '', endDate: '' },
+    { name: 'Closure', startDate: '', endDate: '' },
   ]);
 
   //new
@@ -67,8 +67,8 @@ const EditAppraisalCycle = () => {
   // Parameters State
   const [parameters, setParameters] = useState([
     {
-      name: "Overall Performance Rating",
-      helptext: "",
+      name: 'Overall Performance Rating',
+      helptext: '',
       employee: true,
       teamLead: true,
       fixed: true,
@@ -113,7 +113,7 @@ const EditAppraisalCycle = () => {
         setParameters(sortedParameters);
       }
     } catch (error) {
-      console.log("Error while fetching cycle: " + error);
+      console.log('Error while fetching cycle: ' + error);
     }
   };
 
@@ -143,27 +143,27 @@ const EditAppraisalCycle = () => {
     }
 
     if (!startDate) {
-      setStartDateError("Start date is required");
+      setStartDateError('Start date is required');
       valid = false;
     } else {
-      setStartDateError("");
+      setStartDateError('');
     }
 
     if (!endDate) {
-      setEndDateError("End date is required");
+      setEndDateError('End date is required');
       valid = false;
     } else if (startDate > endDate) {
-      setEndDateError("End date must be after start date");
+      setEndDateError('End date must be after start date');
       valid = false;
     } else {
-      setEndDateError("");
+      setEndDateError('');
     }
 
     if (startDate && endDate && startDate > endDate) {
-      setEndDateError("End date must be after start date");
+      setEndDateError('End date must be after start date');
       valid = false;
     } else {
-      setEndDateError("");
+      setEndDateError('');
     }
 
     let newStageErrors = {};
@@ -180,15 +180,15 @@ const EditAppraisalCycle = () => {
         stage.startDate &&
         (stage.startDate < startDate || stage.startDate > endDate)
       ) {
-        error.start = "Start date must be within cycle period";
+        error.start = 'Start date must be within cycle period';
         valid = false;
       }
 
       if (stage.endDate && stage.endDate < stage.startDate) {
-        error.end = "End date must be after start date";
+        error.end = 'End date must be after start date';
         valid = false;
       } else if (stage.endDate && stage.endDate > endDate) {
-        error.end = "End date must be within cycle period";
+        error.end = 'End date must be within cycle period';
         valid = false;
       }
 
@@ -203,7 +203,6 @@ const EditAppraisalCycle = () => {
       }
       previousEndDate = stage.endDate;
       newStageErrors[index] = error;
-
     });
 
     let newParameterErrors = {};
@@ -211,12 +210,12 @@ const EditAppraisalCycle = () => {
     parameters.forEach((param, index) => {
       let error = {};
       if (!param.name.trim()) {
-        error.name = "Parameter name is required";
+        error.name = 'Parameter name is required';
         valid = false;
       }
       if (!param.employee && !param.teamLead) {
         error.selection =
-          "At least one selection (Employee or Team Lead) is required";
+          'At least one selection (Employee or Team Lead) is required';
         valid = false;
       }
       newParameterErrors[index] = error;
@@ -241,27 +240,22 @@ const EditAppraisalCycle = () => {
         stages: stages,
         parameters: parameters,
       };
-      
+
       const response = await editAppraisalCycle(cycleData);
 
       setSnackbar({
         open: true,
         message: response.message,
-        severity: "success",
+        severity: 'success',
       });
-
     } catch (error) {
-
       setSnackbar({
         open: true,
         message: `Error: ${error.message}`,
-        severity: "error",
+        severity: 'error',
       });
-
     } finally {
-
       setSaving(false);
-
     }
   };
 
@@ -269,8 +263,8 @@ const EditAppraisalCycle = () => {
     setParameters([
       ...parameters,
       {
-        name: "",
-        helptext: "",
+        name: '',
+        helptext: '',
         employee: false,
         teamLead: false,
         fixed: false,
@@ -287,26 +281,26 @@ const EditAppraisalCycle = () => {
 
   return (
     <>
-      <Card sx={{ p: 3, width: "90%", margin: "auto", mt: 5, mb: 3 }}>
+      <Card sx={{ p: 3, width: '90%', margin: 'auto', mt: 5, mb: 3 }}>
         <Grid container alignItems="center">
           <Grid size={11}>
             <Typography variant="h6" color="primary">
               Edit Appraisal Cycle
             </Typography>
           </Grid>
-          <Grid size={0.5} sx={{ textAlign: "right" }}>
+          <Grid size={0.5} sx={{ textAlign: 'right' }}>
             <IconButton onClick={getCycleById}>
               <RefreshOutlinedIcon color="primary" />
             </IconButton>
           </Grid>
-          <Grid size={0.5} sx={{ textAlign: "right" }}>
-            <IconButton onClick={() => navigate("/hr-home")} color="error">
+          <Grid size={0.5} sx={{ textAlign: 'right' }}>
+            <IconButton onClick={() => navigate('/hr-home')} color="error">
               <CloseIcon />
             </IconButton>
           </Grid>
         </Grid>
         <CardContent>
-          <Card sx={{ p: 1, width: "100%" }}>
+          <Card sx={{ p: 1, width: '100%' }}>
             <Typography color="primary" fontWeight="bold">
               Appraisal Cycle Details
             </Typography>
@@ -386,18 +380,18 @@ const EditAppraisalCycle = () => {
             </CardContent>
           </Card>
           {/* Stages Section */}
-          <Card sx={{ p: 1, width: "100%", mt: 1 }}>
+          <Card sx={{ p: 1, width: '100%', mt: 1 }}>
             <CardContent>
               <Grid container spacing={2} sx={{ mt: 1 }}>
                 <Grid size={4}>
-                  <Typography fontWeight="bold" sx={{ color: "primary.main" }}>
+                  <Typography fontWeight="bold" sx={{ color: 'primary.main' }}>
                     Stages
                   </Typography>
                 </Grid>
                 <Grid size={4}>
                   <Typography
                     fontWeight="bold"
-                    sx={{ ml: 2, color: "primary.main" }}
+                    sx={{ ml: 2, color: 'primary.main' }}
                   >
                     Start Date
                   </Typography>
@@ -405,7 +399,7 @@ const EditAppraisalCycle = () => {
                 <Grid size={4}>
                   <Typography
                     fontWeight="bold"
-                    sx={{ ml: 2, color: "primary.main" }}
+                    sx={{ ml: 2, color: 'primary.main' }}
                   >
                     End Date
                   </Typography>
@@ -417,11 +411,11 @@ const EditAppraisalCycle = () => {
                   container
                   spacing={2}
                   key={index}
-                  sx={{ mt: 1, alignItems: "center" }}
+                  sx={{ mt: 1, alignItems: 'center' }}
                 >
                   <Grid size={4}>
                     <Typography
-                      sx={{ fontWeight: "bold", color: "primary.main", pb:3 }}
+                      sx={{ fontWeight: 'bold', color: 'primary.main', pb: 3 }}
                     >
                       {stage.name}
                     </Typography>
@@ -462,38 +456,38 @@ const EditAppraisalCycle = () => {
           </Card>
           {/* Parameters Section */}
 
-          <Card sx={{ p: 2, width: "100%", mt: 1 }}>
+          <Card sx={{ p: 2, width: '100%', mt: 1 }}>
             <CardContent>
               {/* Header Row */}
               <Box
                 sx={{
-                  display: "flex",
-                  alignItems: "center",
+                  display: 'flex',
+                  alignItems: 'center',
                   gap: 2,
-                  flexWrap: "wrap",
+                  flexWrap: 'wrap',
                 }}
               >
                 <Typography
                   fontWeight="bold"
-                  sx={{ flex: 2, color: "primary.main" }}
+                  sx={{ flex: 2, color: 'primary.main' }}
                 >
                   Parameters For Lead Assessment
                 </Typography>
                 <Typography
                   fontWeight="bold"
-                  sx={{ flex: 2, color: "primary.main" }}
+                  sx={{ flex: 2, color: 'primary.main' }}
                 >
                   Help Text
                 </Typography>
                 <Typography
                   fontWeight="bold"
-                  sx={{ flex: 1, color: "primary.main" }}
+                  sx={{ flex: 1, color: 'primary.main' }}
                 >
                   Employee
                 </Typography>
                 <Typography
                   fontWeight="bold"
-                  sx={{ flex: 1, color: "primary.main" }}
+                  sx={{ flex: 1, color: 'primary.main' }}
                 >
                   Team Lead
                 </Typography>
@@ -504,10 +498,10 @@ const EditAppraisalCycle = () => {
                 <Box
                   key={index}
                   sx={{
-                    display: "flex",
-                    alignItems: "center",
+                    display: 'flex',
+                    alignItems: 'center',
                     gap: 2,
-                    flexWrap: "wrap",
+                    flexWrap: 'wrap',
                     mt: 1,
                   }}
                 >
@@ -533,7 +527,7 @@ const EditAppraisalCycle = () => {
                     }}
                   />
                   <Box
-                    sx={{ flex: 1, display: "flex", justifyContent: "center" }}
+                    sx={{ flex: 1, display: 'flex', justifyContent: 'center' }}
                   >
                     <Checkbox
                       checked={param.employee}
@@ -546,7 +540,7 @@ const EditAppraisalCycle = () => {
                     />
                   </Box>
                   <Box
-                    sx={{ flex: 1, display: "flex", justifyContent: "center" }}
+                    sx={{ flex: 1, display: 'flex', justifyContent: 'center' }}
                   >
                     <Checkbox
                       checked={param.teamLead}
@@ -560,9 +554,9 @@ const EditAppraisalCycle = () => {
                   </Box>
                   <Box
                     sx={{
-                      flex: "none",
-                      display: "flex",
-                      justifyContent: "center",
+                      flex: 'none',
+                      display: 'flex',
+                      justifyContent: 'center',
                     }}
                   >
                     <IconButton
@@ -578,7 +572,7 @@ const EditAppraisalCycle = () => {
 
               {/* Add Button */}
               <Box
-                sx={{ display: "flex", justifyContent: "flex-start", mt: 2 }}
+                sx={{ display: 'flex', justifyContent: 'flex-start', mt: 2 }}
               >
                 <IconButton color="primary" onClick={addParameter}>
                   <AddIcon />
@@ -603,15 +597,15 @@ const EditAppraisalCycle = () => {
             open={snackbar.open}
             autoHideDuration={3000}
             onClose={() => setSnackbar({ ...snackbar, open: false })}
-            anchorOrigin={{ vertical: "top", horizontal: "right" }}
+            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
           >
             <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
           </Snackbar>
         </CardContent>
       </Card>
       <Backdrop
-        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={saving} 
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={saving}
       >
         <CircularProgress color="inherit" />
       </Backdrop>
