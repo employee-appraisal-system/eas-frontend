@@ -1,6 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
-
 import AddAppraisalCycle from './components/AddAppraisalCycle';
 import EditAppraisalCycle from './components/EditAppraisalCycle';
 import Questionnaire from './components/Questionnaire';
@@ -10,6 +9,7 @@ import HistoricalReportTable from './components/HistoricalReport';
 import SelfAssessmentRepo from './components/SelfAssessmentRepo';
 import DropdownPage from './components/employee_assessment';
 import MainPage from './components/MainPage';
+
 export default function App() {
   return (
     <Router>
@@ -18,7 +18,6 @@ export default function App() {
         <Route path="/hr-home" element={<HRLandingPage />} />
         <Route path="/employee-home" element={<DropdownPage />} />
         <Route path="/admin-home" element={<MainPage />} />{' '}
-        {/* Updated to use MainPage */}
         <Route path="/add-appraisal" element={<AddAppraisalCycle />} />
         <Route path="/questionnaire" element={<Questionnaire />} />
         <Route path="/historical-report" element={<HistoricalReportTable />} />

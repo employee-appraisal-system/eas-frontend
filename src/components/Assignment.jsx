@@ -18,7 +18,7 @@ import CheckboxList from './SelectQuestion';
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
 
-const API_URL = process.env.REACT_APP_BASE_URL;
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function Assignment({ cycleId, onClose, cycleName }) {
   const [selectedEmployees, setSelectedEmployees] = useState([]);
