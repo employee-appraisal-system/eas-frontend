@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // const API_URL = "http://localhost:8000";
-const API_URL = process.env.REACT_APP_BASE_URL; // from .env file
+const API_URL = import.meta.env.VITE_API_URL; // from .env file
 
 export const fetchQuestions = async () => {
   try {

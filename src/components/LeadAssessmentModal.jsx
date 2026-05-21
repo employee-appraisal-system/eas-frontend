@@ -33,7 +33,7 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import CloseIcon from '@mui/icons-material/Close';
 import dayjs from 'dayjs';
 import InfoOutlineIcon from '@mui/icons-material/InfoOutline';
-const API_URL = process.env.REACT_APP_BASE_URL;
+const API_URL = import.meta.env.VITE_API_URL;
 
 const LeadAssessmentModal = ({
   open,

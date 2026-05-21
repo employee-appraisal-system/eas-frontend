@@ -19,7 +19,7 @@ import ListItemText from '@mui/material/ListItemText';
 import { Grid, Typography, Card, IconButton, Skeleton } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
-const API_URL = process.env.REACT_APP_BASE_URL;
+const API_URL = import.meta.env.VITE_API_URL;
 
 function CustomToolbar() {
   return (
