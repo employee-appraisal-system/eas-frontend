@@ -15,7 +15,7 @@ import CardMedia from '@mui/material/CardMedia';
 import logo from './logo.jpg';
 
 const Login = () => {
-  const [employeeId, setEmployeeId] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [open, setOpen] = useState(false);
@@ -25,7 +25,7 @@ const Login = () => {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const response = await login_auth(employeeId, password);
+      const response = await login_auth(email, password);
       console.log(response);
 
       if (response.message === 'Login successful') {
@@ -72,11 +72,11 @@ const Login = () => {
         />
         <CardContent>
           <TextField
-            label="Username"
+            label="Email"
             fullWidth
             margin="normal"
-            value={employeeId}
-            onChange={(e) => setEmployeeId(e.target.value)}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             disabled={loading}
           />
           <TextField
