@@ -9,12 +9,14 @@ import HistoricalReportTable from './components/HistoricalReport';
 import SelfAssessmentRepo from './components/SelfAssessmentRepo';
 import DropdownPage from './components/employee_assessment';
 import MainPage from './components/MainPage';
+import SSOCallback from './components/SSOCalback';
 
 export default function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/auth/callback" element={<SSOCallback />} />
         <Route path="/hr-home" element={<HRLandingPage />} />
         <Route path="/employee-home" element={<DropdownPage />} />
         <Route path="/admin-home" element={<MainPage />} />{' '}
