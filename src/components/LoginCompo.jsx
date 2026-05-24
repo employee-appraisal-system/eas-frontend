@@ -13,6 +13,8 @@ import { useNavigate } from 'react-router-dom';
 import { login_auth } from '../services/login';
 import CardMedia from '@mui/material/CardMedia';
 import logo from '../assets/titled_logo.jpg';
+import axios from 'axios';
+import MicrosoftIcon from '@mui/icons-material/Microsoft';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -50,6 +52,15 @@ const Login = () => {
       setOpen(true);
     } finally {
       setLoading(false); // Stop loading
+    }
+  };
+  const handleMicrosoftLogin = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/auth/sso/login');
+
+      window.location.href = response.data.login_url;
+    } catch (error) {
+      console.error('SSO Login Error:', error);
     }
   };
 
@@ -97,6 +108,21 @@ const Login = () => {
             sx={{ mt: 2, p: 1 }}
           >
             {loading ? <CircularProgress size={24} color="inherit" /> : 'Login'}
+          </Button>
+          <Button
+            variant="outlined"
+            fullWidth
+            startIcon={<MicrosoftIcon />}
+            onClick={handleMicrosoftLogin}
+            sx={{
+              mt: 2,
+              p: 1.2,
+              borderRadius: 2,
+              textTransform: 'none',
+              fontWeight: 'bold',
+            }}
+          >
+            Continue with Microsoft
           </Button>
         </CardContent>
       </Card>
