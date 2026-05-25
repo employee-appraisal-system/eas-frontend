@@ -9,9 +9,7 @@ import {
   GridToolbarQuickFilter,
 } from '@mui/x-data-grid';
 import { Skeleton } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { fetchAllEmployees } from '../api';
 
 function CustomToolbar() {
   return (
@@ -40,16 +38,14 @@ function CustomToolbar() {
 
 export default function DataGridDemo({ onSelect }) {
   const [rows, setRows] = React.useState([]);
-  const [employeeMap, setEmployeeMap] = React.useState({});
+
   const [originalRows, setOriginalRows] = React.useState([]);
   const [selectedIds, setSelectedIds] = React.useState([]);
-  const navigate = useNavigate();
   const [loadingEmployees, setLoadingEmployees] = React.useState(true);
 
   React.useEffect(() => {
     setLoadingEmployees(true);
-    fetch(`${API_URL}/`)
-      .then((response) => response.json())
+    fetchAllEmployees()
       .then((data) => {
         const empMap = {};
         data.forEach((emp) => {
@@ -66,23 +62,21 @@ export default function DataGridDemo({ onSelect }) {
             empMap[emp.previous_reporting_manager] || '',
         }));
 
-        setEmployeeMap(empMap);
+
         setRows(formattedData);
         setOriginalRows(formattedData);
       })
-      .catch((error) => console.error('Error fetching data:', error))
+      .catch((err) => console.error('Error fetching data:', err))
       .finally(() => setLoadingEmployees(false));
   }, []);
 
   const handleRowSelection = (selectedRowIds) => {
-    setSelectedIds(selectedRowIds);
-    const selectedEmployees = originalRows.filter((row) =>
-      selectedRowIds.includes(row.id)
-    );
-    const unselectedEmployees = originalRows.filter(
-      (row) => !selectedRowIds.includes(row.id)
-    );
+    const ids = selectedRowIds.ids;
 
+    setSelectedIds(Array.from(ids));
+
+    const selectedEmployees = originalRows.filter((row) => ids.has(row.id));
+    const unselectedEmployees = originalRows.filter((row) => !ids.has(row.id));
     const newOrderedRows = [...selectedEmployees, ...unselectedEmployees];
 
     setRows(newOrderedRows);

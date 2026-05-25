@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import SearchIcon from '@mui/icons-material/Search';
 import RefreshOutlinedIcon from '@mui/icons-material/RefreshOutlined';
 import {
@@ -20,21 +20,20 @@ import {
   IconButton,
   Skeleton,
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-const API_URL = import.meta.env.VITE_API_URL;
+import { fetchQuestionsWithOptions } from '../api';
+
 export default function CheckboxList({ onSelect }) {
   const [questions, setQuestions] = useState([]);
   const [checked, setChecked] = useState([]);
-  const [type, setType] = React.useState('');
+  const [type, setType] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedQuestion, setExpandedQuestion] = useState(null);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [previousChecked, setPreviousChecked] = useState([]);
   const [hasPreviewFilters, setHasPreviewFilters] = useState(false);
-  const navigate = useNavigate();
-  const [loadingQuestions, setLoadingquestions] = React.useState(true);
+  const [loadingQuestions, setLoadingquestions] = useState(true);
 
   const fetchQuestions = () => {
     setLoadingquestions(true);
@@ -44,14 +43,13 @@ export default function CheckboxList({ onSelect }) {
     setType('');
     setIsPreviewMode(false);
 
-    fetch(`${API_URL}/questions-with-options`)
-      .then((response) => response.json())
+    fetchQuestionsWithOptions()
       .then((data) => {
         setQuestions(data);
         setLoadingquestions(false);
       })
-      .catch((error) => {
-        console.error('Error fetching questions:', error);
+      .catch((err) => {
+        console.error('Error fetching questions:', err);
         setLoadingquestions(false);
       });
   };
@@ -395,67 +393,76 @@ export default function CheckboxList({ onSelect }) {
               </ListItem>
             )}
 
-            {visibleQuestions.map((question) => {
-              const isExpanded = expandedQuestion === question.question_id;
-              const isExpandable = question.question_type !== 'Descriptive';
+            {visibleQuestions.length > 0 ? (
+              visibleQuestions.map((question) => {
+                const isExpanded = expandedQuestion === question.question_id;
+                const isExpandable = question.question_type !== 'Descriptive';
 
-              return (
-                <React.Fragment key={question.question_id}>
-                  <ListItem disablePadding>
-                    <ListItemIcon>
-                      <Checkbox
-                        edge="start"
-                        checked={checked.includes(question.question_id)}
-                        tabIndex={-1}
-                        disableRipple
-                        onChange={handleToggle(question.question_id)}
-                        inputProps={{
-                          'aria-labelledby': `question-${question.question_id}`,
-                        }}
-                      />
-                    </ListItemIcon>
+                return (
+                  <Fragment key={question.question_id}>
+                    <ListItem disablePadding>
+                      <ListItemIcon>
+                        <Checkbox
+                          edge="start"
+                          checked={checked.includes(question.question_id)}
+                          tabIndex={-1}
+                          disableRipple
+                          onChange={handleToggle(question.question_id)}
+                          inputProps={{
+                            'aria-labelledby': `question-${question.question_id}`,
+                          }}
+                        />
+                      </ListItemIcon>
 
-                    <ListItemButton
-                      onClick={() =>
-                        isExpandable &&
-                        handleQuestionClick(question.question_id)
-                      }
-                      dense
-                    >
-                      <ListItemText
-                        id={`question-${question.question_id}`}
-                        primary={question.question_text}
-                      />
-                      {isExpandable && (
-                        <Box sx={{ ml: 2 }}>
-                          {isExpanded ? <ExpandLess /> : <ExpandMore />}
-                        </Box>
-                      )}
-                    </ListItemButton>
-                  </ListItem>
+                      <ListItemButton
+                        onClick={() =>
+                          isExpandable &&
+                          handleQuestionClick(question.question_id)
+                        }
+                        dense
+                      >
+                        <ListItemText
+                          id={`question-${question.question_id}`}
+                          primary={question.question_text}
+                        />
 
-                  {isExpandable && (
-                    <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-                      <List component="div" disablePadding sx={{ pl: 10 }}>
-                        {question.options.length > 0 ? (
-                          question.options.map((option, index) => (
-                            <ListItem key={index}>
-                              <ListItemText primary={option.option_text} />
-                            </ListItem>
-                          ))
-                        ) : (
-                          <ListItem>
-                            <ListItemText primary="No options available" />
-                          </ListItem>
+                        {isExpandable && (
+                          <Box sx={{ ml: 2 }}>
+                            {isExpanded ? <ExpandLess /> : <ExpandMore />}
+                          </Box>
                         )}
-                      </List>
-                    </Collapse>
-                  )}
+                      </ListItemButton>
+                    </ListItem>
 
-                  <Divider sx={{ bgcolor: 'lightgray', my: 0 }} />
-                </React.Fragment>
-              );
-            })}
+                    {isExpandable && (
+                      <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+                        <List component="div" disablePadding sx={{ pl: 10 }}>
+                          {question.options.length > 0 ? (
+                            question.options.map((option, index) => (
+                              <ListItem key={index}>
+                                <ListItemText primary={option.option_text} />
+                              </ListItem>
+                            ))
+                          ) : (
+                            <ListItem>
+                              <ListItemText primary="No options available" />
+                            </ListItem>
+                          )}
+                        </List>
+                      </Collapse>
+                    )}
+
+                    <Divider sx={{ bgcolor: 'lightgray', my: 0 }} />
+                  </Fragment>
+                );
+              })
+            ) : (
+              <Box sx={{ p: 2, textAlign: 'center' }}>
+                <ListItemText variant="body1" color="text.secondary">
+                  No questions available
+                </ListItemText>
+              </Box>
+            )}
           </List>
         </Box>
       )}

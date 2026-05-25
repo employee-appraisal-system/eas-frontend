@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Typography,
@@ -13,10 +13,10 @@ import CustomToolbar from './CustomeToolbar';
 import CloseIcon from '@mui/icons-material/Close';
 import { InputLabel, Select, MenuItem } from '@mui/material';
 import {
-  getCylceResponses,
-  activeCycles,
-  getEmpList,
-} from '../services/SelfAssessReport';
+  fetchCycleResponses as getCylceResponses,
+  fetchSelfAssessmentCycles as activeCycles,
+  fetchEmployeesList as getEmpList,
+} from '../api';
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
 

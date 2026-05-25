@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import { DataGrid } from '@mui/x-data-grid';
 import {
@@ -8,8 +8,7 @@ import {
   GridToolbarExport,
   GridToolbarQuickFilter,
 } from '@mui/x-data-grid';
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { fetchAllEmployees } from '../api';
 
 function CustomToolbar() {
   return (
@@ -33,14 +32,12 @@ function CustomToolbar() {
 }
 
 export default function DataGridDemo() {
-  const [rows, setRows] = React.useState([]);
-  const [employeeMap, setEmployeeMap] = React.useState({});
-  const [originalRows, setOriginalRows] = React.useState([]);
-  const [selectedIds, setSelectedIds] = React.useState([]);
+  const [rows, setRows] = useState([]);
+  const [originalRows, setOriginalRows] = useState([]);
+  const [selectedIds, setSelectedIds] = useState([]);
 
-  React.useEffect(() => {
-    fetch(`${API_URL}/`)
-      .then((response) => response.json())
+  useEffect(() => {
+    fetchAllEmployees()
       .then((data) => {
         // Mapping of employee_id to employee_name
         const empMap = {};
@@ -58,11 +55,10 @@ export default function DataGridDemo() {
             empMap[emp.previous_reporting_manager] || '',
         }));
 
-        setEmployeeMap(empMap);
         setRows(formattedData);
         setOriginalRows(formattedData);
       })
-      .catch((error) => console.error('Error fetching data:', error));
+      .catch((err) => console.error('Error fetching data:', err));
   }, []);
 
   // Function to reorder rows based on selection and restore deselected rows

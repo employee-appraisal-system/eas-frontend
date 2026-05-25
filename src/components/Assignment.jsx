@@ -17,8 +17,7 @@ import DataGridDemo from './SelectEmployee';
 import CheckboxList from './SelectQuestion';
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { createAssignment } from '../api';
 
 export default function Assignment({ cycleId, onClose, cycleName }) {
   const [selectedEmployees, setSelectedEmployees] = useState([]);
@@ -32,6 +31,7 @@ export default function Assignment({ cycleId, onClose, cycleName }) {
 
   const handleEmployeeSelection = (employees) => {
     setSelectedEmployees(employees);
+    console.log('Selected Employees:', employees);
   };
 
   const handleQuestionSelection = (questions) => {
@@ -51,23 +51,12 @@ export default function Assignment({ cycleId, onClose, cycleName }) {
       question_ids: selectedQuestions.map((q) => q.question_id),
     };
     setSaving(true);
-    fetch(`${API_URL}/assignments/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(assignmentData),
-    })
-      .then(async (response) => {
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.detail || 'Assignment failed.');
-        }
-        return response.json();
-      })
-      .then((data) => {
+    createAssignment(assignmentData)
+      .then(() => {
         showSnackbar('Assignment successful!', 'success');
       })
-      .catch((error) => {
-        console.error('Error assigning:', error);
+      .catch((err) => {
+        console.error('Error assigning:', err);
         showSnackbar(
           'The question is already assigned to the selected employee',
           'error'
