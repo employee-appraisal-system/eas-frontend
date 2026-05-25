@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { completeSSOCallback } from '../api';
+import { getDefaultRouteForRole, storeEmployeeSession } from '../utils/auth';
 
 function SSOCallback() {
   const hasRun = useRef(false);
@@ -15,18 +16,23 @@ function SSOCallback() {
     if (code) {
       completeSSOCallback(code)
         .then((data) => {
-          // Store employee_id and user_role consistently with normal login path
-          localStorage.setItem('employee_id', data.employee_id);
-          localStorage.setItem('user_role', data.role?.toLowerCase());
+          storeEmployeeSession({
+            employee_id: data.employee_id,
+            role: data.role,
+            employee_name: data.employee_name,
+            email: data.email,
+            token: data.access_token ?? data.token,
+          });
 
           const role = data.role;
+          const targetRoute = getDefaultRouteForRole(role);
 
           if (role === 'HR') {
-            window.location.href = '/hr-home';
+            window.location.href = targetRoute;
           } else if (role === 'Admin') {
-            window.location.href = '/admin-home';
+            window.location.href = targetRoute;
           } else {
-            window.location.href = '/employee-home';
+            window.location.href = targetRoute;
           }
         })
         .catch((error) => {

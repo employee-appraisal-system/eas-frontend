@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -9,11 +9,17 @@ import {
   Box,
   CircularProgress,
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { loginAuth, getSSOLoginUrl } from '../api';
 import CardMedia from '@mui/material/CardMedia';
 import logo from '../assets/titled_logo.jpg';
 import MicrosoftIcon from '@mui/icons-material/Microsoft';
+import {
+  getAuthenticatedRole,
+  getDefaultRouteForRole,
+  isAuthenticated,
+  storeEmployeeSession,
+} from '../utils/auth';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -22,6 +28,16 @@ const Login = () => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const authenticated = isAuthenticated();
+  const defaultRoute = getDefaultRouteForRole(getAuthenticatedRole());
+
+  useEffect(() => {
+    if (authenticated) {
+      navigate(defaultRoute, { replace: true });
+    }
+  }, [authenticated, defaultRoute, navigate]);
 
   const handleLogin = async () => {
     setLoading(true);
@@ -30,17 +46,18 @@ const Login = () => {
 
       if (response.message === 'Login successful') {
         const userRole = response.role.toLowerCase();
-        localStorage.setItem('employee_id', response.employee_id); // Store ID
-        localStorage.setItem('user_role', userRole); // Store role
+        storeEmployeeSession({
+          employee_id: response.employee_id,
+          role: userRole,
+          employee_name: response.employee_name,
+          email: response.email,
+          token: response.access_token ?? response.token,
+        });
 
-        // Redirect based on role
-        if (userRole === 'hr') {
-          navigate('/hr-home'); // HR landing page
-        } else if (userRole === 'admin') {
-          navigate('/admin-home'); // admin landing page (Can see both appraisal cycle steup and assessment)
-        } else {
-          navigate('/employee-home'); // Employee landing page
-        }
+        const intendedRoute = location.state?.from?.pathname;
+        navigate(intendedRoute || getDefaultRouteForRole(userRole), {
+          replace: true,
+        });
       } else {
         setError(response.detail || 'Invalid credentials');
         setOpen(true);
@@ -62,7 +79,9 @@ const Login = () => {
     }
   };
 
-  return (
+  return authenticated ? (
+    <Navigate to={defaultRoute} replace />
+  ) : (
     <Box
       sx={{
         display: 'flex',
