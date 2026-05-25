@@ -50,13 +50,13 @@ export default function DataGridDemo({ onSelect }) {
         console.log(data)
         const empMap = {};
         data.forEach((emp) => {
-          empMap[emp.id] = emp.first_name;
+          empMap[emp.id] = emp.full_name;
         });
 
         const formattedData = data.map((emp, index) => ({
           id: index + 1,
           employee_id: emp.id,
-          employee_name: emp.first_name,
+          employee_name: emp.full_name,
           role: emp.role,
           reporting_manager: empMap[emp.manager_id] || '',
           previous_reporting_manager:

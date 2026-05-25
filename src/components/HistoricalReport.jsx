@@ -96,16 +96,16 @@ export default function HistoricalReportTable({ onSelect }) {
   const [selectedCycles, setSelectedCycles] = React.useState([]);
   const [baseColumns] = React.useState([
     { field: 'employee_id', headerName: 'Employee ID', width: 105 },
-    { field: 'employee_name', headerName: 'Name', flex: 1, minWidth: 130 },
+    { field: 'full_name', headerName: 'Name', flex: 1, minWidth: 130 },
     { field: 'role', headerName: 'Role', flex: 1, minWidth: 100 },
     {
-      field: 'reporting_manager',
+      field: 'reporting_manager_name',
       headerName: 'Reporting Manager',
       flex: 1,
       minWidth: 130,
     },
     {
-      field: 'previous_reporting_manager',
+      field: 'previous_reporting_manager_name',
       headerName: 'Previous Manager',
       flex: 1,
       minWidth: 130,
@@ -130,14 +130,13 @@ export default function HistoricalReportTable({ onSelect }) {
         // Convert API data to DataGrid format
         const formattedData = data.map((emp, index) => ({
           id: index + 1,
-          employee_id: emp.employee_id,
-          employee_name: emp.employee_name,
+          employee_id: emp.id,
+          full_name: emp.full_name,
           role: emp.role,
-          reporting_manager: emp.reporting_manager_name || '-',
-          previous_reporting_manager:
+          reporting_manager_name: emp.reporting_manager_name || '-',
+          previous_reporting_manager_name:
             emp.previous_reporting_manager_name || '-',
         }));
-
 
         setRows(formattedData);
         setOriginalRows(formattedData);
@@ -168,8 +167,6 @@ export default function HistoricalReportTable({ onSelect }) {
 
   // Update columns based on selected cycles
   const updateColumnsBasedOnCycles = async (selectedCycleIds) => {
-    console.log('Selected Cycle IDs:', selectedCycleIds);
-
     // Create dynamic columns based on selected cycles
     const cycleColumns = selectedCycleIds.map((cycleId) => {
       const cycleInfo = cycles.find((c) => c.cycle_id === cycleId);
@@ -312,18 +309,27 @@ export default function HistoricalReportTable({ onSelect }) {
                 <Box
                   sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', py: 0.5 }}
                 >
-                  {selected.map((value) => {
-                    const cycleInfo = cycles.find((c) => c.cycle_id === value);
-                    return (
-                      <Chip
-                        key={value}
-                        label={
-                          cycleInfo ? cycleInfo.cycle_name : `Cycle ${value}`
-                        }
-                        size="small"
-                      />
-                    );
-                  })}
+                  {selected?.length > 0 ? (
+                    selected.map((value) => {
+                      const cycleInfo = cycles.find(
+                        (c) => c.cycle_id === value
+                      );
+
+                      return (
+                        <Chip
+                          key={value}
+                          label={
+                            cycleInfo ? cycleInfo.cycle_name : `Cycle ${value}`
+                          }
+                          size="small"
+                        />
+                      );
+                    })
+                  ) : (
+                      <Typography variant="body2" color="textSecondary">
+                        Select appraisal cycles to view ratings
+                      </Typography>
+                  )}
                 </Box>
               )}
               MenuProps={MenuProps}
@@ -336,14 +342,21 @@ export default function HistoricalReportTable({ onSelect }) {
                 },
               }}
             >
-              {cycles.map((cycle) => (
+              {cycles && cycles.length > 0 ? (
+                cycles.map((cycle) => (
                 <MenuItem key={cycle.cycle_id} value={cycle.cycle_id}>
                   <Checkbox
                     checked={selectedCycles.indexOf(cycle.cycle_id) > -1}
                   />
                   <ListItemText primary={cycle.cycle_name} />
                 </MenuItem>
-              ))}
+              ))) : (
+                <MenuItem disabled>
+                  <Typography variant="body2" color="textSecondary">
+                    No appraisal cycles available
+                  </Typography>
+                </MenuItem>
+              )}
             </Select>
           </FormControl>
 

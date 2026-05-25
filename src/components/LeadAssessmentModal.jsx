@@ -83,7 +83,7 @@ const LeadAssessmentModal = ({
 
     // Fetch cycle status
     const fetchCycleStatusPromise = getCycleStatus(selectedCycle)
-      .then((data) => {
+      .then(() => {
 
 
         // Only allow editing if leadAssessmentActive is true and leadAssessmentCompleted is false
@@ -452,7 +452,7 @@ const LeadAssessmentModal = ({
                             value={emp.employee_id}
                           >
                             <Tooltip
-                              title={`${emp.employee_id} - ${emp.employee_name}`}
+                                title={`${emp.employee_id} - ${emp.full_name || '-'}`}
                               placement="top"
                               arrow
                             >
@@ -465,7 +465,7 @@ const LeadAssessmentModal = ({
                                   maxWidth: '100%',
                                 }}
                               >
-                                {emp.employee_id} - {emp.employee_name}
+                                {emp.employee_id} - {emp.full_name || '-'}
                               </span>
                             </Tooltip>
                           </MenuItem>
