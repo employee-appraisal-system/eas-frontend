@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Card,
@@ -23,23 +23,23 @@ import { Edit, Delete, Visibility } from '@mui/icons-material';
 import {
   fetchAppraisalCycles,
   deleteAppraisalCycle,
-} from '../services/AddAppraisalCycle';
+} from '../api';
 import Assignment from './Assignment';
 import {
   getGridNumericOperators,
   GridFilterInputValue,
 } from '@mui/x-data-grid';
 
-const HRLandingPage = ({ onNavigateToMain }) => {
+const HRLandingPage = () => {
   const navigate = useNavigate();
 
   const [appraisalCycles, setAppraisalCycles] = useState([]);
-  const [error, setError] = useState(null);
+
   const [detailsVisible, setDetailsVisible] = useState(false);
   const [selectedCycleId, setSelectedCycleId] = useState(null);
   const [selectedCycleName, setSelectedCycleName] = useState(null);
   const [loadingAppraisalCycles, setLoadingAppraisalCycles] =
-    React.useState(true);
+    useState(true);
   const [deleting, setDeleting] = useState(false);
   // State for menu anchor element
 
@@ -104,7 +104,7 @@ const HRLandingPage = ({ onNavigateToMain }) => {
       setAppraisalCycles(data);
       console.log(data);
     } catch (err) {
-      setError('Failed to load appraisal cycles');
+
       console.log('Error while fetching cycles: ' + err);
     } finally {
       setLoadingAppraisalCycles(false);
@@ -115,10 +115,10 @@ const HRLandingPage = ({ onNavigateToMain }) => {
   const handleDelete = async (cycle_id) => {
     try {
       setDeleting(true); // Show loading backdrop
-      let cycle = appraisalCycles.filter(
-        (cycle) => cycle.cycle_id === cycle_id
+      const cycle = appraisalCycles.find(
+        (c) => c.cycle_id === cycle_id
       );
-      if (cycle.status === 'active') {
+      if (cycle && cycle.status === 'active') {
         setSnackbar({
           open: true,
           message: "Active cycle can't be deleted..",

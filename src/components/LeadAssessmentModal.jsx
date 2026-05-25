@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Modal,
   Box,
@@ -14,26 +14,28 @@ import {
   TableHead,
   TableRow,
   Paper,
-  TextField,
   Button,
   Tooltip,
   Snackbar,
   Alert,
   IconButton,
   Radio,
-  colors,
   TextareaAutosize,
   Grid,
   CircularProgress,
 } from '@mui/material';
-import axios from 'axios';
 import Backdrop from '@mui/material/Backdrop';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import CloseIcon from '@mui/icons-material/Close';
 import dayjs from 'dayjs';
 import InfoOutlineIcon from '@mui/icons-material/InfoOutline';
-const API_URL = import.meta.env.VITE_API_URL;
+import {
+  getCycleStatus,
+  fetchParameters as fetchParametersApi,
+  fetchPreviousAssessmentData,
+  saveLeadAssessmentRating,
+} from '../api';
 
 const LeadAssessmentModal = ({
   open,
@@ -48,22 +50,19 @@ const LeadAssessmentModal = ({
 }) => {
   const [parameters, setParameters] = useState([]);
   const [employeeData, setEmployeeData] = useState({});
-  const [cycleStatus, setCycleStatus] = useState('active'); // Assume active by default
+
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
     severity: 'error',
   });
   const [readOnly, setReadOnly] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Check if the selected employee is the logged-in user
-  const isCurrentUser = String(selectedEmployee) === String(employeeId);
-
+  // Check if the selected employee is the logged-in user and prevent self-assessment
   useEffect(() => {
-    if (open && selectedEmployee === employeeId) {
+    if (open && String(selectedEmployee) === String(employeeId)) {
       setSnackbar({
         open: true,
         message:
@@ -74,19 +73,6 @@ const LeadAssessmentModal = ({
     }
   }, [open, selectedEmployee, employeeId, onClose]);
 
-  // If the modal is open and the selected employee is the current user, close it
-  useEffect(() => {
-    if (open && isCurrentUser) {
-      setSnackbar({
-        open: true,
-        message:
-          'You cannot assess yourself. Please select a different employee.',
-        severity: 'warning',
-      });
-      onClose();
-    }
-  }, [open, isCurrentUser, onClose]);
-
   useEffect(() => {
     if (!selectedCycle || !selectedEmployee) {
       setLoading(false);
@@ -96,45 +82,37 @@ const LeadAssessmentModal = ({
     setLoading(true); // Start loading when fetching data
 
     // Fetch cycle status
-    const fetchCycleStatus = axios
-      .get(`${API_URL}/appraisal_cycle/status/${selectedCycle}`)
-      .then((response) => {
-        console.log('Cycle Status from API:', response.data.status);
-        setCycleStatus(response.data.status);
-        const isCompleted = response.data.status === 'completed';
-        setReadOnly(isCompleted); // Set readOnly for completed cycles
+    const fetchCycleStatusPromise = getCycleStatus(selectedCycle)
+      .then((data) => {
+
 
         // Only allow editing if leadAssessmentActive is true and leadAssessmentCompleted is false
         const shouldBeReadOnly =
           !leadAssessmentActive || leadAssessmentCompleted;
         setReadOnly(shouldBeReadOnly);
       })
-      .catch((error) => {
-        setCycleStatus('inactive'); // Default to inactive if API fails
+      .catch(() => {
+
         setReadOnly(true);
       });
 
     // Fetch parameters
-    const fetchParameters = axios
-      .get(`${API_URL}/parameters/${selectedCycle}/${selectedEmployee}`)
-      .then((response) =>
-        setParameters(Array.isArray(response.data) ? response.data : [])
+    const fetchParametersPromise = fetchParametersApi(selectedCycle, selectedEmployee)
+      .then((data) =>
+        setParameters(Array.isArray(data) ? data : [])
       )
-      .catch((error) => {
-        console.error('Error fetching parameters:', error);
+      .catch((err) => {
+        console.error('Error fetching parameters:', err);
         setParameters([]);
       });
 
     // Fetch previous ratings
-    const fetchRatings = axios
-      .get(
-        `${API_URL}/lead_assessment/lead_assessment/previous_data/${selectedCycle}/${selectedEmployee}`
-      )
-      .then((response) => {
-        if (response.data && response.data.ratings) {
+    const fetchRatingsPromise = fetchPreviousAssessmentData(selectedCycle, selectedEmployee)
+      .then((data) => {
+        if (data && data.ratings) {
           const uniqueRatings = Array.from(
             new Map(
-              response.data.ratings.map((item) => [item.parameter_id, item])
+              data.ratings.map((item) => [item.parameter_id, item])
             ).values()
           );
 
@@ -145,8 +123,8 @@ const LeadAssessmentModal = ({
                 acc[item.parameter_id] = item.parameter_rating;
                 return acc;
               }, {}),
-              discussionDate: response.data.discussion_date
-                ? dayjs(response.data.discussion_date)
+              discussionDate: data.discussion_date
+                ? dayjs(data.discussion_date)
                 : null, // Convert here
               comments:
                 uniqueRatings.length > 0 ? uniqueRatings[0].specific_input : '', // Use first unique input
@@ -154,12 +132,12 @@ const LeadAssessmentModal = ({
           }));
         }
       })
-      .catch((error) =>
-        console.error('Error fetching previous ratings:', error)
+      .catch((err) =>
+        console.error('Error fetching previous ratings:', err)
       );
 
     // When all data fetch operations complete, set loading to false
-    Promise.all([fetchCycleStatus, fetchParameters, fetchRatings]).finally(
+    Promise.all([fetchCycleStatusPromise, fetchParametersPromise, fetchRatingsPromise]).finally(
       () => {
         setLoading(false);
       }
@@ -297,8 +275,7 @@ const LeadAssessmentModal = ({
       discussion_date: formattedDate,
     };
     setSaving(true); // Show loading backdrop
-    axios
-      .post(`${API_URL}/lead_assessment/save_rating`, payload)
+    saveLeadAssessmentRating(payload)
       .then(() => {
         setSnackbar({
           open: true,
@@ -306,11 +283,11 @@ const LeadAssessmentModal = ({
           severity: 'success',
         });
       })
-      .catch((error) => {
-        if (error.response && error.response.status === 400) {
+      .catch((err) => {
+        if (err.status === 400) {
           setSnackbar({
             open: true,
-            message: error.response.data.detail,
+            message: err.message,
             severity: 'error',
           });
         } else {
@@ -332,14 +309,8 @@ const LeadAssessmentModal = ({
     setSelectedEmployee('');
   };
 
-  useEffect(() => {
-    if (Array.isArray(employees)) {
-      employees.forEach((emp) => {});
-    }
-  }, [employees, employeeId]);
-
-  // Loading indicator component
-  const LoadingContent = () => (
+  // Loading indicator content (inlined to avoid component-in-render ESLint error)
+  const loadingContent = (
     <Box
       sx={{
         display: 'flex',
@@ -386,7 +357,7 @@ const LeadAssessmentModal = ({
         }}
       >
         <Modal
-          open={open && !isCurrentUser}
+          open={open && String(selectedEmployee) !== String(employeeId)}
           onClose={(event, reason) => reason !== 'backdropClick' && onClose()}
           disableEscapeKeyDown
         >
@@ -624,7 +595,7 @@ const LeadAssessmentModal = ({
                   <TableBody>
                     <TableRow>
                       <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
-                        <LoadingContent />
+                        {loadingContent}
                       </TableCell>
                     </TableRow>
                   </TableBody>

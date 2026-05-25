@@ -16,10 +16,14 @@ import Chip from '@mui/material/Chip';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
-import { Grid, Typography, Card, IconButton, Skeleton } from '@mui/material';
+import { Grid, Typography, IconButton, Skeleton } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
-const API_URL = import.meta.env.VITE_API_URL;
+import {
+  fetchEmployeesList,
+  fetchHistoricReportCycles,
+  fetchEmployeeRatings,
+} from '../api';
 
 function CustomToolbar() {
   return (
@@ -85,7 +89,7 @@ const MenuProps = {
 
 export default function HistoricalReportTable({ onSelect }) {
   const [rows, setRows] = React.useState([]);
-  const [employeeMap, setEmployeeMap] = React.useState({});
+
   const [originalRows, setOriginalRows] = React.useState([]);
   const [selectedIds, setSelectedIds] = React.useState([]);
   const [cycles, setCycles] = React.useState([]);
@@ -115,8 +119,7 @@ export default function HistoricalReportTable({ onSelect }) {
   // Fetch employee data
   React.useEffect(() => {
     setLoadingEmployees(true);
-    fetch(`${API_URL}/employees`)
-      .then((response) => response.json())
+    fetchEmployeesList()
       .then((data) => {
         // Create a mapping of employee_id to employee_name
         const empMap = {};
@@ -135,23 +138,22 @@ export default function HistoricalReportTable({ onSelect }) {
             emp.previous_reporting_manager_name || '-',
         }));
 
-        setEmployeeMap(empMap);
+
         setRows(formattedData);
         setOriginalRows(formattedData);
       })
-      .catch((error) => console.error('Error fetching employee data:', error))
+      .catch((err) => console.error('Error fetching employee data:', err))
       .finally(() => setLoadingEmployees(false));
   }, []);
 
   // Fetch completed and active cycles for which lead assessment is active or completed
   React.useEffect(() => {
     setLoadingCycles(true);
-    fetch(`${API_URL}/appraisal_cycle/appraisal-cycles/historic-report`)
-      .then((response) => response.json())
+    fetchHistoricReportCycles()
       .then((data) => {
         setCycles(data);
       })
-      .catch((error) => console.error('Error fetching cycle data:', error))
+      .catch((err) => console.error('Error fetching cycle data:', err))
       .finally(() => setLoadingCycles(false));
   }, []);
 
@@ -193,11 +195,7 @@ export default function HistoricalReportTable({ onSelect }) {
       // Fetch ratings for each cycle and update rows
       for (const cycleId of selectedCycleIds) {
         try {
-          const response = await fetch(
-            `${API_URL}/lead_assessment/employees_ratings/${cycleId}`
-          );
-          const ratingsData = await response.json();
-          console.log(`Ratings data for cycle ${cycleId}:`, ratingsData);
+          const ratingsData = await fetchEmployeeRatings(cycleId);
 
           // Update rows with ratings data
           rowsCopy.forEach((row) => {
@@ -216,7 +214,7 @@ export default function HistoricalReportTable({ onSelect }) {
               row[`cycle_${cycleId}`] = '-';
             }
           });
-        } catch (error) {
+        } catch {
           // console.error(`Error fetching ratings for cycle ${cycleId}:`, error);
         }
       }

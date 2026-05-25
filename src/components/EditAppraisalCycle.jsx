@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   Button,
@@ -24,7 +24,7 @@ import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
 import RefreshOutlinedIcon from '@mui/icons-material/RefreshOutlined';
 import { useNavigate } from 'react-router-dom';
-import { cycleById, editAppraisalCycle } from '../services/EditAppraisalCycle';
+import { getCycleById as fetchCycleById, editAppraisalCycle } from '../api';
 
 const EditAppraisalCycle = () => {
   const [cycle, setCycle] = useState(null);
@@ -62,7 +62,7 @@ const EditAppraisalCycle = () => {
   ]);
 
   //new
-  const [parameterErrors, setParameterErrors] = useState({});
+
 
   // Parameters State
   const [parameters, setParameters] = useState([
@@ -77,7 +77,7 @@ const EditAppraisalCycle = () => {
 
   const getCycleById = async () => {
     try {
-      const data = await cycleById(Number(cycle_id));
+      const data = await fetchCycleById(Number(cycle_id));
       setCycle(data);
       setCycleName(data.cycle_name);
       setDescription(data.description);
@@ -122,10 +122,6 @@ const EditAppraisalCycle = () => {
   }, []);
 
   const [formValid, setFormValid] = useState(false);
-
-  useEffect(() => {
-    validateForm();
-  }, [cycleName, description, status, startDate, endDate, stages, parameters]);
 
   const validateForm = () => {
     let valid = true;
@@ -221,10 +217,14 @@ const EditAppraisalCycle = () => {
       newParameterErrors[index] = error;
     });
 
-    setParameterErrors(newParameterErrors);
+
     setStageErrors(newStageErrors);
     setFormValid(valid);
   };
+
+  useEffect(() => {
+    validateForm();
+  }, [cycleName, description, status, startDate, endDate, stages, parameters]);
 
   const handleSave = async () => {
     try {
@@ -334,7 +334,8 @@ const EditAppraisalCycle = () => {
                     type="date"
                     InputLabelProps={{ shrink: true }}
                     value={startDate}
-                    error={startDateError}
+                    error={!!startDateError}
+                    helperText={startDateError}
                     onChange={(e) => setStartDate(e.target.value)}
                   />
                 </Grid>

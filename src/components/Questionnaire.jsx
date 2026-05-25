@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // External libraries (MUI)
@@ -31,20 +30,20 @@ import CloseIcon from '@mui/icons-material/Close';
 import CustomToolbar from './CustomeToolbar';
 
 //API services
-import { fetchQuestions, addQuestion } from '../services/questionnaireService';
+import { fetchQuestions, addQuestion } from '../api';
 
-export default function Questionnaire({ onClose }) {
+export default function Questionnaire() {
   const navigate = useNavigate();
   // To display question list.
   const [questions, setQuestions] = useState([]);
-  const [error, setError] = useState(null);
+
 
   // Add question hooks.
   const [question_text, setQuestionText] = useState('');
   const [question_type, setQuestionType] = useState('');
   const [mcqOptions, setMcqOptions] = useState(['']);
   const [yesNoLabels, setYesNoLabels] = useState(['Yes', 'No']);
-  const [loadingQuestions, setLoadingquestions] = React.useState(true);
+  const [loadingQuestions, setLoadingquestions] = useState(true);
 
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -165,7 +164,7 @@ export default function Questionnaire({ onClose }) {
     };
 
     try {
-      const response = await addQuestion(questionData);
+      await addQuestion(questionData);
       loadQuestions();
       handleCancel();
       setSnackbar({
@@ -173,10 +172,10 @@ export default function Questionnaire({ onClose }) {
         message: 'Question added successfully!',
         severity: 'success',
       });
-    } catch (error) {
+    } catch (err) {
       setSnackbar({
         open: true,
-        message: `Error: ${error.message}`,
+        message: `Error: ${err.message}`,
         severity: 'error',
       });
     }
@@ -195,14 +194,14 @@ export default function Questionnaire({ onClose }) {
       setLoadingquestions(true);
       const data = await fetchQuestions();
       setQuestions(data);
-    } catch (err) {
-      setError('Failed to load questions');
+    } catch {
+
     } finally {
       setLoadingquestions(false);
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     loadQuestions();
   }, []);
 
@@ -211,9 +210,9 @@ export default function Questionnaire({ onClose }) {
       { field: 'question_id', headerName: 'Q. No.', width: 90 },
       { field: 'question_text', headerName: 'Questions', width: 500 },
     ],
-    [handleSave]
+    []
   );
-  const rows = useMemo(() => questions, [loadQuestions]);
+  const rows = useMemo(() => questions, [questions]);
 
   return (
     <>

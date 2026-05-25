@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import AppLayout from './AppLayout';
 import DropdownPage from './employee_assessment';
 import HRLandingPage from './HRLandingPage';

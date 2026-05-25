@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Box,
   Drawer,
@@ -11,7 +11,6 @@ import {
   Typography,
   CssBaseline,
   Divider,
-  Toolbar,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -19,6 +18,9 @@ import AssessmentIcon from '@mui/icons-material/Assessment';
 
 // Width of the drawer when open
 const drawerWidth = 240;
+
+// Static Toolbar component (must be outside render)
+const ToolbarWrapper = (props) => <div style={{ padding: '16px' }} {...props} />;
 
 /**
  * AppLayout component that adds a sidebar navigation
@@ -34,7 +36,7 @@ const AppLayout = ({ children, onNavigate, activePage }) => {
     setOpen(!open);
   };
 
-  const Toolbar = (props) => <div style={{ padding: '16px' }} {...props} />;
+
   const menuItems = [
     {
       text: 'Appraisal Cycle Setup',
@@ -50,7 +52,7 @@ const AppLayout = ({ children, onNavigate, activePage }) => {
 
   const drawer = (
     <div>
-      <Toolbar>
+      <ToolbarWrapper>
         <Typography
           variant="h6"
           noWrap
@@ -60,7 +62,7 @@ const AppLayout = ({ children, onNavigate, activePage }) => {
         >
           Admin Panel
         </Typography>
-      </Toolbar>
+      </ToolbarWrapper>
       <Divider />
       <List>
         {menuItems.map((item) => (

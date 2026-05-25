@@ -10,10 +10,9 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { login_auth } from '../services/login';
+import { loginAuth, getSSOLoginUrl } from '../api';
 import CardMedia from '@mui/material/CardMedia';
 import logo from '../assets/titled_logo.jpg';
-import axios from 'axios';
 import MicrosoftIcon from '@mui/icons-material/Microsoft';
 
 const Login = () => {
@@ -27,8 +26,7 @@ const Login = () => {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const response = await login_auth(email, password);
-      console.log(response);
+      const response = await loginAuth(email, password);
 
       if (response.message === 'Login successful') {
         const userRole = response.role.toLowerCase();
@@ -48,19 +46,19 @@ const Login = () => {
         setOpen(true);
       }
     } catch (err) {
-      setError(err || 'Login failed. Please try again.');
+      setError(err.message || 'Login failed. Please try again.');
       setOpen(true);
     } finally {
       setLoading(false); // Stop loading
     }
   };
+
   const handleMicrosoftLogin = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/auth/sso/login');
-
-      window.location.href = response.data.login_url;
-    } catch (error) {
-      console.error('SSO Login Error:', error);
+      const data = await getSSOLoginUrl();
+      window.location.href = data.login_url;
+    } catch (err) {
+      console.error('SSO Login Error:', err);
     }
   };
 

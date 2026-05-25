@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Button,
   Typography,
@@ -23,12 +23,12 @@ import {
   createAppraisalCycle,
   createStage,
   createParameter,
-} from '../services/AddAppraisalCycle';
+} from '../api';
 import { useNavigate } from 'react-router-dom';
 import Backdrop from '@mui/material/Backdrop'; //1
 import CircularProgress from '@mui/material/CircularProgress'; //2
 
-const AddAppraisalCycle = ({ onClose }) => {
+const AddAppraisalCycle = () => {
   // Appraisal Cycle State
   const [cycleName, setCycleName] = useState('');
   const [description, setDescription] = useState('');
@@ -37,7 +37,7 @@ const AddAppraisalCycle = ({ onClose }) => {
   const [status, setStatus] = useState('');
 
   // Validation Errors
-  const [startDateError, setStartDateError] = useState('');
+
   const [endDateError, setEndDateError] = useState('');
   const [stageErrors, setStageErrors] = useState({});
 
@@ -60,7 +60,7 @@ const AddAppraisalCycle = ({ onClose }) => {
     { name: 'Closure', startDate: '', endDate: '' },
   ]);
 
-  const [parameterErrors, setParameterErrors] = useState({});
+
 
   const [saving, setSaving] = useState(false); //3
 
@@ -103,16 +103,12 @@ const AddAppraisalCycle = ({ onClose }) => {
     ]);
 
     // Reset validation errors
-    setStartDateError('');
+
     setEndDateError('');
     setStageErrors({});
   };
 
   const [formValid, setFormValid] = useState(false);
-
-  useEffect(() => {
-    validateForm();
-  }, [cycleName, description, status, startDate, endDate, stages, parameters]);
 
   const validateForm = () => {
     let valid = true;
@@ -128,10 +124,10 @@ const AddAppraisalCycle = ({ onClose }) => {
       valid = false;
     }
     if (!startDate) {
-      setStartDateError('Start date is required');
+
       valid = false;
     } else {
-      setStartDateError('');
+
     }
 
     if (!endDate) {
@@ -204,10 +200,14 @@ const AddAppraisalCycle = ({ onClose }) => {
       newParameterErrors[index] = error;
     });
 
-    setParameterErrors(newParameterErrors);
+
     setStageErrors(newStageErrors);
     setFormValid(valid);
   };
+
+  useEffect(() => {
+    validateForm();
+  }, [cycleName, description, status, startDate, endDate, stages, parameters]);
 
   const handleSave = async () => {
     try {

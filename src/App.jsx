@@ -19,7 +19,7 @@ export default function App() {
         <Route path="/auth/callback" element={<SSOCallback />} />
         <Route path="/hr-home" element={<HRLandingPage />} />
         <Route path="/employee-home" element={<DropdownPage />} />
-        <Route path="/admin-home" element={<MainPage />} />{' '}
+        <Route path="/admin-home" element={<MainPage />} />
         <Route path="/add-appraisal" element={<AddAppraisalCycle />} />
         <Route path="/questionnaire" element={<Questionnaire />} />
         <Route path="/historical-report" element={<HistoricalReportTable />} />
