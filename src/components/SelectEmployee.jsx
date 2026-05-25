@@ -47,19 +47,20 @@ export default function DataGridDemo({ onSelect }) {
     setLoadingEmployees(true);
     fetchAllEmployees()
       .then((data) => {
+        console.log(data)
         const empMap = {};
         data.forEach((emp) => {
-          empMap[emp.employee_id] = emp.employee_name;
+          empMap[emp.id] = emp.first_name;
         });
 
         const formattedData = data.map((emp, index) => ({
           id: index + 1,
-          employee_id: emp.employee_id,
-          employee_name: emp.employee_name,
+          employee_id: emp.id,
+          employee_name: emp.first_name,
           role: emp.role,
-          reporting_manager: empMap[emp.reporting_manager] || '',
+          reporting_manager: empMap[emp.manager_id] || '',
           previous_reporting_manager:
-            empMap[emp.previous_reporting_manager] || '',
+            empMap[emp.previous_manager_id] || '',
         }));
 
 
@@ -87,7 +88,7 @@ export default function DataGridDemo({ onSelect }) {
   };
 
   const columns = [
-    { field: 'employee_id', headerName: 'Employee ID', width: 120 },
+    { field: 'id', headerName: 'Employee ID', width: 120 },
     { field: 'employee_name', headerName: 'Name', width: 150 },
     { field: 'role', headerName: 'Role', width: 120 },
     { field: 'reporting_manager', headerName: 'Reporting Manager', width: 200 },

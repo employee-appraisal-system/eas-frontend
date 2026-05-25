@@ -47,12 +47,12 @@ export default function DataGridDemo() {
 
         const formattedData = data.map((emp, index) => ({
           id: index + 1,
-          employee_id: emp.employee_id,
-          employee_name: emp.employee_name,
+          employee_id: emp.id,
+          employee_name: emp.first_name + ' ' + emp.last_name,
           role: emp.role,
-          reporting_manager: empMap[emp.reporting_manager] || '',
+          reporting_manager: empMap[emp.manager_id] || '',
           previous_reporting_manager:
-            empMap[emp.previous_reporting_manager] || '',
+            empMap[emp.previous_manager_id] || '',
         }));
 
         setRows(formattedData);
