@@ -109,7 +109,7 @@ const SelfAssessmentRepo = ({ onSelect }) => {
       minWidth: 100,
       maxWidth: 120,
     },
-    { field: 'employee_name', headerName: 'Name', flex: 5, minWidth: 130 },
+    { field: 'full_name', headerName: 'Name', flex: 5, minWidth: 130 },
     { field: 'role', headerName: 'Role', flex: 5, minWidth: 100 },
     {
       field: 'reporting_manager',
@@ -141,8 +141,8 @@ const SelfAssessmentRepo = ({ onSelect }) => {
 
         const formattedData = response.map((emp, index) => ({
           id: index + 1,
-          employee_id: emp.employee_id,
-          employee_name: emp.full_name,
+          employee_id: emp.id,
+          full_name: emp.full_name,
           role: emp.role,
           reporting_manager: emp.reporting_manager_name || '-',
           previous_reporting_manager:
