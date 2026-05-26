@@ -444,15 +444,15 @@ const LeadAssessmentModal = ({
                       employees
                         .filter(
                           (emp) =>
-                            String(emp.employee_id) !== String(employeeId)
+                            String(emp.id) !== String(employeeId)
                         )
                         .map((emp) => (
                           <MenuItem
-                            key={emp.employee_id}
-                            value={emp.employee_id}
+                            key={emp.id}
+                            value={emp.id}
                           >
                             <Tooltip
-                                title={`${emp.employee_id} - ${emp.full_name || '-'}`}
+                                title={`${emp.id} - ${emp.full_name || '-'}`}
                               placement="top"
                               arrow
                             >
@@ -465,7 +465,7 @@ const LeadAssessmentModal = ({
                                   maxWidth: '100%',
                                 }}
                               >
-                                {emp.employee_id} - {emp.full_name || '-'}
+                                {emp.id} - {emp.full_name || '-'}
                               </span>
                             </Tooltip>
                           </MenuItem>
