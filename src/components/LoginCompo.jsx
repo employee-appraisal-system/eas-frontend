@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -29,15 +29,14 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const isUnauthorized = Boolean(location.state?.unauthorized);
 
   const authenticated = isAuthenticated();
-  const defaultRoute = getDefaultRouteForRole(getAuthenticatedRole());
+  const role = getAuthenticatedRole();
 
-  useEffect(() => {
-    if (authenticated) {
-      navigate(defaultRoute, { replace: true });
-    }
-  }, [authenticated, defaultRoute, navigate]);
+  const defaultRoute = role ? getDefaultRouteForRole(role) : null;
+
+
 
   const handleLogin = async () => {
     setLoading(true);
@@ -79,7 +78,8 @@ const Login = () => {
     }
   };
 
-  return authenticated ? (
+
+  return authenticated && defaultRoute && !isUnauthorized ? (
     <Navigate to={defaultRoute} replace />
   ) : (
     <Box

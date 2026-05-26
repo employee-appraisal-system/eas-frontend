@@ -1,15 +1,18 @@
 import { Navigate, useLocation } from 'react-router-dom';
-import { getAuthenticatedRole, isAuthenticated } from '../utils/auth';
+import { getAuthenticatedRole, getDefaultRouteForRole, isAuthenticated } from '../utils/auth';
 
+// Strip spaces, underscores, dashes for flexible role matching
 const normalizeRole = (role) =>
   String(role ?? '')
     .trim()
-    .toLowerCase();
+    .toLowerCase()
+    .replace(/[\s_-]+/g, '');
 
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const location = useLocation();
   const role = getAuthenticatedRole();
   const authenticated = isAuthenticated();
+  const normalizedRole = normalizeRole(role);
   const normalizedAllowedRoles = allowedRoles.map(normalizeRole);
 
   if (!authenticated) {
@@ -18,9 +21,17 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
 
   if (
     normalizedAllowedRoles.length > 0 &&
-    (!role || !normalizedAllowedRoles.includes(role))
+    (!normalizedRole || !normalizedAllowedRoles.includes(normalizedRole))
   ) {
-    return <Navigate to="/login" replace state={{ from: location }} />;
+    
+    const correctRoute = role ? getDefaultRouteForRole(role) : null;
+
+    
+    if (!correctRoute || correctRoute === location.pathname) {
+      return children;
+    }
+
+    return <Navigate to={correctRoute} replace />;
   }
 
   return children;
