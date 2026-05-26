@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   MenuItem,
   Select,
@@ -65,8 +65,8 @@ const DropdownPage = () => {
   const [modalSelectedEmployee, setModalSelectedEmployee] = useState('');
   const [initialLoadCompleted, setInitialLoadCompleted] = useState(false);
 
-  // Function to check lead assessment stage status
-  const checkLeadAssessmentStage = async (cycleId) => {
+  // Function to check lead assessment stage status (stable across renders)
+  const checkLeadAssessmentStage = useCallback(async (cycleId) => {
     if (!cycleId) return;
 
     try {
@@ -101,7 +101,7 @@ const DropdownPage = () => {
       console.error('Failed to fetch stage info:', err);
       setIsLeadAssessmentDisabled(true); // Safe fallback
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (!employeeId) return;
@@ -114,12 +114,11 @@ const DropdownPage = () => {
         setLoadingCycles(true);
 
         if (role === 'team lead' || role === 'admin') {
-          const [cycles, reportingEmployees, managerData] =
-            await Promise.all([
-              fetchTeamLeadCycles(employeeId),
-              fetchReportingEmployees(employeeId),
-              fetchReportingManager(employeeId),
-            ]);
+          const [cycles, reportingEmployees, managerData] = await Promise.all([
+            fetchTeamLeadCycles(employeeId),
+            fetchReportingEmployees(employeeId),
+            fetchReportingManager(employeeId),
+          ]);
 
           setAppraisalCycles(cycles);
 
@@ -166,7 +165,10 @@ const DropdownPage = () => {
             setSelectedEmployee(employeeId);
 
             // For dropdown to get the employee list
-            const employeesData = await fetchCycleEmployees(activeCycle.cycle_id, employeeId);
+            const employeesData = await fetchCycleEmployees(
+              activeCycle.cycle_id,
+              employeeId
+            );
             setEmployees(employeesData);
 
             const managerData = await fetchReportingManager(employeeId);
@@ -215,13 +217,14 @@ const DropdownPage = () => {
         // STEP 2: Fetching assessment questions
         const [questions, responseData] = await Promise.all([
           fetchAssessmentQuestions(questionOwnerId, selectedCycle),
-          fetchAssessmentResponses(responseOwnerId, selectedCycle)
-            .catch((err) => {
+          fetchAssessmentResponses(responseOwnerId, selectedCycle).catch(
+            (err) => {
               if (err.status === 404) {
                 return [];
               }
               throw err;
-            }),
+            }
+          ),
         ]);
 
         setAssessmentData(questions || []);
@@ -252,7 +255,7 @@ const DropdownPage = () => {
     };
 
     fetchAssessmentDataAndResponses();
-  }, [selectedCycle, selectedEmployee, userRole, employeeId]);
+  }, [selectedCycle, selectedEmployee, userRole, employeeId, isCycleActive]);
 
   // Checking Lead Assessment stage when cycle changes
   useEffect(() => {
@@ -261,7 +264,13 @@ const DropdownPage = () => {
     if ((userRole === 'team lead' || userRole === 'admin') && isCycleActive) {
       checkLeadAssessmentStage(selectedCycle);
     }
-  }, [selectedCycle, initialLoadCompleted, userRole, isCycleActive]);
+  }, [
+    selectedCycle,
+    initialLoadCompleted,
+    userRole,
+    isCycleActive,
+    checkLeadAssessmentStage,
+  ]);
 
   const openModal = () => {
     setModalSelectedEmployee(selectedEmployee);
@@ -282,8 +291,7 @@ const DropdownPage = () => {
 
     try {
       const managerData = await fetchReportingManager(empId);
-      const { reporting_manager_id, reporting_manager_name } =
-        managerData;
+      const { reporting_manager_id, reporting_manager_name } = managerData;
       setTeamLeadName(`${reporting_manager_id} - ${reporting_manager_name}`);
     } catch (err) {
       console.error('Error fetching reporting manager:', err);
@@ -321,8 +329,7 @@ const DropdownPage = () => {
       if (userRole === 'team lead' || userRole === 'admin') {
         // For Team Leads, always defaulting to themselves
         setSelectedEmployee(employeeId);
-        const { reporting_manager_id, reporting_manager_name } =
-          managerData;
+        const { reporting_manager_id, reporting_manager_name } = managerData;
         setTeamLeadName(`${reporting_manager_id} - ${reporting_manager_name}`);
       } else {
         //  For HR or employee
@@ -336,8 +343,7 @@ const DropdownPage = () => {
         setSelectedEmployee(defaultEmpId);
 
         if (defaultEmpId === employeeId) {
-          const { reporting_manager_id, reporting_manager_name } =
-            managerData;
+          const { reporting_manager_id, reporting_manager_name } = managerData;
           setTeamLeadName(
             `${reporting_manager_id} - ${reporting_manager_name}`
           );
@@ -407,29 +413,44 @@ const DropdownPage = () => {
       case 'mcq':
         return (
           <Box sx={{ pl: 5 }}>
-            {options.map((option) => (
-              <FormControlLabel
-                key={option.option_id}
-                control={
-                  <Checkbox
-                    checked={
-                      responses[question_id]?.includes(option.option_id) ||
-                      false
-                    }
-                    onChange={(e) => {
-                      const newValue = e.target.checked
-                        ? [...(responses[question_id] || []), option.option_id]
-                        : responses[question_id].filter(
-                            (id) => id !== option.option_id
-                          );
-                      handleResponseChange(question_id, newValue);
-                    }}
-                    disabled={isDisabled}
-                  />
-                }
-                label={option.option_text}
-              />
-            ))}
+            {options.map((option) => {
+              const prev = responses[question_id];
+              const prevArray = Array.isArray(prev) ? prev : [];
+              const checked = prevArray.some(
+                (id) => Number(id) === Number(option.option_id)
+              );
+
+              return (
+                <FormControlLabel
+                  key={option.option_id}
+                  control={
+                    <Checkbox
+                      checked={checked}
+                      onChange={(e) => {
+                        const wasChecked = checked;
+                        const base = Array.isArray(responses[question_id])
+                          ? responses[question_id]
+                          : [];
+                        let newValue;
+                        if (e.target.checked && !wasChecked) {
+                          newValue = [
+                            ...base.map((v) => Number(v)),
+                            Number(option.option_id),
+                          ];
+                        } else {
+                          newValue = base
+                            .map((v) => Number(v))
+                            .filter((id) => id !== Number(option.option_id));
+                        }
+                        handleResponseChange(question_id, newValue);
+                      }}
+                      disabled={isDisabled}
+                    />
+                  }
+                  label={option.option_text}
+                />
+              );
+            })}
           </Box>
         );
 
@@ -504,7 +525,7 @@ const DropdownPage = () => {
               allocation_id: question.allocation_id,
               cycle_id: selectedCycle,
               employee_id: selectedEmployee,
-              option_ids: [parseInt(response)],
+              option_ids: [Number(response)],
               response_text: null,
             };
           } else if (question_type === 'descriptive') {
@@ -544,11 +565,17 @@ const DropdownPage = () => {
     const responseOwnerId = selectedEmployee;
 
     try {
-      const questionsData = await fetchAssessmentQuestions(questionOwnerId, selectedCycle);
+      const questionsData = await fetchAssessmentQuestions(
+        questionOwnerId,
+        selectedCycle
+      );
       setAssessmentData(questionsData || []);
 
       try {
-        const responseData = await fetchAssessmentResponses(responseOwnerId, selectedCycle);
+        const responseData = await fetchAssessmentResponses(
+          responseOwnerId,
+          selectedCycle
+        );
         const previous = {};
         (responseData || []).forEach((res) => {
           previous[res.question_id] =
@@ -613,27 +640,33 @@ const DropdownPage = () => {
                   Appraisal Cycle
                 </InputLabel>
                 <Select value={selectedCycle} onChange={handleCycleChange}>
-                  {appraisalCycles.map((cycle) => (
-                    <MenuItem key={cycle.cycle_id} value={cycle.cycle_id}>
-                      <Tooltip
-                        title={`${cycle.cycle_id} - ${cycle.cycle_name}`}
-                        placement="top"
-                        arrow
-                      >
-                        <span
-                          style={{
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            display: 'inline-block',
-                            maxWidth: '200px',
-                          }}
+                  {appraisalCycles && appraisalCycles.length > 0 ? (
+                    appraisalCycles.map((cycle) => (
+                      <MenuItem key={cycle.cycle_id} value={cycle.cycle_id}>
+                        <Tooltip
+                          title={`${cycle.cycle_id} - ${cycle.cycle_name}`}
+                          placement="top"
+                          arrow
                         >
-                          {cycle.cycle_name}
-                        </span>
-                      </Tooltip>
+                          <span
+                            style={{
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              display: 'inline-block',
+                              maxWidth: '200px',
+                            }}
+                          >
+                            {cycle.cycle_name}
+                          </span>
+                        </Tooltip>
+                      </MenuItem>
+                    ))
+                  ) : (
+                    <MenuItem value="" disabled>
+                      No cycles available
                     </MenuItem>
-                  ))}
+                  )}
                 </Select>
               </FormControl>
             )}
@@ -656,27 +689,33 @@ const DropdownPage = () => {
                   value={selectedEmployee}
                   onChange={handleEmployeeChange}
                 >
-                  {employees.map((emp) => (
-                    <MenuItem key={emp.employee_id} value={emp.employee_id}>
-                      <Tooltip
-                        title={`${emp.employee_id} - ${emp.employee_name}`}
-                        placement="top"
-                        arrow
-                      >
-                        <span
-                          style={{
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            display: 'inline-block',
-                            maxWidth: '200px',
-                          }}
+                  {employees && employees.length > 0 ? (
+                    employees.map((emp) => (
+                      <MenuItem key={emp.id} value={emp.id}>
+                        <Tooltip
+                          title={emp.full_name || '-'}
+                          placement="top"
+                          arrow
                         >
-                          {emp.employee_id} - {emp.employee_name}
-                        </span>
-                      </Tooltip>
+                          <span
+                            style={{
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              display: 'inline-block',
+                              maxWidth: '200px',
+                            }}
+                          >
+                            {emp.id} - {emp.full_name || '-'}
+                          </span>
+                        </Tooltip>
+                      </MenuItem>
+                    ))
+                  ) : (
+                    <MenuItem value="" disabled>
+                      No employees available
                     </MenuItem>
-                  ))}
+                  )}
                 </Select>
               </FormControl>
             )}

@@ -136,13 +136,13 @@ const SelfAssessmentRepo = ({ onSelect }) => {
         const response = await getEmpList();
         const empMap = {};
         response.forEach((emp) => {
-          empMap[emp.employee_id] = emp.employee_name;
+          empMap[emp.employee_id] = emp.full_name;
         });
 
         const formattedData = response.map((emp, index) => ({
           id: index + 1,
           employee_id: emp.employee_id,
-          employee_name: emp.employee_name,
+          employee_name: emp.full_name,
           role: emp.role,
           reporting_manager: emp.reporting_manager_name || '-',
           previous_reporting_manager:
@@ -268,11 +268,19 @@ const SelfAssessmentRepo = ({ onSelect }) => {
                 },
               }}
             >
-              {activeCycle.map((cycle) => (
-                <MenuItem key={cycle.cycle_id} value={cycle.cycle_id}>
-                  {cycle.cycle_name}
+              {activeCycle && activeCycle.length > 0 ? (
+                activeCycle.map((cycle) => (
+                  <MenuItem key={cycle.cycle_id} value={cycle.cycle_id}>
+                    {cycle.cycle_name}
+                  </MenuItem>
+                ))
+              ) : (
+                <MenuItem disabled>
+                  <Typography variant="body2" color="textSecondary">
+                    No appraisal cycles available
+                  </Typography>
                 </MenuItem>
-              ))}
+              )}
             </Select>
           </FormControl>
 

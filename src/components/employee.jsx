@@ -48,7 +48,7 @@ export default function DataGridDemo() {
         const formattedData = data.map((emp, index) => ({
           id: index + 1,
           employee_id: emp.id,
-          employee_name: emp.first_name + ' ' + emp.last_name,
+          employee_name: emp.full_name,
           role: emp.role,
           reporting_manager: empMap[emp.manager_id] || '',
           previous_reporting_manager:
