@@ -37,19 +37,19 @@ const pivotData = (data, rows) => {
 
   // Step 2: Initialize all employees with base data
   rows.forEach((emp) => {
-    employeeMap[emp.employee_id] = {
-      id: emp.employee_id,
-      employee_id: emp.employee_id,
-      employee_name: emp.employee_name,
+    employeeMap[emp.id] = {
+      id: emp.id,
+      employee_id: emp.employee_id ?? emp.id,
+      full_name: emp?.full_name || emp.employee_name || '-',
       role: emp.role,
       reporting_manager: emp.reporting_manager,
       previous_reporting_manager: emp.previous_reporting_manager,
     };
 
     // Step 3: If employee hasn't answered, add "-" for each question
-    if (!answeredEmployees.has(emp.employee_id)) {
+    if (!answeredEmployees.has(emp.id)) {
       allQuestions.forEach((question) => {
-        employeeMap[emp.employee_id][question] = '-';
+        employeeMap[emp.id][question] = '-';
       });
     }
   });
@@ -139,10 +139,10 @@ const SelfAssessmentRepo = ({ onSelect }) => {
           empMap[emp.employee_id] = emp.full_name;
         });
 
-        const formattedData = response.map((emp, index) => ({
-          id: index + 1,
+        const formattedData = response.map((emp) => ({
+          id: emp.id,
           employee_id: emp.id,
-          full_name: emp.full_name,
+          full_name: emp?.full_name || emp.employee_name || '-',
           role: emp.role,
           reporting_manager: emp.reporting_manager_name || '-',
           previous_reporting_manager:
