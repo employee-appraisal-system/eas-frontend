@@ -19,11 +19,7 @@ import AddIcon from '@mui/icons-material/Add';
 import TextField from '@mui/material/TextField';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloseIcon from '@mui/icons-material/Close';
-import {
-  createAppraisalCycle,
-  createStage,
-  createParameter,
-} from '../api';
+import { createAppraisalCycle, createStage, createParameter } from '../api';
 import { useNavigate } from 'react-router-dom';
 import Backdrop from '@mui/material/Backdrop'; //1
 import CircularProgress from '@mui/material/CircularProgress'; //2
@@ -59,8 +55,6 @@ const AddAppraisalCycle = () => {
     { name: 'HR/VL Validation', startDate: '', endDate: '' },
     { name: 'Closure', startDate: '', endDate: '' },
   ]);
-
-
 
   const [saving, setSaving] = useState(false); //3
 
@@ -124,10 +118,8 @@ const AddAppraisalCycle = () => {
       valid = false;
     }
     if (!startDate) {
-
       valid = false;
     } else {
-
     }
 
     if (!endDate) {
@@ -199,7 +191,6 @@ const AddAppraisalCycle = () => {
       }
       newParameterErrors[index] = error;
     });
-
 
     setStageErrors(newStageErrors);
     setFormValid(valid);

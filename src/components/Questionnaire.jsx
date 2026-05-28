@@ -37,7 +37,6 @@ export default function Questionnaire() {
   // To display question list.
   const [questions, setQuestions] = useState([]);
 
-
   // Add question hooks.
   const [question_text, setQuestionText] = useState('');
   const [question_type, setQuestionType] = useState('');
@@ -195,7 +194,6 @@ export default function Questionnaire() {
       const data = await fetchQuestions();
       setQuestions(data);
     } catch {
-
     } finally {
       setLoadingquestions(false);
     }

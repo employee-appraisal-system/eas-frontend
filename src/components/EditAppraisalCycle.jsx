@@ -63,7 +63,6 @@ const EditAppraisalCycle = () => {
 
   //new
 
-
   // Parameters State
   const [parameters, setParameters] = useState([
     {
@@ -216,7 +215,6 @@ const EditAppraisalCycle = () => {
       }
       newParameterErrors[index] = error;
     });
-
 
     setStageErrors(newStageErrors);
     setFormValid(valid);

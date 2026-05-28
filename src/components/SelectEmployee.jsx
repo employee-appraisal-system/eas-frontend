@@ -47,7 +47,7 @@ export default function DataGridDemo({ onSelect }) {
     setLoadingEmployees(true);
     fetchAllEmployees()
       .then((data) => {
-        console.log(data)
+        console.log(data);
         const empMap = {};
         data.forEach((emp) => {
           empMap[emp.id] = emp.full_name;
@@ -59,10 +59,8 @@ export default function DataGridDemo({ onSelect }) {
           employee_name: emp.full_name,
           role: emp.role,
           reporting_manager: empMap[emp.manager_id] || '',
-          previous_reporting_manager:
-            empMap[emp.previous_manager_id] || '',
+          previous_reporting_manager: empMap[emp.previous_manager_id] || '',
         }));
-
 
         setRows(formattedData);
         setOriginalRows(formattedData);

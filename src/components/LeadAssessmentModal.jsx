@@ -84,30 +84,31 @@ const LeadAssessmentModal = ({
     // Fetch cycle status
     const fetchCycleStatusPromise = getCycleStatus(selectedCycle)
       .then(() => {
-
-
         // Only allow editing if leadAssessmentActive is true and leadAssessmentCompleted is false
         const shouldBeReadOnly =
           !leadAssessmentActive || leadAssessmentCompleted;
         setReadOnly(shouldBeReadOnly);
       })
       .catch(() => {
-
         setReadOnly(true);
       });
 
     // Fetch parameters
-    const fetchParametersPromise = fetchParametersApi(selectedCycle, selectedEmployee)
-      .then((data) =>
-        setParameters(Array.isArray(data) ? data : [])
-      )
+    const fetchParametersPromise = fetchParametersApi(
+      selectedCycle,
+      selectedEmployee
+    )
+      .then((data) => setParameters(Array.isArray(data) ? data : []))
       .catch((err) => {
         console.error('Error fetching parameters:', err);
         setParameters([]);
       });
 
     // Fetch previous ratings
-    const fetchRatingsPromise = fetchPreviousAssessmentData(selectedCycle, selectedEmployee)
+    const fetchRatingsPromise = fetchPreviousAssessmentData(
+      selectedCycle,
+      selectedEmployee
+    )
       .then((data) => {
         if (data && data.ratings) {
           const uniqueRatings = Array.from(
@@ -132,16 +133,16 @@ const LeadAssessmentModal = ({
           }));
         }
       })
-      .catch((err) =>
-        console.error('Error fetching previous ratings:', err)
-      );
+      .catch((err) => console.error('Error fetching previous ratings:', err));
 
     // When all data fetch operations complete, set loading to false
-    Promise.all([fetchCycleStatusPromise, fetchParametersPromise, fetchRatingsPromise]).finally(
-      () => {
-        setLoading(false);
-      }
-    );
+    Promise.all([
+      fetchCycleStatusPromise,
+      fetchParametersPromise,
+      fetchRatingsPromise,
+    ]).finally(() => {
+      setLoading(false);
+    });
   }, [
     selectedCycle,
     selectedEmployee,
@@ -442,17 +443,11 @@ const LeadAssessmentModal = ({
                   >
                     {Array.isArray(employees) &&
                       employees
-                        .filter(
-                          (emp) =>
-                            String(emp.id) !== String(employeeId)
-                        )
+                        .filter((emp) => String(emp.id) !== String(employeeId))
                         .map((emp) => (
-                          <MenuItem
-                            key={emp.id}
-                            value={emp.id}
-                          >
+                          <MenuItem key={emp.id} value={emp.id}>
                             <Tooltip
-                                title={`${emp.id} - ${emp.full_name || '-'}`}
+                              title={`${emp.id} - ${emp.full_name || '-'}`}
                               placement="top"
                               arrow
                             >

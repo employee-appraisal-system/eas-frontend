@@ -326,9 +326,9 @@ export default function HistoricalReportTable({ onSelect }) {
                       );
                     })
                   ) : (
-                      <Typography variant="body2" color="textSecondary">
-                        Select appraisal cycles to view ratings
-                      </Typography>
+                    <Typography variant="body2" color="textSecondary">
+                      Select appraisal cycles to view ratings
+                    </Typography>
                   )}
                 </Box>
               )}
@@ -344,13 +344,14 @@ export default function HistoricalReportTable({ onSelect }) {
             >
               {cycles && cycles.length > 0 ? (
                 cycles.map((cycle) => (
-                <MenuItem key={cycle.cycle_id} value={cycle.cycle_id}>
-                  <Checkbox
-                    checked={selectedCycles.indexOf(cycle.cycle_id) > -1}
-                  />
-                  <ListItemText primary={cycle.cycle_name} />
-                </MenuItem>
-              ))) : (
+                  <MenuItem key={cycle.cycle_id} value={cycle.cycle_id}>
+                    <Checkbox
+                      checked={selectedCycles.indexOf(cycle.cycle_id) > -1}
+                    />
+                    <ListItemText primary={cycle.cycle_name} />
+                  </MenuItem>
+                ))
+              ) : (
                 <MenuItem disabled>
                   <Typography variant="body2" color="textSecondary">
                     No appraisal cycles available

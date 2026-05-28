@@ -1,5 +1,9 @@
 import { Navigate, useLocation } from 'react-router-dom';
-import { getAuthenticatedRole, getDefaultRouteForRole, isAuthenticated } from '../utils/auth';
+import {
+  getAuthenticatedRole,
+  getDefaultRouteForRole,
+  isAuthenticated,
+} from '../utils/auth';
 
 // Strip spaces, underscores, dashes for flexible role matching
 const normalizeRole = (role) =>
@@ -23,10 +27,8 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
     normalizedAllowedRoles.length > 0 &&
     (!normalizedRole || !normalizedAllowedRoles.includes(normalizedRole))
   ) {
-    
     const correctRoute = role ? getDefaultRouteForRole(role) : null;
 
-    
     if (!correctRoute || correctRoute === location.pathname) {
       return children;
     }

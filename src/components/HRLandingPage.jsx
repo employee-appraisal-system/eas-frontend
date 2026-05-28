@@ -20,10 +20,7 @@ import CustomToolbar from './CustomeToolbar';
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Edit, Delete, Visibility } from '@mui/icons-material';
-import {
-  fetchAppraisalCycles,
-  deleteAppraisalCycle,
-} from '../api';
+import { fetchAppraisalCycles, deleteAppraisalCycle } from '../api';
 import Assignment from './Assignment';
 import {
   getGridNumericOperators,
@@ -38,8 +35,7 @@ const HRLandingPage = () => {
   const [detailsVisible, setDetailsVisible] = useState(false);
   const [selectedCycleId, setSelectedCycleId] = useState(null);
   const [selectedCycleName, setSelectedCycleName] = useState(null);
-  const [loadingAppraisalCycles, setLoadingAppraisalCycles] =
-    useState(true);
+  const [loadingAppraisalCycles, setLoadingAppraisalCycles] = useState(true);
   const [deleting, setDeleting] = useState(false);
   // State for menu anchor element
 
@@ -104,7 +100,6 @@ const HRLandingPage = () => {
       setAppraisalCycles(data);
       console.log(data);
     } catch (err) {
-
       console.log('Error while fetching cycles: ' + err);
     } finally {
       setLoadingAppraisalCycles(false);
@@ -115,9 +110,7 @@ const HRLandingPage = () => {
   const handleDelete = async (cycle_id) => {
     try {
       setDeleting(true); // Show loading backdrop
-      const cycle = appraisalCycles.find(
-        (c) => c.cycle_id === cycle_id
-      );
+      const cycle = appraisalCycles.find((c) => c.cycle_id === cycle_id);
       if (cycle && cycle.status === 'active') {
         setSnackbar({
           open: true,

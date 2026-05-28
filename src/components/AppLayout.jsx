@@ -20,7 +20,9 @@ import AssessmentIcon from '@mui/icons-material/Assessment';
 const drawerWidth = 240;
 
 // Static Toolbar component (must be outside render)
-const ToolbarWrapper = (props) => <div style={{ padding: '16px' }} {...props} />;
+const ToolbarWrapper = (props) => (
+  <div style={{ padding: '16px' }} {...props} />
+);
 
 /**
  * AppLayout component that adds a sidebar navigation
@@ -35,7 +37,6 @@ const AppLayout = ({ children, onNavigate, activePage }) => {
   const handleDrawerToggle = () => {
     setOpen(!open);
   };
-
 
   const menuItems = [
     {

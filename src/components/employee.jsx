@@ -51,8 +51,7 @@ export default function DataGridDemo() {
           employee_name: emp.full_name,
           role: emp.role,
           reporting_manager: empMap[emp.manager_id] || '',
-          previous_reporting_manager:
-            empMap[emp.previous_manager_id] || '',
+          previous_reporting_manager: empMap[emp.previous_manager_id] || '',
         }));
 
         setRows(formattedData);

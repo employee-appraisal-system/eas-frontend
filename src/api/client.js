@@ -27,7 +27,10 @@ apiClient.interceptors.response.use(
       error.message ||
       'An unexpected error occurred.';
 
-    console.error(`[API Error] ${error.config?.method?.toUpperCase()} ${error.config?.url}:`, message);
+    console.error(
+      `[API Error] ${error.config?.method?.toUpperCase()} ${error.config?.url}:`,
+      message
+    );
 
     return Promise.reject({
       message,

@@ -35,8 +35,6 @@ export const saveLeadAssessmentRating = async (payload) => {
  * Fetch parameters for lead assessment.
  */
 export const fetchParameters = async (cycleId, employeeId) => {
-  const response = await apiClient.get(
-    `/parameters/${cycleId}/${employeeId}`
-  );
+  const response = await apiClient.get(`/parameters/${cycleId}/${employeeId}`);
   return response.data;
 };

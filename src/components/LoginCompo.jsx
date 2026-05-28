@@ -36,8 +36,6 @@ const Login = () => {
 
   const defaultRoute = role ? getDefaultRouteForRole(role) : null;
 
-
-
   const handleLogin = async () => {
     setLoading(true);
     try {
@@ -77,7 +75,6 @@ const Login = () => {
       console.error('SSO Login Error:', err);
     }
   };
-
 
   return authenticated && defaultRoute && !isUnauthorized ? (
     <Navigate to={defaultRoute} replace />
