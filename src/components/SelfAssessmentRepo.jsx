@@ -94,7 +94,10 @@ const SelfAssessmentRepo = ({ onSelect }) => {
   const navigate = useNavigate();
 
   const [rows, setRows] = useState([]);
-  const [selectedIds, setSelectedIds] = useState([]);
+  const [rowSelectionModel, setRowSelectionModel] = useState({
+    type: 'include',
+    ids: new Set(),
+  });
   // const [employeeMap, setEmployeeMap] = useState({});
   // const [originalRows, setOriginalRows] = useState([]);
 
@@ -207,15 +210,21 @@ const SelfAssessmentRepo = ({ onSelect }) => {
     },
   };
 
-  const handleRowSelection = (selectedRowIds) => {
-    setSelectedIds(selectedRowIds);
+  const handleRowSelection = (newModel) => {
+    const normalizedModel = {
+      type: newModel?.type === 'exclude' ? 'exclude' : 'include',
+      ids: new Set(newModel?.ids ?? []),
+    };
 
-    const selectedEmployees = rows.filter((row) =>
-      selectedRowIds.includes(row.id)
-    );
-    const unselectedEmployees = rows.filter(
-      (row) => !selectedRowIds.includes(row.id)
-    );
+    setRowSelectionModel(normalizedModel);
+
+    const isSelected = (rowId) =>
+      normalizedModel.type === 'include'
+        ? normalizedModel.ids.has(rowId)
+        : !normalizedModel.ids.has(rowId);
+
+    const selectedEmployees = rows.filter((row) => isSelected(row.id));
+    const unselectedEmployees = rows.filter((row) => !isSelected(row.id));
 
     const newOrderedRows = [...selectedEmployees, ...unselectedEmployees];
     setRows(newOrderedRows);
@@ -243,7 +252,11 @@ const SelfAssessmentRepo = ({ onSelect }) => {
             </Typography>
           </Grid>
           <Grid size={1} sx={{ textAlign: 'right' }}>
-            <IconButton onClick={() => navigate('/hr-home')} color="error">
+            <IconButton
+              aria-label="Close"
+              onClick={() => navigate('/hr-home')}
+              color="error"
+            >
               <CloseIcon />
             </IconButton>
           </Grid>
@@ -252,11 +265,15 @@ const SelfAssessmentRepo = ({ onSelect }) => {
           <FormControl sx={{ mb: 1, width: 'auto', minWidth: '20%' }}>
             <InputLabel
               id="checkbox-cycles-label"
-              sx={{ background: 'white', px: 0.5 }}
+              sx={{ backgroundColor: 'background.paper', px: 0.5 }}
             >
               Select Appraisal Cycles
             </InputLabel>
             <Select
+              labelId="checkbox-cycles-label"
+              id="self-assessment-cycle"
+              value={cycle_id ?? ''}
+              displayEmpty
               onChange={(e) => setCycleId(e.target.value)}
               MenuProps={MenuProps}
               sx={{
@@ -268,6 +285,9 @@ const SelfAssessmentRepo = ({ onSelect }) => {
                 },
               }}
             >
+              <MenuItem value="" disabled>
+                Select an appraisal cycle
+              </MenuItem>
               {activeCycle && activeCycle.length > 0 ? (
                 activeCycle.map((cycle) => (
                   <MenuItem key={cycle.cycle_id} value={cycle.cycle_id}>
@@ -293,7 +313,7 @@ const SelfAssessmentRepo = ({ onSelect }) => {
                   height={30}
                   sx={{
                     mb: 1,
-                    bgcolor: '#e6e9ed',
+                    bgcolor: 'action.hover',
                     opacity: 0.3,
                   }}
                 />
@@ -316,10 +336,12 @@ const SelfAssessmentRepo = ({ onSelect }) => {
               }
               autoHeight
               pageSizeOptions={[5]}
+              showToolbar
               slots={{ toolbar: CustomToolbar }}
+              slotProps={{ toolbar: { exportSelectedOnly: true } }}
               rowHeight={35}
               onRowSelectionModelChange={handleRowSelection}
-              selectionModel={selectedIds}
+              rowSelectionModel={rowSelectionModel}
               checkboxSelection
               disableRowSelectionOnClick
               hideFooter

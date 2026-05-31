@@ -63,6 +63,59 @@ const getStoredToken = () => {
   return null;
 };
 
+const decodeBase64Url = (value) => {
+  if (!value) {
+    return null;
+  }
+
+  try {
+    const normalized = value.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = normalized.padEnd(
+      normalized.length + ((4 - (normalized.length % 4)) % 4),
+      '='
+    );
+    return window.atob(padded);
+  } catch {
+    return null;
+  }
+};
+
+export const getAccessToken = () => getStoredToken();
+
+export const getJwtPayload = (token = getStoredToken()) => {
+  if (!token || typeof token !== 'string') {
+    return null;
+  }
+
+  const parts = token.split('.');
+  if (parts.length < 2) {
+    return null;
+  }
+
+  const decoded = decodeBase64Url(parts[1]);
+  if (!decoded) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(decoded);
+  } catch {
+    return null;
+  }
+};
+
+export const isJwtExpired = (token = getStoredToken()) => {
+  const payload = getJwtPayload(token);
+  const exp = payload?.exp;
+
+  if (!exp) {
+    return false;
+  }
+
+  const nowSeconds = Math.floor(Date.now() / 1000);
+  return Number(exp) <= nowSeconds;
+};
+
 export const getStoredEmployee = () => {
   if (typeof window === 'undefined') {
     return null;
@@ -97,8 +150,14 @@ export const getAuthenticatedRole = () => {
   );
 };
 
-export const isAuthenticated = () =>
-  Boolean(getStoredToken() || getStoredEmployee());
+export const isAuthenticated = () => {
+  const token = getStoredToken();
+  if (!token) {
+    return false;
+  }
+
+  return !isJwtExpired(token);
+};
 
 export const getDefaultRouteForRole = (role) => {
   const normalizedRole = normalizeRole(role);
@@ -143,7 +202,40 @@ export const storeEmployeeSession = (employeeData) => {
     window.localStorage.setItem(STORAGE_KEYS.userRole, normalizedRole);
   }
 
-  if (employeeData?.token) {
-    window.localStorage.setItem('access_token', employeeData.token);
+  const tokenToStore =
+    employeeData?.access_token || employeeData?.token || employeeData?.jwt;
+
+  if (tokenToStore) {
+    window.localStorage.setItem('access_token', tokenToStore);
   }
+};
+
+export const clearEmployeeSession = () => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  const keysToRemove = [
+    STORAGE_KEYS.employee,
+    STORAGE_KEYS.employeeId,
+    STORAGE_KEYS.userRole,
+    ...STORAGE_KEYS.tokenCandidates,
+  ];
+
+  keysToRemove.forEach((key) => {
+    try {
+      window.localStorage.removeItem(key);
+      window.sessionStorage.removeItem(key);
+    } catch {
+      // ignore
+    }
+
+    if (typeof document !== 'undefined') {
+      try {
+        document.cookie = `${encodeURIComponent(key)}=; Max-Age=0; path=/`;
+      } catch {
+        // ignore
+      }
+    }
+  });
 };

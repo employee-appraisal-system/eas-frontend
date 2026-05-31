@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Button,
   Typography,
@@ -21,18 +21,15 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import CloseIcon from '@mui/icons-material/Close';
 import { createAppraisalCycle, createStage, createParameter } from '../api';
 import { useNavigate } from 'react-router-dom';
-import Backdrop from '@mui/material/Backdrop'; //1
-import CircularProgress from '@mui/material/CircularProgress'; //2
+import Backdrop from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const AddAppraisalCycle = () => {
-  // Appraisal Cycle State
   const [cycleName, setCycleName] = useState('');
   const [description, setDescription] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [status, setStatus] = useState('');
-
-  // Validation Errors
 
   const [endDateError, setEndDateError] = useState('');
   const [stageErrors, setStageErrors] = useState({});
@@ -40,14 +37,12 @@ const AddAppraisalCycle = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [error, setError] = useState(false);
 
-  // Snackbar State
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
     severity: 'success',
   });
 
-  // Stages State
   const [stages, setStages] = useState([
     { name: 'Setup', startDate: '', endDate: '' },
     { name: 'Self Assessment', startDate: '', endDate: '' },
@@ -56,9 +51,8 @@ const AddAppraisalCycle = () => {
     { name: 'Closure', startDate: '', endDate: '' },
   ]);
 
-  const [saving, setSaving] = useState(false); //3
+  const [saving, setSaving] = useState(false);
 
-  // Parameters State
   const [parameters, setParameters] = useState([
     {
       name: 'Overall Performance Rating',
@@ -75,8 +69,6 @@ const AddAppraisalCycle = () => {
     setStartDate('');
     setEndDate('');
     setStatus('');
-
-    // Reset stages to the initial state
     setStages([
       { name: 'Setup', startDate: '', endDate: '' },
       { name: 'Self Assessment', startDate: '', endDate: '' },
@@ -84,8 +76,6 @@ const AddAppraisalCycle = () => {
       { name: 'HR/VL Validation', startDate: '', endDate: '' },
       { name: 'Closure', startDate: '', endDate: '' },
     ]);
-
-    // Reset parameters to the initial state
     setParameters([
       {
         name: 'Overall Performance Rating',
@@ -95,32 +85,18 @@ const AddAppraisalCycle = () => {
         fixed: true,
       },
     ]);
-
-    // Reset validation errors
-
     setEndDateError('');
     setStageErrors({});
   };
 
   const [formValid, setFormValid] = useState(false);
 
-  const validateForm = () => {
+  const validateForm = useCallback(() => {
     let valid = true;
-    // Check basic cycle details
-    if (!cycleName.trim()) {
-      valid = false;
-    }
-
-    if (!description.trim()) {
-      valid = false;
-    }
-    if (!status) {
-      valid = false;
-    }
-    if (!startDate) {
-      valid = false;
-    } else {
-    }
+    if (!cycleName.trim()) valid = false;
+    if (!description.trim()) valid = false;
+    if (!status) valid = false;
+    if (!startDate) valid = false;
 
     if (!endDate) {
       setEndDateError('End date is required');
@@ -140,13 +116,11 @@ const AddAppraisalCycle = () => {
     }
 
     let newStageErrors = {};
-    let previousEndDate = startDate; // Start with the cycle's start date
+    let previousEndDate = startDate;
 
     stages.forEach((stage, index) => {
       let error = {};
-      if (!stage.startDate || !stage.endDate) {
-        valid = false;
-      }
+      if (!stage.startDate || !stage.endDate) valid = false;
       if (
         stage.startDate &&
         (stage.startDate < startDate || stage.startDate > endDate)
@@ -161,7 +135,6 @@ const AddAppraisalCycle = () => {
         error.end = 'End date must be within cycle period';
         valid = false;
       }
-      // Ensure each stage starts after the previous stage ends
       if (
         index > 0 &&
         stage.startDate &&
@@ -171,13 +144,11 @@ const AddAppraisalCycle = () => {
         error.start = "Start date must be after the previous stage's end date";
         valid = false;
       }
-
-      previousEndDate = stage.endDate; // Update the previous end date for next iteration
+      previousEndDate = stage.endDate;
       newStageErrors[index] = error;
     });
 
     let newParameterErrors = {};
-
     parameters.forEach((param, index) => {
       let error = {};
       if (!param.name.trim()) {
@@ -194,17 +165,15 @@ const AddAppraisalCycle = () => {
 
     setStageErrors(newStageErrors);
     setFormValid(valid);
-  };
+  }, [cycleName, description, endDate, parameters, stages, startDate, status]);
 
   useEffect(() => {
     validateForm();
-  }, [cycleName, description, status, startDate, endDate, stages, parameters]);
+  }, [validateForm]);
 
   const handleSave = async () => {
     try {
-      console.log('Saving Appraisal Cycle...');
       setSaving(true);
-      // Step 1: Save Appraisal Cycle details
       const cycleData = await createAppraisalCycle({
         cycle_name: cycleName,
         description,
@@ -212,10 +181,7 @@ const AddAppraisalCycle = () => {
         start_date_of_cycle: startDate,
         end_date_of_cycle: endDate,
       });
-
       const cycleId = cycleData.cycle_id;
-
-      // Step 2: Save Stages
       for (const stage of stages) {
         await createStage({
           stage_name: stage.name,
@@ -224,8 +190,6 @@ const AddAppraisalCycle = () => {
           end_date_of_stage: stage.endDate,
         });
       }
-
-      // Step 3: Save Parameters
       for (const param of parameters) {
         await createParameter({
           parameter_title: param.name,
@@ -236,15 +200,13 @@ const AddAppraisalCycle = () => {
           is_fixed_parameter: param.fixed,
         });
       }
-
       setSnackbar({
         open: true,
         message: 'Cycle Created Successfully!',
         severity: 'success',
       });
-      // Refresh form after 2 seconds
       setTimeout(() => {
-        handleCancel(); // Clear the form
+        handleCancel();
       }, 2000);
     } catch (error) {
       setSnackbar({
@@ -253,7 +215,7 @@ const AddAppraisalCycle = () => {
         severity: 'error',
       });
     } finally {
-      setSaving(false); // Hide loading backdrop
+      setSaving(false);
     }
   };
 
@@ -271,21 +233,15 @@ const AddAppraisalCycle = () => {
   };
 
   const removeParameter = (index) => {
-    const updatedParameters = parameters.filter((_, i) => i !== index);
-    setParameters(updatedParameters);
+    setParameters(parameters.filter((_, i) => i !== index));
   };
 
   const navigate = useNavigate();
-
-  // Format today's date as YYYY-MM-DD for comparison
   const today = new Date().toISOString().split('T')[0];
+
   const handleDateChange = (e) => {
     const selectedDate = e.target.value;
-
-    // Always update the state to show what the user is typing
     setStartDate(selectedDate);
-
-    //if the date is earlier than today (while typing)
     if (selectedDate && selectedDate < today) {
       setError(true);
       setErrorMessage('Please select today or a future date');
@@ -297,26 +253,42 @@ const AddAppraisalCycle = () => {
 
   return (
     <>
-      <Card sx={{ p: 3, width: '95%', margin: 'auto', mt: 2, mb: 3 }}>
-        <Grid container alignItems="center">
-          <Grid size={11}>
-            <Typography variant="h6" color="primary">
+      <Card sx={{ width: '100%' }}>
+        <CardContent sx={{ height: '100%' }}>
+          {/* Header — unchanged */}
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 2,
+              flexWrap: 'wrap',
+              mb: 2,
+            }}
+          >
+            <Typography variant="h6" color="primary" fontWeight={700}>
               Add Appraisal Cycle
             </Typography>
-          </Grid>
-          <Grid size={1} sx={{ textAlign: 'right' }}>
-            <IconButton onClick={() => navigate('/hr-home')} color="error">
-              <CloseIcon />
-            </IconButton>
-          </Grid>
-        </Grid>
-        <CardContent>
-          <Card sx={{ p: 1, width: '100%' }}>
-            <Typography color="primary" fontWeight="bold">
+            <Box
+              sx={{
+                display: 'flex',
+                gap: 2,
+                alignItems: 'center',
+                flexWrap: 'wrap',
+              }}
+            >
+              <IconButton onClick={() => navigate('/hr-home')} color="error">
+                <CloseIcon />
+              </IconButton>
+            </Box>
+          </Box>
+
+          {/* Cycle Details */}
+          <Card sx={{ p: 1, width: '100%', mb: 2 }}>
+            <Typography color="primary" fontWeight="bold" sx={{ px: 2, pt: 1 }}>
               Appraisal Cycle Details
             </Typography>
             <CardContent>
-              {/* Appraisal Cycle Inputs */}
               <Grid container spacing={2}>
                 <Grid size={12}>
                   <TextField
@@ -338,7 +310,7 @@ const AddAppraisalCycle = () => {
                     onChange={(e) => setDescription(e.target.value)}
                   />
                 </Grid>
-                <Grid size={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
                     fullWidth
                     label="Start Date"
@@ -348,12 +320,10 @@ const AddAppraisalCycle = () => {
                     onChange={handleDateChange}
                     error={error}
                     helperText={errorMessage}
-                    inputProps={{
-                      min: today, // sets today as the minimum for the date picker
-                    }}
+                    inputProps={{ min: today }}
                   />
                 </Grid>
-                <Grid size={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
                     fullWidth
                     label="End Date"
@@ -365,7 +335,7 @@ const AddAppraisalCycle = () => {
                     helperText={endDateError}
                   />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <FormControl component="fieldset">
                     <Typography>Status</Typography>
                     <RadioGroup
@@ -389,28 +359,23 @@ const AddAppraisalCycle = () => {
               </Grid>
             </CardContent>
           </Card>
-          {/* Stages Section */}
-          <Card sx={{ p: 1, width: '100%', mt: 1 }}>
+
+          {/* Stages */}
+          <Card sx={{ p: 1, width: '100%', mb: 2 }}>
             <CardContent>
-              <Grid container spacing={2} sx={{ mt: 1 }}>
+              <Grid container spacing={2} sx={{ mb: 1 }}>
                 <Grid size={4}>
                   <Typography fontWeight="bold" sx={{ color: 'primary.main' }}>
                     Stages
                   </Typography>
                 </Grid>
                 <Grid size={4}>
-                  <Typography
-                    fontWeight="bold"
-                    sx={{ ml: 2, color: 'primary.main' }}
-                  >
+                  <Typography fontWeight="bold" sx={{ color: 'primary.main' }}>
                     Start Date
                   </Typography>
                 </Grid>
                 <Grid size={4}>
-                  <Typography
-                    fontWeight="bold"
-                    sx={{ ml: 2, color: 'primary.main' }}
-                  >
+                  <Typography fontWeight="bold" sx={{ color: 'primary.main' }}>
                     End Date
                   </Typography>
                 </Grid>
@@ -421,9 +386,9 @@ const AddAppraisalCycle = () => {
                   container
                   spacing={2}
                   key={index}
-                  sx={{ mt: 1, alignItems: 'center' }}
+                  sx={{ mb: 1, alignItems: 'center' }}
                 >
-                  <Grid size={4}>
+                  <Grid size={4} sx={{ display: 'flex', alignItems: 'center' }}>
                     <Typography
                       sx={{ fontWeight: 'bold', color: 'primary.main' }}
                     >
@@ -464,18 +429,12 @@ const AddAppraisalCycle = () => {
               ))}
             </CardContent>
           </Card>
-          {/* Parameters Section */}
 
-          <Card sx={{ p: 2, width: '100%', mt: 1 }}>
+          {/* Parameters */}
+          <Card sx={{ p: 1, width: '100%', mb: 2 }}>
             <CardContent>
-              {/* Header Row */}
               <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 2,
-                  flexWrap: 'wrap',
-                }}
+                sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}
               >
                 <Typography
                   fontWeight="bold"
@@ -491,19 +450,19 @@ const AddAppraisalCycle = () => {
                 </Typography>
                 <Typography
                   fontWeight="bold"
-                  sx={{ flex: 1, color: 'primary.main' }}
+                  sx={{ flex: 1, color: 'primary.main', textAlign: 'center' }}
                 >
                   Employee
                 </Typography>
                 <Typography
                   fontWeight="bold"
-                  sx={{ flex: 1, color: 'primary.main' }}
+                  sx={{ flex: 1, color: 'primary.main', textAlign: 'center' }}
                 >
                   Team Lead
                 </Typography>
+                <Box sx={{ width: 40 }} />
               </Box>
 
-              {/* Parameters List */}
               {parameters.map((param, index) => (
                 <Box
                   key={index}
@@ -511,8 +470,7 @@ const AddAppraisalCycle = () => {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 2,
-                    flexWrap: 'wrap',
-                    mt: 1,
+                    mb: 1.5,
                   }}
                 >
                   <TextField
@@ -564,7 +522,7 @@ const AddAppraisalCycle = () => {
                   </Box>
                   <Box
                     sx={{
-                      flex: 'none',
+                      width: 40,
                       display: 'flex',
                       justifyContent: 'center',
                     }}
@@ -580,9 +538,8 @@ const AddAppraisalCycle = () => {
                 </Box>
               ))}
 
-              {/* Add Button */}
               <Box
-                sx={{ display: 'flex', justifyContent: 'flex-start', mt: 2 }}
+                sx={{ display: 'flex', justifyContent: 'flex-start', mt: 1 }}
               >
                 <IconButton color="primary" onClick={addParameter}>
                   <AddIcon />
@@ -591,23 +548,18 @@ const AddAppraisalCycle = () => {
             </CardContent>
           </Card>
 
-          <Grid container justifyContent="flex-end" sx={{ mt: 3 }}>
+          {/* Actions */}
+          <Grid container justifyContent="flex-end" gap={2} sx={{ mt: 2 }}>
+            <Button variant="contained" onClick={handleCancel} color="error">
+              Cancel
+            </Button>
             <Button
               variant="contained"
               color="primary"
               onClick={handleSave}
               disabled={!formValid}
-              sx={{ mt: 3 }}
             >
               Save
-            </Button>
-            <Button
-              variant="contained"
-              onClick={handleCancel}
-              color="error"
-              sx={{ mt: 3, ml: 3 }}
-            >
-              Cancel
             </Button>
           </Grid>
 
@@ -621,6 +573,7 @@ const AddAppraisalCycle = () => {
           </Snackbar>
         </CardContent>
       </Card>
+
       <Backdrop
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={saving}

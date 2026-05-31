@@ -20,7 +20,7 @@ export const createStage = async (stageData) => {
  * Create a new parameter within an appraisal cycle.
  */
 export const createParameter = async (parameterData) => {
-  const response = await apiClient.post('/parameters/', parameterData);
+  const response = await apiClient.post('/parameter/', parameterData);
   return response.data;
 };
 
@@ -44,7 +44,9 @@ export const deleteAppraisalCycle = async (cycleId) => {
  * Fetch a single appraisal cycle by ID for editing.
  */
 export const getCycleById = async (cycleId) => {
-  const response = await apiClient.get(`/edit-appraisal-cycle/${cycleId}`);
+  const response = await apiClient.get(
+    `/edit-appraisal-cycle/edit-appraisal-cycle/${cycleId}`
+  );
   return response.data;
 };
 
@@ -53,7 +55,7 @@ export const getCycleById = async (cycleId) => {
  */
 export const editAppraisalCycle = async (cycleData) => {
   const response = await apiClient.put(
-    `/edit-appraisal-cycle/${cycleData.cycle_id}`,
+    `/edit-appraisal-cycle/edit-appraisal-cycle/${cycleData.cycle_id}`,
     cycleData
   );
   return response.data;

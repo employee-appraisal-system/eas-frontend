@@ -4,7 +4,7 @@ import apiClient from './client';
  * Fetch all questions.
  */
 export const fetchQuestions = async () => {
-  const response = await apiClient.get('/question');
+  const response = await apiClient.get('/question/question');
   return response.data;
 };
 
@@ -12,7 +12,7 @@ export const fetchQuestions = async () => {
  * Add a new question.
  */
 export const addQuestion = async (data) => {
-  const response = await apiClient.post('/question', data);
+  const response = await apiClient.post('/question/question', data);
   return response.data;
 };
 
@@ -20,6 +20,6 @@ export const addQuestion = async (data) => {
  * Fetch all questions with their options.
  */
 export const fetchQuestionsWithOptions = async () => {
-  const response = await apiClient.get('/questions-with-options');
+  const response = await apiClient.get('/question/questions-with-options');
   return response.data;
 };

@@ -4,7 +4,9 @@ import apiClient from './client';
  * Fetch assessment cycles for a regular employee.
  */
 export const fetchAssessmentCycles = async (employeeId) => {
-  const response = await apiClient.get(`/assessment/cycles/${employeeId}`);
+  const response = await apiClient.get(
+    `/employee_assessment/cycles/${employeeId}`
+  );
   return response.data;
 };
 
@@ -13,7 +15,7 @@ export const fetchAssessmentCycles = async (employeeId) => {
  */
 export const fetchTeamLeadCycles = async (employeeId) => {
   const response = await apiClient.get(
-    `/assessment/teamlead/cycles/${employeeId}`
+    `/employee_assessment/teamlead/cycles/${employeeId}`
   );
   return response.data;
 };
@@ -23,7 +25,7 @@ export const fetchTeamLeadCycles = async (employeeId) => {
  */
 export const fetchAssessmentQuestions = async (employeeId, cycleId) => {
   const response = await apiClient.get(
-    `/assessment/questions/${employeeId}/${cycleId}`
+    `/employee_assessment/questions/${employeeId}/${cycleId}`
   );
   return response.data;
 };
@@ -33,7 +35,7 @@ export const fetchAssessmentQuestions = async (employeeId, cycleId) => {
  */
 export const fetchAssessmentResponses = async (employeeId, cycleId) => {
   const response = await apiClient.get(
-    `/assessment/responses/${employeeId}/${cycleId}`
+    `/employee_assessment/responses/${employeeId}/${cycleId}`
   );
   return response.data;
 };
@@ -42,7 +44,7 @@ export const fetchAssessmentResponses = async (employeeId, cycleId) => {
  * Submit assessment responses.
  */
 export const submitAssessment = async (payload) => {
-  const response = await apiClient.post('/assessment/submit', payload);
+  const response = await apiClient.post('/employee_assessment/submit', payload);
   return response.data;
 };
 
@@ -50,7 +52,7 @@ export const submitAssessment = async (payload) => {
  * Create assignments (assign employees to questions for a cycle).
  */
 export const createAssignment = async (assignmentData) => {
-  const response = await apiClient.post('/assignments/', assignmentData);
+  const response = await apiClient.post('/assignment/', assignmentData);
   return response.data;
 };
 
@@ -58,7 +60,9 @@ export const createAssignment = async (assignmentData) => {
  * Fetch self-assessment report responses for a cycle.
  */
 export const fetchCycleResponses = async (cycleId) => {
-  const response = await apiClient.get(`/self-assessment-report/${cycleId}`);
+  const response = await apiClient.get(
+    `/self_assess_report/self-assessment-report/${cycleId}`
+  );
   return response.data;
 };
 

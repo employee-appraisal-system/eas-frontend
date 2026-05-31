@@ -600,7 +600,7 @@ const DropdownPage = () => {
 
   return (
     <>
-      <Card sx={{ ml: 2, mr: 2, justifyContent: 'center' }}>
+      <Card sx={{ mt: 3, ml: 2, mr: 2, justifyContent: 'center' }}>
         <CardContent>
           {/* Title */}
           {loadingCycles ? (

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { clearEmployeeSession, getAccessToken } from '../utils/auth';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -14,6 +15,17 @@ const apiClient = axios.create({
   withCredentials: false,
 });
 
+apiClient.interceptors.request.use((config) => {
+  const token = getAccessToken();
+
+  if (token) {
+    config.headers = config.headers || {};
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+
 /**
  * Response interceptor — unwraps `response.data` for convenience.
  * Error interceptor — normalizes errors into a consistent format.
@@ -21,6 +33,30 @@ const apiClient = axios.create({
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
+    const status = error.response?.status;
+    const url = String(error.config?.url || '');
+
+    const isAuthEndpoint =
+      url.includes('/auth/login') ||
+      url.includes('/auth/sso/login') ||
+      url.includes('/auth/sso/callback');
+
+    if ((status === 401 || status === 403) && !isAuthEndpoint) {
+      clearEmployeeSession();
+
+      if (typeof window !== 'undefined') {
+        try {
+          window.dispatchEvent(
+            new CustomEvent('auth:logout', {
+              detail: { status, url },
+            })
+          );
+        } catch {
+          // ignore
+        }
+      }
+    }
+
     const message =
       error.response?.data?.detail ||
       error.response?.data?.message ||
@@ -32,11 +68,7 @@ apiClient.interceptors.response.use(
       message
     );
 
-    return Promise.reject({
-      message,
-      status: error.response?.status,
-      raw: error,
-    });
+    return Promise.reject({ message, status, raw: error });
   }
 );
 

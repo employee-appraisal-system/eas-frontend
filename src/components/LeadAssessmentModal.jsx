@@ -405,6 +405,7 @@ const LeadAssessmentModal = ({
             </Typography>
 
             <IconButton
+              aria-label="Close"
               color="error"
               onClick={() => {
                 resetFields();
@@ -421,11 +422,11 @@ const LeadAssessmentModal = ({
 
             <Grid container spacing={2} alignItems="center">
               {/* Employee Dropdown */}
-              <Grid item xs={12} md={4}>
+              <Grid size={{ xs: 12, md: 4 }}>
                 <FormControl fullWidth>
                   <InputLabel
                     sx={{
-                      backgroundColor: 'white',
+                      backgroundColor: 'background.paper',
                       px: 1,
                       top: '-4px',
                     }}
@@ -471,9 +472,7 @@ const LeadAssessmentModal = ({
 
               {/* One-on-one Discussion Date - right alignment */}
               <Grid
-                item
-                xs={12}
-                md={8}
+                size={{ xs: 12, md: 8 }}
                 sx={{
                   display: 'flex',
                   justifyContent: 'flex-end',

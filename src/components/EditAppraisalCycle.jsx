@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   Button,
@@ -74,7 +74,7 @@ const EditAppraisalCycle = () => {
     },
   ]);
 
-  const getCycleById = async () => {
+  const getCycleById = useCallback(async () => {
     try {
       const data = await fetchCycleById(Number(cycle_id));
       setCycle(data);
@@ -114,15 +114,15 @@ const EditAppraisalCycle = () => {
     } catch (error) {
       console.log('Error while fetching cycle: ' + error);
     }
-  };
+  }, [cycle_id]);
 
   useEffect(() => {
     getCycleById();
-  }, []);
+  }, [getCycleById]);
 
   const [formValid, setFormValid] = useState(false);
 
-  const validateForm = () => {
+  const validateForm = useCallback(() => {
     let valid = true;
 
     if (!cycleName.trim()) {
@@ -218,11 +218,11 @@ const EditAppraisalCycle = () => {
 
     setStageErrors(newStageErrors);
     setFormValid(valid);
-  };
+  }, [cycleName, description, endDate, parameters, stages, startDate, status]);
 
   useEffect(() => {
     validateForm();
-  }, [cycleName, description, status, startDate, endDate, stages, parameters]);
+  }, [validateForm]);
 
   const handleSave = async () => {
     try {
@@ -349,7 +349,7 @@ const EditAppraisalCycle = () => {
                     helperText={endDateError}
                   />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <FormControl component="fieldset">
                     <Typography>Status</Typography>
                     <RadioGroup

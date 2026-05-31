@@ -1,13 +1,6 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import { DataGrid } from '@mui/x-data-grid';
-import {
-  GridToolbarContainer,
-  GridToolbarFilterButton,
-  GridToolbarColumnsButton,
-  GridToolbarExport,
-  GridToolbarQuickFilter,
-} from '@mui/x-data-grid';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
@@ -16,39 +9,15 @@ import Chip from '@mui/material/Chip';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
-import { Grid, Typography, IconButton, Skeleton } from '@mui/material';
+import { Typography, IconButton, Skeleton } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
+import CustomToolbar from './CustomeToolbar';
 import {
   fetchEmployeesList,
   fetchHistoricReportCycles,
   fetchEmployeeRatings,
 } from '../api';
-
-function CustomToolbar() {
-  return (
-    <GridToolbarContainer
-      sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        p: 1,
-      }}
-    >
-      {/* Left Side - Filters, Columns, Export */}
-      <Box sx={{ display: 'flex', gap: 1 }}>
-        <GridToolbarColumnsButton />
-        <GridToolbarFilterButton />
-        <GridToolbarExport />
-      </Box>
-
-      {/* Right Side - Search Bar */}
-      <Box sx={{ width: '250px' }}>
-        <GridToolbarQuickFilter />
-      </Box>
-    </GridToolbarContainer>
-  );
-}
 
 // Helper function to format ratings
 const formatRating = (ratingValue) => {
@@ -91,7 +60,10 @@ export default function HistoricalReportTable({ onSelect }) {
   const [rows, setRows] = React.useState([]);
 
   const [originalRows, setOriginalRows] = React.useState([]);
-  const [selectedIds, setSelectedIds] = React.useState([]);
+  const [rowSelectionModel, setRowSelectionModel] = React.useState({
+    type: 'include',
+    ids: new Set(),
+  });
   const [cycles, setCycles] = React.useState([]);
   const [selectedCycles, setSelectedCycles] = React.useState([]);
   const [baseColumns] = React.useState([
@@ -247,16 +219,22 @@ export default function HistoricalReportTable({ onSelect }) {
   };
 
   // Handle row selection
-  const handleRowSelection = (selectedRowIds) => {
-    setSelectedIds(selectedRowIds);
+  const handleRowSelection = (newModel) => {
+    const normalizedModel = {
+      type: newModel?.type === 'exclude' ? 'exclude' : 'include',
+      ids: new Set(newModel?.ids ?? []),
+    };
+
+    setRowSelectionModel(normalizedModel);
+
+    const isSelected = (rowId) =>
+      normalizedModel.type === 'include'
+        ? normalizedModel.ids.has(rowId)
+        : !normalizedModel.ids.has(rowId);
 
     // Get selected and unselected employees, preserving all data including cycle ratings
-    const selectedEmployees = rows.filter((row) =>
-      selectedRowIds.includes(row.id)
-    );
-    const unselectedEmployees = rows.filter(
-      (row) => !selectedRowIds.includes(row.id)
-    );
+    const selectedEmployees = rows.filter((row) => isSelected(row.id));
+    const unselectedEmployees = rows.filter((row) => !isSelected(row.id));
 
     const newOrderedRows = [...selectedEmployees, ...unselectedEmployees];
     setRows(newOrderedRows);
@@ -271,30 +249,34 @@ export default function HistoricalReportTable({ onSelect }) {
   return (
     <>
       <Box sx={{ width: '100%' }}>
-        <Grid container alignItems="center">
-          <Grid item size={11}>
-            <Typography
-              variant="h6"
-              color="primary"
-              fontWeight={'bold'}
-              sx={{ padding: '10px' }}
-            >
-              Historical Report
-            </Typography>
-          </Grid>
-          <Grid size={1} sx={{ textAlign: 'right' }}>
-            <IconButton onClick={() => navigate('/hr-home')} color="error">
-              <CloseIcon />
-            </IconButton>
-          </Grid>
-        </Grid>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 2,
+            p: 1.25,
+          }}
+        >
+          <Typography variant="h6" color="primary" fontWeight={700}>
+            Historical Report
+          </Typography>
 
-        <Box sx={{ pr: '10px', pl: '10px', pb: '10px' }}>
+          <IconButton
+            aria-label="Close"
+            onClick={() => navigate('/hr-home')}
+            color="error"
+          >
+            <CloseIcon />
+          </IconButton>
+        </Box>
+
+        <Box sx={{ px: 1.25, pb: 1.25 }}>
           {/* Cycle Selection Dropdown with Checkboxes */}
           <FormControl sx={{ mb: 1, width: 'auto', minWidth: '20%' }}>
             <InputLabel
               id="checkbox-cycles-label"
-              sx={{ background: 'white', px: 0.5 }}
+              sx={{ backgroundColor: 'background.paper', px: 0.5 }}
             >
               Select Appraisal Cycles
             </InputLabel>
@@ -371,7 +353,7 @@ export default function HistoricalReportTable({ onSelect }) {
                   height={30}
                   sx={{
                     mb: 1,
-                    bgcolor: '#e6e9ed',
+                    bgcolor: 'action.hover',
                     opacity: 0.3,
                   }}
                 />
@@ -388,11 +370,13 @@ export default function HistoricalReportTable({ onSelect }) {
               rows={rows}
               columns={columns}
               pageSizeOptions={[5]}
+              showToolbar
               checkboxSelection
               disableRowSelectionOnClick
               slots={{ toolbar: CustomToolbar }}
+              slotProps={{ toolbar: { exportSelectedOnly: true } }}
               onRowSelectionModelChange={handleRowSelection}
-              selectionModel={selectedIds}
+              rowSelectionModel={rowSelectionModel}
               rowHeight={getRowHeight()}
               hideFooter
             />
