@@ -1,13 +1,5 @@
 import { useState } from 'react';
-import {
-  Button,
-  Box,
-  Card,
-  Snackbar,
-  Alert,
-  Typography,
-  Grid,
-} from '@mui/material';
+import { Button, Box, Card, Snackbar, Alert, Typography } from '@mui/material';
 import {
   Group as PanelGroup,
   Panel,
@@ -31,7 +23,6 @@ export default function Assignment({ cycleId, onClose, cycleName }) {
 
   const handleEmployeeSelection = (employees) => {
     setSelectedEmployees(employees);
-    console.log('Selected Employees:', employees);
   };
 
   const handleQuestionSelection = (questions) => {
@@ -76,23 +67,25 @@ export default function Assignment({ cycleId, onClose, cycleName }) {
   return (
     <>
       <Box>
-        <Card sx={{ mt: 2, width: '100%', height: 600, pr: 2, pl: 2 }}>
-          <Grid
-            container
-            alignItems="center"
-            justifyContent="space-between"
-            sx={{ mt: 1, ml: 1, mb: 1 }}
+        <Card sx={{ mt: 2, width: '100%', height: 600, p: 2 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 2,
+              flexWrap: 'wrap',
+              mb: 1,
+            }}
           >
-            <Grid item sx={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <Typography variant="h6" color="primary" fontWeight={'bold'}>
-                {cycleName}
-              </Typography>
+            <Typography variant="h6" color="primary" fontWeight={700}>
+              {cycleName}
+            </Typography>
 
-              <Typography variant="body1">
-                Employees: {selectedEmployees.length}
-              </Typography>
-            </Grid>
-          </Grid>
+            <Typography variant="body1">
+              Employees: {selectedEmployees.length}
+            </Typography>
+          </Box>
 
           <PanelGroup direction="horizontal">
             {/* Left Panel - Employee Selection */}
@@ -107,7 +100,7 @@ export default function Assignment({ cycleId, onClose, cycleName }) {
 
             {/* Resize feature */}
             <PanelResizeHandle
-              style={{ width: '5px', background: '#ccc', cursor: 'ew-resize' }}
+              style={{ width: '6px', background: '#ccc', cursor: 'ew-resize' }}
             />
 
             {/* Right Panel - Question Selection */}
@@ -130,7 +123,9 @@ export default function Assignment({ cycleId, onClose, cycleName }) {
         </Card>
 
         {/* Bottom Buttons */}
-        <Box sx={{ display: 'flex', justifyContent: 'right', gap: 3, mt: 2 }}>
+        <Box
+          sx={{ display: 'flex', justifyContent: 'flex-end', gap: 3, mt: 2 }}
+        >
           <Button
             variant="contained"
             color="primary"

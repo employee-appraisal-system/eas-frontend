@@ -4,10 +4,9 @@ import {
   CardContent,
   TextField,
   Button,
-  Typography,
-  Modal,
   Box,
   CircularProgress,
+  Alert,
 } from '@mui/material';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { loginAuth, getSSOLoginUrl } from '../api';
@@ -25,43 +24,62 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [touched, setTouched] = useState({ email: false, password: false });
   const navigate = useNavigate();
   const location = useLocation();
   const isUnauthorized = Boolean(location.state?.unauthorized);
+  const ssoError = location.state?.ssoError;
 
   const authenticated = isAuthenticated();
   const role = getAuthenticatedRole();
 
   const defaultRoute = role ? getDefaultRouteForRole(role) : null;
 
+  const emailError =
+    touched.email && !String(email).trim() ? 'Email is required' : '';
+  const passwordError =
+    touched.password && !String(password).trim() ? 'Password is required' : '';
+
   const handleLogin = async () => {
+    setTouched({ email: true, password: true });
+    if (!String(email).trim() || !String(password).trim()) {
+      setError('Please enter your email and password.');
+      return;
+    }
+
     setLoading(true);
+    setError('');
     try {
       const response = await loginAuth(email, password);
 
-      if (response.message === 'Login successful') {
-        const userRole = response.role.toLowerCase();
-        storeEmployeeSession({
-          employee_id: response.employee_id,
-          role: userRole,
-          employee_name: response.employee_name,
-          email: response.email,
-          token: response.access_token ?? response.token,
-        });
+      const token = response?.access_token ?? response?.token ?? response?.jwt;
+      const employee = response?.employee;
+      const employeeId = employee?.employee_id;
+      const employeeName = employee?.employee_name;
+      const userRole = employee?.role
+        ? String(employee.role).toLowerCase()
+        : '';
 
-        const intendedRoute = location.state?.from?.pathname;
-        navigate(intendedRoute || getDefaultRouteForRole(userRole), {
-          replace: true,
-        });
-      } else {
-        setError(response.detail || 'Invalid credentials');
-        setOpen(true);
+      if (!token || !employeeId || !userRole) {
+        setError(response?.detail || 'Invalid credentials');
+        return;
       }
+
+      storeEmployeeSession({
+        employee_id: employeeId,
+        role: userRole,
+        employee_name: employeeName,
+        email,
+        access_token: token,
+      });
+
+      const intendedRoute = location.state?.from?.pathname;
+      navigate(intendedRoute || getDefaultRouteForRole(userRole), {
+        replace: true,
+      });
     } catch (err) {
       setError(err.message || 'Login failed. Please try again.');
-      setOpen(true);
     } finally {
       setLoading(false); // Stop loading
     }
@@ -72,7 +90,11 @@ const Login = () => {
       const data = await getSSOLoginUrl();
       window.location.href = data.login_url;
     } catch (err) {
-      console.error('SSO Login Error:', err);
+      setError(
+        err?.message
+          ? `SSO login failed: ${err.message}`
+          : 'SSO login failed. Please try again.'
+      );
     }
   };
 
@@ -85,9 +107,10 @@ const Login = () => {
         justifyContent: 'center',
         alignItems: 'center',
         height: '100vh',
+        p: 2,
       }}
     >
-      <Card sx={{ width: 300, p: 2 }}>
+      <Card sx={{ width: '100%', maxWidth: 360, p: 2 }}>
         <CardMedia
           component="img"
           height="40"
@@ -96,65 +119,92 @@ const Login = () => {
           alt="Company logo"
         />
         <CardContent>
-          <TextField
-            label="Email"
-            fullWidth
-            margin="normal"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={loading}
-          />
-          <TextField
-            label="Password"
-            type="password"
-            fullWidth
-            margin="normal"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            disabled={loading}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            fullWidth
-            onClick={handleLogin}
-            disabled={loading}
-            sx={{ mt: 2, p: 1 }}
-          >
-            {loading ? <CircularProgress size={24} color="inherit" /> : 'Login'}
-          </Button>
-          <Button
-            variant="outlined"
-            fullWidth
-            startIcon={<MicrosoftIcon />}
-            onClick={handleMicrosoftLogin}
-            sx={{
-              mt: 2,
-              p: 1.2,
-              borderRadius: 2,
-              textTransform: 'none',
-              fontWeight: 'bold',
+          <Box
+            component="form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!loading) handleLogin();
             }}
+            noValidate
           >
-            Continue with Microsoft
-          </Button>
+            {(isUnauthorized || ssoError) && (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {ssoError || 'Session expired. Please log in again.'}
+              </Alert>
+            )}
+
+            {error && !(isUnauthorized || ssoError) && (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {error}
+              </Alert>
+            )}
+
+            <TextField
+              label="Email"
+              name="email"
+              type="email"
+              autoComplete="username"
+              autoFocus
+              fullWidth
+              margin="normal"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onBlur={() => setTouched((prev) => ({ ...prev, email: true }))}
+              error={Boolean(emailError)}
+              helperText={emailError || ' '}
+              disabled={loading}
+            />
+
+            <TextField
+              label="Password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              fullWidth
+              margin="normal"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onBlur={() => setTouched((prev) => ({ ...prev, password: true }))}
+              error={Boolean(passwordError)}
+              helperText={passwordError || ' '}
+              disabled={loading}
+            />
+
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              disabled={loading}
+              sx={{ mt: 1.5, py: 1 }}
+            >
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                'Login'
+              )}
+            </Button>
+
+            <Button
+              type="button"
+              variant="outlined"
+              fullWidth
+              startIcon={<MicrosoftIcon />}
+              onClick={handleMicrosoftLogin}
+              disabled={loading}
+              sx={{
+                mt: 2,
+                py: 1.1,
+                borderRadius: 2,
+                textTransform: 'none',
+                fontWeight: 700,
+              }}
+            >
+              Continue with Microsoft
+            </Button>
+          </Box>
         </CardContent>
       </Card>
-      <Modal open={open} onClose={() => setOpen(false)}>
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            bgcolor: 'background.paper',
-            p: 3,
-          }}
-        >
-          <Typography>{error}</Typography>
-          <Button onClick={() => setOpen(false)}>Close</Button>
-        </Box>
-      </Modal>
     </Box>
   );
 };

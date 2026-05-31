@@ -3,15 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import {
   Card,
   CardContent,
-  Grid,
   Typography,
   Button,
-  Link,
+  // Link,
   IconButton,
   Snackbar,
   Alert,
-  Menu,
-  MenuItem,
+  // Menu,
+  // MenuItem,
   Skeleton,
   Box,
 } from '@mui/material';
@@ -44,8 +43,8 @@ const HRLandingPage = () => {
     message: '',
     severity: 'success',
   });
-  let vertical = 'bottom';
-  let horizontal = 'center';
+  const vertical = 'bottom';
+  const horizontal = 'center';
 
   const findCurrentStage = (cycle) => {
     const today = new Date().toISOString().split('T')[0];
@@ -98,9 +97,14 @@ const HRLandingPage = () => {
       setLoadingAppraisalCycles(true);
       const data = await fetchAppraisalCycles();
       setAppraisalCycles(data);
-      console.log(data);
     } catch (err) {
-      console.log('Error while fetching cycles: ' + err);
+      setSnackbar({
+        open: true,
+        message: err?.message
+          ? `Failed to load appraisal cycles: ${err.message}`
+          : 'Failed to load appraisal cycles.',
+        severity: 'error',
+      });
     } finally {
       setLoadingAppraisalCycles(false);
     }
@@ -119,16 +123,21 @@ const HRLandingPage = () => {
         });
         return;
       }
-      const data = await deleteAppraisalCycle(cycle_id);
+      await deleteAppraisalCycle(cycle_id);
       loadAppraisalCycles();
-      console.log('Cycle is deleted :' + data);
       setSnackbar({
         open: true,
         message: 'Cycle is deleted successfully.',
         severity: 'success',
       });
     } catch (err) {
-      console.log('Error while deleting the cycle: ' + err);
+      setSnackbar({
+        open: true,
+        message: err?.message
+          ? `Failed to delete cycle: ${err.message}`
+          : 'Failed to delete cycle. Please try again.',
+        severity: 'error',
+      });
     } finally {
       setDeleting(false); // Hide loading backdrop
     }
@@ -289,100 +298,51 @@ const HRLandingPage = () => {
   ];
   const getRowHeight = () => 38;
 
-  const [anchorEl, setAnchorEl] = useState(null);
+  // const [anchorEl, setAnchorEl] = useState(null);
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget); // open menu
-  };
+  // const handleClick = (event) => {
+  //   setAnchorEl(event.currentTarget); // open menu
+  // };
 
-  const handleClose = () => {
-    setAnchorEl(null); // close menu
-  };
+  // const handleClose = () => {
+  //   setAnchorEl(null); // close menu
+  // };
 
   return (
     <>
       <Card sx={{ width: '100%' }}>
         <CardContent sx={{ height: detailsVisible ? 300 : '100%' }}>
-          <Grid
-            container
-            alignItems="center"
-            justifyContent="space-between"
-            sx={{ mb: 2 }}
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 2,
+              flexWrap: 'wrap',
+              mb: 2,
+            }}
           >
-            {/* Left Side: Appraisal Cycle */}
-            <Grid item>
-              <Typography variant="h6" color="primary" fontWeight={'bold'}>
-                Appraisal Cycle
-              </Typography>
-            </Grid>
+            <Typography variant="h6" color="primary" fontWeight={700}>
+              Appraisal Cycle
+            </Typography>
 
-            {/* Right Side: Links & Button */}
-            <Grid item>
-              <Grid container spacing={2} alignItems="center">
-                <Grid item>
-                  <Link
-                    onClick={handleClick}
-                    color="primary"
-                    sx={{
-                      cursor: 'pointer',
-                      '&:hover': {
-                        cursor: 'pointer',
-                      },
-                    }}
-                  >
-                    Reports
-                  </Link>
-
-                  <Menu
-                    anchorEl={anchorEl}
-                    open={Boolean(anchorEl)}
-                    onClose={handleClose}
-                  >
-                    <MenuItem
-                      onClick={() => {
-                        navigate('/historical-report');
-                        handleClose();
-                      }}
-                    >
-                      Historical Report
-                    </MenuItem>
-
-                    <MenuItem
-                      onClick={() => {
-                        navigate('/self-assessment-report');
-                        handleClose();
-                      }}
-                    >
-                      Self Assessment Report
-                    </MenuItem>
-                  </Menu>
-                </Grid>
-                <Grid item>
-                  <Link
-                    onClick={() => navigate('/questionnaire')}
-                    color="primary"
-                    sx={{
-                      cursor: 'pointer',
-                      '&:hover': {
-                        cursor: 'pointer',
-                      },
-                    }}
-                  >
-                    Questionnaire
-                  </Link>
-                </Grid>
-                <Grid item>
-                  <Button
-                    variant="contained"
-                    onClick={() => navigate('/add-appraisal')}
-                    color="primary"
-                  >
-                    Add
-                  </Button>
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
+            <Box
+              sx={{
+                display: 'flex',
+                gap: 2,
+                alignItems: 'center',
+                flexWrap: 'wrap',
+              }}
+            >
+              <Button
+                variant="contained"
+                onClick={() => navigate('/add-appraisal')}
+                color="primary"
+              >
+                Add
+              </Button>
+            </Box>
+          </Box>
 
           {loadingAppraisalCycles ? (
             <Box sx={{ width: '100%', mt: 2 }}>
@@ -393,23 +353,24 @@ const HRLandingPage = () => {
                   height={30}
                   sx={{
                     mb: 1,
-                    bgcolor: '#e6e9ed',
+                    bgcolor: 'action.hover',
                     opacity: 0.3,
                   }}
                 />
               ))}
             </Box>
           ) : (
-            <Grid item xs={12} style={{ height: '100%', width: '100%' }}>
+            <Box sx={{ height: '100%', width: '100%' }}>
               <DataGrid
                 rows={rowsWithStage}
                 columns={columnsWithStage}
                 getRowId={(row) => row.cycle_id}
                 slots={{ toolbar: CustomToolbar }}
                 pageSizeOptions={[5]}
+                showToolbar
                 sx={{
                   height: detailsVisible ? 250 : '93vh',
-                  padding: '2px',
+                  p: 0.25,
                   minHeight: 'auto',
                   overflow: 'auto',
                   '& .MuiDataGrid-columnHeaderTitle': {
@@ -420,7 +381,7 @@ const HRLandingPage = () => {
                 // hideFooterPagination
                 hideFooter
               />
-            </Grid>
+            </Box>
           )}
         </CardContent>
       </Card>

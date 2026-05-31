@@ -1,53 +1,24 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import { DataGrid } from '@mui/x-data-grid';
-import {
-  GridToolbarContainer,
-  GridToolbarFilterButton,
-  GridToolbarColumnsButton,
-  GridToolbarExport,
-  GridToolbarQuickFilter,
-} from '@mui/x-data-grid';
 import { Skeleton } from '@mui/material';
+import CustomToolbar from './CustomeToolbar';
 import { fetchAllEmployees } from '../api';
-
-function CustomToolbar() {
-  return (
-    <GridToolbarContainer
-      sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        p: 1,
-      }}
-    >
-      {/* Left Side - Filters, Columns, Export */}
-      <Box sx={{ display: 'flex', gap: 1 }}>
-        <GridToolbarColumnsButton />
-        <GridToolbarFilterButton />
-        <GridToolbarExport />
-      </Box>
-
-      {/* Right Side - Search Bar */}
-      <Box sx={{ width: '250px' }}>
-        <GridToolbarQuickFilter />
-      </Box>
-    </GridToolbarContainer>
-  );
-}
 
 export default function DataGridDemo({ onSelect }) {
   const [rows, setRows] = React.useState([]);
 
   const [originalRows, setOriginalRows] = React.useState([]);
-  const [selectedIds, setSelectedIds] = React.useState([]);
+  const [rowSelectionModel, setRowSelectionModel] = React.useState({
+    type: 'include',
+    ids: new Set(),
+  });
   const [loadingEmployees, setLoadingEmployees] = React.useState(true);
 
   React.useEffect(() => {
     setLoadingEmployees(true);
     fetchAllEmployees()
       .then((data) => {
-        console.log(data);
         const empMap = {};
         data.forEach((emp) => {
           empMap[emp.id] = emp.full_name;
@@ -69,13 +40,23 @@ export default function DataGridDemo({ onSelect }) {
       .finally(() => setLoadingEmployees(false));
   }, []);
 
-  const handleRowSelection = (selectedRowIds) => {
-    const ids = selectedRowIds.ids;
+  const handleRowSelection = (newModel) => {
+    const normalizedModel = {
+      type: newModel?.type === 'exclude' ? 'exclude' : 'include',
+      ids: new Set(newModel?.ids ?? []),
+    };
 
-    setSelectedIds(Array.from(ids));
+    setRowSelectionModel(normalizedModel);
 
-    const selectedEmployees = originalRows.filter((row) => ids.has(row.id));
-    const unselectedEmployees = originalRows.filter((row) => !ids.has(row.id));
+    const isSelected = (rowId) =>
+      normalizedModel.type === 'include'
+        ? normalizedModel.ids.has(rowId)
+        : !normalizedModel.ids.has(rowId);
+
+    const selectedEmployees = originalRows.filter((row) => isSelected(row.id));
+    const unselectedEmployees = originalRows.filter(
+      (row) => !isSelected(row.id)
+    );
     const newOrderedRows = [...selectedEmployees, ...unselectedEmployees];
 
     setRows(newOrderedRows);
@@ -110,7 +91,7 @@ export default function DataGridDemo({ onSelect }) {
               height={30}
               sx={{
                 mb: 1,
-                bgcolor: '#e6e9ed',
+                bgcolor: 'action.hover',
                 opacity: 0.3,
               }}
             />
@@ -128,11 +109,13 @@ export default function DataGridDemo({ onSelect }) {
           rows={rows}
           columns={columns}
           pageSizeOptions={[5]}
+          showToolbar
           checkboxSelection
           disableRowSelectionOnClick
           slots={{ toolbar: CustomToolbar }}
+          slotProps={{ toolbar: { exportSelectedOnly: true } }}
           onRowSelectionModelChange={handleRowSelection}
-          selectionModel={selectedIds}
+          rowSelectionModel={rowSelectionModel}
           rowHeight={getRowHeight()}
           hideFooter
         />

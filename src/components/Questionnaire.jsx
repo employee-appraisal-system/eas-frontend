@@ -193,7 +193,12 @@ export default function Questionnaire() {
       setLoadingquestions(true);
       const data = await fetchQuestions();
       setQuestions(data);
-    } catch {
+    } catch (err) {
+      setSnackbar({
+        open: true,
+        message: `Error: ${err?.message || 'Failed to load questions.'}`,
+        severity: 'error',
+      });
     } finally {
       setLoadingquestions(false);
     }
@@ -272,6 +277,7 @@ export default function Questionnaire() {
               columns={columns}
               getRowId={(row) => row.question_id}
               slots={{ toolbar: CustomToolbar }}
+              showToolbar
               sx={{
                 '& .MuiDataGrid-columnHeaderTitle': {
                   fontWeight: 'bold',

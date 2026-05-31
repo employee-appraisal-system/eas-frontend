@@ -1,40 +1,16 @@
 import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import { DataGrid } from '@mui/x-data-grid';
-import {
-  GridToolbarContainer,
-  GridToolbarFilterButton,
-  GridToolbarColumnsButton,
-  GridToolbarExport,
-  GridToolbarQuickFilter,
-} from '@mui/x-data-grid';
+import CustomToolbar from './CustomeToolbar';
 import { fetchAllEmployees } from '../api';
-
-function CustomToolbar() {
-  return (
-    <GridToolbarContainer
-      sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-      }}
-    >
-      <Box>
-        <GridToolbarFilterButton />
-        <GridToolbarColumnsButton />
-        <GridToolbarExport />
-      </Box>
-      <Box>
-        <GridToolbarQuickFilter />
-      </Box>
-    </GridToolbarContainer>
-  );
-}
 
 export default function DataGridDemo() {
   const [rows, setRows] = useState([]);
   const [originalRows, setOriginalRows] = useState([]);
-  const [selectedIds, setSelectedIds] = useState([]);
+  const [rowSelectionModel, setRowSelectionModel] = useState({
+    type: 'include',
+    ids: new Set(),
+  });
 
   useEffect(() => {
     fetchAllEmployees()
@@ -61,21 +37,27 @@ export default function DataGridDemo() {
   }, []);
 
   // Function to reorder rows based on selection and restore deselected rows
-  const handleRowSelection = (selectedRowIds) => {
-    setSelectedIds(selectedRowIds);
+  const handleRowSelection = (newModel) => {
+    const normalizedModel = {
+      type: newModel?.type === 'exclude' ? 'exclude' : 'include',
+      ids: new Set(newModel?.ids ?? []),
+    };
 
-    if (selectedRowIds.length === 0) {
+    setRowSelectionModel(normalizedModel);
+
+    const isSelected = (rowId) =>
+      normalizedModel.type === 'include'
+        ? normalizedModel.ids.has(rowId)
+        : !normalizedModel.ids.has(rowId);
+
+    const selectedRows = originalRows.filter((row) => isSelected(row.id));
+
+    if (selectedRows.length === 0) {
       setRows(originalRows); // If nothing is selected, reseting to original order
       return;
     }
 
-    const selectedRows = originalRows.filter((row) =>
-      selectedRowIds.includes(row.id)
-    );
-    const unselectedRows = originalRows.filter(
-      (row) => !selectedRowIds.includes(row.id)
-    );
-
+    const unselectedRows = originalRows.filter((row) => !isSelected(row.id));
     setRows([...selectedRows, ...unselectedRows]);
   };
 
@@ -94,19 +76,18 @@ export default function DataGridDemo() {
   const getRowHeight = () => 35;
 
   return (
-    <Box
-      item
-      sx={{ height: 600, width: '90%', overflow: 'auto', ml: 5, mt: 20 }}
-    >
+    <Box sx={{ height: 600, width: '90%', overflow: 'auto', ml: 5, mt: 20 }}>
       <DataGrid
         rows={rows}
         columns={columns}
         pageSizeOptions={[5]}
+        showToolbar
         checkboxSelection
         disableRowSelectionOnClick
         slots={{ toolbar: CustomToolbar }}
+        slotProps={{ toolbar: { exportSelectedOnly: true } }}
         onRowSelectionModelChange={handleRowSelection}
-        selectionModel={selectedIds}
+        rowSelectionModel={rowSelectionModel}
         rowHeight={getRowHeight()}
       />
     </Box>
