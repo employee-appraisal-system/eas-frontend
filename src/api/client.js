@@ -36,12 +36,19 @@ apiClient.interceptors.response.use(
     const status = error.response?.status;
     const url = String(error.config?.url || '');
 
+    const detail =
+      error.response?.data?.detail || error.response?.data?.message || '';
+
     const isAuthEndpoint =
       url.includes('/auth/login') ||
       url.includes('/auth/sso/login') ||
       url.includes('/auth/sso/callback');
 
-    if ((status === 401 || status === 403) && !isAuthEndpoint) {
+    const isMissingOrInvalidAuth =
+      status === 401 ||
+      (status === 403 && String(detail).toLowerCase() === 'not authenticated');
+
+    if (isMissingOrInvalidAuth && !isAuthEndpoint) {
       clearEmployeeSession();
 
       if (typeof window !== 'undefined') {
@@ -58,10 +65,7 @@ apiClient.interceptors.response.use(
     }
 
     const message =
-      error.response?.data?.detail ||
-      error.response?.data?.message ||
-      error.message ||
-      'An unexpected error occurred.';
+      detail || error.message || 'An unexpected error occurred.';
 
     console.error(
       `[API Error] ${error.config?.method?.toUpperCase()} ${error.config?.url}:`,
