@@ -37,7 +37,6 @@ import {
   fetchAssessmentQuestions,
   fetchAssessmentResponses,
   submitAssessment,
-  getAppraisalCycle,
 } from '../api';
 
 const DropdownPage = () => {
@@ -164,12 +163,14 @@ const DropdownPage = () => {
 
             setSelectedEmployee(employeeId);
 
-            // For dropdown to get the employee list
-            const employeesData = await fetchCycleEmployees(
-              activeCycle.cycle_id,
-              employeeId
-            );
-            setEmployees(employeesData);
+            // Regular employees can only assess themselves; the backend endpoint that
+            // returns cycle employees is restricted to team leads.
+            setEmployees([
+              {
+                id: Number(employeeId),
+                full_name: 'Self',
+              },
+            ]);
 
             const managerData = await fetchReportingManager(employeeId);
             const { reporting_manager_id, reporting_manager_name } =
@@ -312,13 +313,20 @@ const DropdownPage = () => {
         setIsCycleActive(selectedCycleObj.status === 'active');
       }
 
-      const [cycleData, employeesData, managerData] = await Promise.all([
-        getAppraisalCycle(cycleId),
-        fetchCycleEmployees(cycleId, employeeId),
-        fetchReportingManager(employeeId),
-      ]);
+      const managerData = await fetchReportingManager(employeeId);
 
-      setIsCycleActive(cycleData.status === 'active');
+      let employeesData = employees;
+      if (userRole === 'team lead' || userRole === 'admin') {
+        employeesData = await fetchCycleEmployees(cycleId, employeeId);
+      } else {
+        // Keep regular employees scoped to self.
+        employeesData = [
+          {
+            id: Number(employeeId),
+            full_name: 'Self',
+          },
+        ];
+      }
 
       if (userRole === 'team lead' || userRole === 'admin') {
         await checkLeadAssessmentStage(cycleId);
@@ -332,29 +340,10 @@ const DropdownPage = () => {
         const { reporting_manager_id, reporting_manager_name } = managerData;
         setTeamLeadName(`${reporting_manager_id} - ${reporting_manager_name}`);
       } else {
-        //  For HR or employee
-        const userExists = employeesData.some(
-          (emp) => emp.employee_id === employeeId
-        );
-        const defaultEmpId = userExists
-          ? employeeId
-          : employeesData[0]?.employee_id || '';
-
-        setSelectedEmployee(defaultEmpId);
-
-        if (defaultEmpId === employeeId) {
-          const { reporting_manager_id, reporting_manager_name } = managerData;
-          setTeamLeadName(
-            `${reporting_manager_id} - ${reporting_manager_name}`
-          );
-        } else if (defaultEmpId) {
-          const altManagerData = await fetchReportingManager(defaultEmpId);
-          const { reporting_manager_id, reporting_manager_name } =
-            altManagerData;
-          setTeamLeadName(
-            `${reporting_manager_id} - ${reporting_manager_name}`
-          );
-        }
+        // Regular employee: always default to self
+        setSelectedEmployee(employeeId);
+        const { reporting_manager_id, reporting_manager_name } = managerData;
+        setTeamLeadName(`${reporting_manager_id} - ${reporting_manager_name}`);
       }
     } catch (error) {
       console.error('Error handling cycle change:', error);

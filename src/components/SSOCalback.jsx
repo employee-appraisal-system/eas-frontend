@@ -19,7 +19,10 @@ function SSOCallback() {
       completeSSOCallback(code)
         .then((data) => {
           const token = data?.access_token ?? data?.token ?? data?.jwt;
-          const role = data?.role ? String(data.role).toLowerCase() : '';
+          const employee = data?.employee ?? {};
+          const role = (employee?.role ?? data?.role)
+            ? String(employee?.role ?? data?.role).toLowerCase()
+            : '';
 
           if (!token) {
             navigate('/login', {
@@ -33,10 +36,10 @@ function SSOCallback() {
           }
 
           storeEmployeeSession({
-            employee_id: data.employee_id,
+            employee_id: employee?.employee_id ?? data?.employee_id,
             role,
-            employee_name: data.employee_name,
-            email: data.email,
+            employee_name: employee?.employee_name ?? data?.employee_name,
+            email: data?.email ?? employee?.email,
             access_token: token,
           });
 
