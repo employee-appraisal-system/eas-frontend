@@ -9,7 +9,7 @@ import Chip from '@mui/material/Chip';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
-import { Typography, IconButton, Skeleton } from '@mui/material';
+import { Typography, IconButton, Skeleton, Card, CardContent } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
 import CustomToolbar from './CustomeToolbar';
@@ -248,28 +248,22 @@ export default function HistoricalReportTable({ onSelect }) {
 
   return (
     <>
-      <Box sx={{ width: '100%' }}>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 2,
-            p: 1.25,
-          }}
-        >
-          <Typography variant="h6" color="primary" fontWeight={700}>
-            Historical Report
-          </Typography>
-
-          <IconButton
-            aria-label="Close"
-            onClick={() => navigate('/hr-home')}
-            color="error"
+      <Card sx={{ width: '100%' }}>
+        <CardContent>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 2,
+              flexWrap: 'wrap',
+              mb: 2,
+            }}
           >
-            <CloseIcon />
-          </IconButton>
-        </Box>
+            <Typography variant="h6" color="primary" fontWeight="bold">
+              Historical Report
+            </Typography>
+          </Box>
 
         <Box sx={{ px: 1.25, pb: 1.25 }}>
           {/* Cycle Selection Dropdown with Checkboxes */}
@@ -381,8 +375,9 @@ export default function HistoricalReportTable({ onSelect }) {
               hideFooter
             />
           )}
-        </Box>
-      </Box>
+          </Box>
+        </CardContent>
+      </Card>
     </>
   );
 }

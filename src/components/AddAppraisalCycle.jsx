@@ -255,7 +255,7 @@ const AddAppraisalCycle = () => {
     <>
       <Card sx={{ width: '100%' }}>
         <CardContent sx={{ height: '100%' }}>
-          {/* Header — unchanged */}
+          {/* Header - unchanged */}
           <Box
             sx={{
               display: 'flex',
@@ -266,7 +266,7 @@ const AddAppraisalCycle = () => {
               mb: 2,
             }}
           >
-            <Typography variant="h6" color="primary" fontWeight={700}>
+            <Typography variant="h6" color="primary" fontWeight="bold">
               Add Appraisal Cycle
             </Typography>
             <Box
@@ -573,7 +573,6 @@ const AddAppraisalCycle = () => {
           </Snackbar>
         </CardContent>
       </Card>
-
       <Backdrop
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={saving}

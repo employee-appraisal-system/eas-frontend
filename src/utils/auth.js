@@ -167,7 +167,7 @@ export const getDefaultRouteForRole = (role) => {
   }
 
   if (normalizedRole === 'lead') {
-    return '/lead-home';
+    return '/employee-home';
   }
 
   if (normalizedRole === 'admin') {

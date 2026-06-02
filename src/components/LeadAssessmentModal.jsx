@@ -541,7 +541,8 @@ const LeadAssessmentModal = ({
                 mb: 2,
                 mt: 2,
                 boxShadow: 'none',
-                border: '1px solid #c1c9c4',
+                border: '1px solid',
+                borderColor: 'divider',
                 '& ::-webkit-scrollbar': {
                   width: '8px',
                 },

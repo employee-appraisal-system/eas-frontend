@@ -6,9 +6,10 @@ import {
   FormControl,
   Box,
   Skeleton,
+  Card,
+  CardContent,
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import Grid from '@mui/material/Grid';
 import CustomToolbar from './CustomeToolbar';
 import CloseIcon from '@mui/icons-material/Close';
 import { InputLabel, Select, MenuItem } from '@mui/material';
@@ -236,121 +237,113 @@ const SelfAssessmentRepo = ({ onSelect }) => {
 
   return (
     <>
-      <Box sx={{ width: '100%' }}>
-        <Grid container alignItems="center">
-          <Grid size={11}>
-            <Typography
-              variant="h6"
-              color="primary"
-              fontWeight={'bold'}
-              sx={{
-                ml: '10px',
-                my: '10px',
-              }}
-            >
+      <Card sx={{ width: '100%' }}>
+        <CardContent>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 2,
+              flexWrap: 'wrap',
+              mb: 2,
+            }}
+          >
+            <Typography variant="h6" color="primary" fontWeight="bold">
               Self Assessment Report
             </Typography>
-          </Grid>
-          <Grid size={1} sx={{ textAlign: 'right' }}>
-            <IconButton
-              aria-label="Close"
-              onClick={() => navigate('/hr-home')}
-              color="error"
-            >
-              <CloseIcon />
-            </IconButton>
-          </Grid>
-        </Grid>
-        <Box sx={{ pr: '10px', pl: '10px', pb: '10px' }}>
-          <FormControl sx={{ mb: 1, width: 'auto', minWidth: '20%' }}>
-            <InputLabel
-              id="checkbox-cycles-label"
-              sx={{ backgroundColor: 'background.paper', px: 0.5 }}
-            >
-              Select Appraisal Cycles
-            </InputLabel>
-            <Select
-              labelId="checkbox-cycles-label"
-              id="self-assessment-cycle"
-              value={cycle_id ?? ''}
-              displayEmpty
-              onChange={(e) => setCycleId(e.target.value)}
-              MenuProps={MenuProps}
-              sx={{
-                minHeight: '50px',
-                width: 'auto',
-                '& .MuiSelect-select': {
-                  paddingTop: '8px',
-                  paddingBottom: '8px',
-                },
-              }}
-            >
-              <MenuItem value="" disabled>
-                Select an appraisal cycle
-              </MenuItem>
-              {activeCycle && activeCycle.length > 0 ? (
-                activeCycle.map((cycle) => (
-                  <MenuItem key={cycle.cycle_id} value={cycle.cycle_id}>
-                    {cycle.cycle_name}
-                  </MenuItem>
-                ))
-              ) : (
-                <MenuItem disabled>
-                  <Typography variant="body2" color="textSecondary">
-                    No appraisal cycles available
-                  </Typography>
+          </Box>
+          <Box sx={{ pr: '10px', pl: '10px', pb: '10px' }}>
+            <FormControl sx={{ mb: 1, width: 'auto', minWidth: '20%' }}>
+              <InputLabel
+                id="checkbox-cycles-label"
+                sx={{ backgroundColor: 'background.paper', px: 0.5 }}
+              >
+                Select Appraisal Cycles
+              </InputLabel>
+              <Select
+                labelId="checkbox-cycles-label"
+                id="self-assessment-cycle"
+                value={cycle_id ?? ''}
+                displayEmpty
+                onChange={(e) => setCycleId(e.target.value)}
+                MenuProps={MenuProps}
+                sx={{
+                  minHeight: '50px',
+                  width: 'auto',
+                  '& .MuiSelect-select': {
+                    paddingTop: '8px',
+                    paddingBottom: '8px',
+                  },
+                }}
+              >
+                <MenuItem value="" disabled>
+                  Select an appraisal cycle
                 </MenuItem>
-              )}
-            </Select>
-          </FormControl>
+                {activeCycle && activeCycle.length > 0 ? (
+                  activeCycle.map((cycle) => (
+                    <MenuItem key={cycle.cycle_id} value={cycle.cycle_id}>
+                      {cycle.cycle_name}
+                    </MenuItem>
+                  ))
+                ) : (
+                  <MenuItem disabled>
+                    <Typography variant="body2" color="textSecondary">
+                      No appraisal cycles available
+                    </Typography>
+                  </MenuItem>
+                )}
+              </Select>
+            </FormControl>
 
-          {loadingEmployees || loadingCycles ? (
-            <Box sx={{ width: '100%', mt: 2 }}>
-              {[...Array(20)].map((_, index) => (
-                <Skeleton
-                  key={index}
-                  variant="rectangular"
-                  height={30}
-                  sx={{
-                    mb: 1,
-                    bgcolor: 'action.hover',
-                    opacity: 0.3,
-                  }}
-                />
-              ))}
-            </Box>
-          ) : (
-            <DataGrid
-              sx={{
-                maxWidth: '100%',
-                maxHeight: '50%',
-                height: '200px',
-                overflow: 'auto',
-                '& .MuiDataGrid-columnHeaderTitle': {
-                  fontWeight: 'bold',
-                },
-              }}
-              rows={cycle_id ? pivotData(response, rows) : rows}
-              columns={
-                cycle_id ? generateColumns(response, baseColumns) : baseColumns
-              }
-              autoHeight
-              pageSizeOptions={[5]}
-              showToolbar
-              slots={{ toolbar: CustomToolbar }}
-              slotProps={{ toolbar: { exportSelectedOnly: true } }}
-              rowHeight={35}
-              onRowSelectionModelChange={handleRowSelection}
-              rowSelectionModel={rowSelectionModel}
-              checkboxSelection
-              disableRowSelectionOnClick
-              hideFooter
-            />
-          )}
-        </Box>
-      </Box>
+            {loadingEmployees || loadingCycles ? (
+              <Box sx={{ width: '100%', mt: 2 }}>
+                {[...Array(20)].map((_, index) => (
+                  <Skeleton
+                    key={index}
+                    variant="rectangular"
+                    height={30}
+                    sx={{
+                      mb: 1,
+                      bgcolor: 'action.hover',
+                      opacity: 0.3,
+                    }}
+                  />
+                ))}
+              </Box>
+            ) : (
+              <DataGrid
+                sx={{
+                  maxWidth: '100%',
+                  maxHeight: '50%',
+                  height: '200px',
+                  overflow: 'auto',
+                  '& .MuiDataGrid-columnHeaderTitle': {
+                    fontWeight: 'bold',
+                  },
+                }}
+                rows={cycle_id ? pivotData(response, rows) : rows}
+                columns={
+                  cycle_id ? generateColumns(response, baseColumns) : baseColumns
+                }
+                autoHeight
+                pageSizeOptions={[5]}
+                showToolbar
+                slots={{ toolbar: CustomToolbar }}
+                slotProps={{ toolbar: { exportSelectedOnly: true } }}
+                rowHeight={35}
+                onRowSelectionModelChange={handleRowSelection}
+                rowSelectionModel={rowSelectionModel}
+                checkboxSelection
+                disableRowSelectionOnClick
+                hideFooter
+              />
+            )}
+          </Box>
+        </CardContent>
+      </Card>
       <Backdrop
-        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        sx={{ color: '#fff', zIndex: 1201 }}
         open={loadingResponses}
       >
         <CircularProgress color="inherit" />

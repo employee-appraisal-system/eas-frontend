@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
 } from 'react-router-dom';
+import { CssBaseline } from '@mui/material';
 import AddAppraisalCycle from './components/AddAppraisalCycle';
 import EditAppraisalCycle from './components/EditAppraisalCycle';
 import Questionnaire from './components/Questionnaire';
@@ -20,6 +21,7 @@ import AppShell from './components/AppShell';
 export default function App() {
   return (
     <Router>
+      <CssBaseline />
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
@@ -37,7 +39,7 @@ export default function App() {
           <Route
             path="/employee-home"
             element={
-              <ProtectedRoute allowedRoles={['employee', 'team lead', 'admin']}>
+              <ProtectedRoute allowedRoles={['employee', 'team lead', 'lead', 'admin']}>
                 <DropdownPage />
               </ProtectedRoute>
             }

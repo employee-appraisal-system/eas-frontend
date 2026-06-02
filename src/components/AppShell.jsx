@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
 import { isAuthenticated } from '../utils/auth';
+import { Box } from '@mui/material';
 
 export default function AppShell() {
   const navigate = useNavigate();
@@ -23,7 +24,9 @@ export default function AppShell() {
   return (
     <>
       <Navbar />
-      <Outlet />
+      <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
+        <Outlet />
+      </Box>
     </>
   );
 }

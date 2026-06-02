@@ -78,7 +78,7 @@ export default function Assignment({ cycleId, onClose, cycleName }) {
               mb: 1,
             }}
           >
-            <Typography variant="h6" color="primary" fontWeight={700}>
+            <Typography variant="h5" color="primary" fontWeight="bold">
               {cycleName}
             </Typography>
 

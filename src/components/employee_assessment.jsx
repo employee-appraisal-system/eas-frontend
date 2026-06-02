@@ -14,9 +14,10 @@ import {
   Checkbox,
   Radio,
   RadioGroup,
-  TextareaAutosize,
   Button,
   Skeleton,
+  Divider,
+  FormGroup,
 } from '@mui/material';
 import LeadAssessmentModal from './LeadAssessmentModal';
 import { IconButton } from '@mui/material';
@@ -108,11 +109,12 @@ const DropdownPage = () => {
       try {
         // To get the details(including reporting manager) of user
         const userData = await fetchEmployeeDetails(employeeId);
-        const role = userData.role.toLowerCase();
+        const role =
+          localStorage.getItem('user_role') || userData.role.toLowerCase();
         setUserRole(role);
         setLoadingCycles(true);
 
-        if (role === 'team lead' || role === 'admin') {
+        if (role === 'team lead' || role === 'lead' || role === 'admin') {
           const [cycles, reportingEmployees, managerData] = await Promise.all([
             fetchTeamLeadCycles(employeeId),
             fetchReportingEmployees(employeeId),
@@ -262,7 +264,12 @@ const DropdownPage = () => {
   useEffect(() => {
     if (!selectedCycle || !initialLoadCompleted) return;
 
-    if ((userRole === 'team lead' || userRole === 'admin') && isCycleActive) {
+    if (
+      (userRole === 'team lead' ||
+        userRole === 'lead' ||
+        userRole === 'admin') &&
+      isCycleActive
+    ) {
       checkLeadAssessmentStage(selectedCycle);
     }
   }, [
@@ -316,7 +323,11 @@ const DropdownPage = () => {
       const managerData = await fetchReportingManager(employeeId);
 
       let employeesData = employees;
-      if (userRole === 'team lead' || userRole === 'admin') {
+      if (
+        userRole === 'team lead' ||
+        userRole === 'lead' ||
+        userRole === 'admin'
+      ) {
         employeesData = await fetchCycleEmployees(cycleId, employeeId);
       } else {
         // Keep regular employees scoped to self.
@@ -328,13 +339,21 @@ const DropdownPage = () => {
         ];
       }
 
-      if (userRole === 'team lead' || userRole === 'admin') {
+      if (
+        userRole === 'team lead' ||
+        userRole === 'lead' ||
+        userRole === 'admin'
+      ) {
         await checkLeadAssessmentStage(cycleId);
       }
 
       setEmployees(employeesData);
 
-      if (userRole === 'team lead' || userRole === 'admin') {
+      if (
+        userRole === 'team lead' ||
+        userRole === 'lead' ||
+        userRole === 'admin'
+      ) {
         // For Team Leads, always defaulting to themselves
         setSelectedEmployee(employeeId);
         const { reporting_manager_id, reporting_manager_name } = managerData;
@@ -360,6 +379,7 @@ const DropdownPage = () => {
     // For regular employee - view their own assessment
     if (
       userRole !== 'team lead' &&
+      userRole !== 'lead' &&
       userRole !== 'admin' &&
       String(selectedEmployee) === String(employeeId)
     ) {
@@ -368,7 +388,9 @@ const DropdownPage = () => {
 
     // For team lead - submit their own assessment
     if (
-      (userRole === 'team lead' || userRole === 'admin') &&
+      (userRole === 'team lead' ||
+        userRole === 'lead' ||
+        userRole === 'admin') &&
       String(selectedEmployee) === String(employeeId)
     ) {
       return isCycleActive;
@@ -393,7 +415,9 @@ const DropdownPage = () => {
     const { question_id, question_type, options = [] } = question;
 
     const isViewingOtherEmployee =
-      (userRole === 'team lead' || userRole === 'admin') &&
+      (userRole === 'team lead' ||
+        userRole === 'lead' ||
+        userRole === 'admin') &&
       String(selectedEmployee) !== String(employeeId);
 
     const isDisabled = !isCycleActive || isViewingOtherEmployee || isReadOnly;
@@ -401,52 +425,54 @@ const DropdownPage = () => {
     switch (question_type.toLowerCase()) {
       case 'mcq':
         return (
-          <Box sx={{ pl: 5 }}>
-            {options.map((option) => {
-              const prev = responses[question_id];
-              const prevArray = Array.isArray(prev) ? prev : [];
-              const checked = prevArray.some(
-                (id) => Number(id) === Number(option.option_id)
-              );
+          <Box sx={{ mt: 1 }}>
+            <FormGroup>
+              {options.map((option) => {
+                const prev = responses[question_id];
+                const prevArray = Array.isArray(prev) ? prev : [];
+                const checked = prevArray.some(
+                  (id) => Number(id) === Number(option.option_id)
+                );
 
-              return (
-                <FormControlLabel
-                  key={option.option_id}
-                  control={
-                    <Checkbox
-                      checked={checked}
-                      onChange={(e) => {
-                        const wasChecked = checked;
-                        const base = Array.isArray(responses[question_id])
-                          ? responses[question_id]
-                          : [];
-                        let newValue;
-                        if (e.target.checked && !wasChecked) {
-                          newValue = [
-                            ...base.map((v) => Number(v)),
-                            Number(option.option_id),
-                          ];
-                        } else {
-                          newValue = base
-                            .map((v) => Number(v))
-                            .filter((id) => id !== Number(option.option_id));
-                        }
-                        handleResponseChange(question_id, newValue);
-                      }}
-                      disabled={isDisabled}
-                    />
-                  }
-                  label={option.option_text}
-                />
-              );
-            })}
+                return (
+                  <FormControlLabel
+                    key={option.option_id}
+                    control={
+                      <Checkbox
+                        checked={checked}
+                        onChange={(e) => {
+                          const wasChecked = checked;
+                          const base = Array.isArray(responses[question_id])
+                            ? responses[question_id]
+                            : [];
+                          let newValue;
+                          if (e.target.checked && !wasChecked) {
+                            newValue = [
+                              ...base.map((v) => Number(v)),
+                              Number(option.option_id),
+                            ];
+                          } else {
+                            newValue = base
+                              .map((v) => Number(v))
+                              .filter((id) => id !== Number(option.option_id));
+                          }
+                          handleResponseChange(question_id, newValue);
+                        }}
+                        disabled={isDisabled}
+                      />
+                    }
+                    label={option.option_text}
+                  />
+                );
+              })}
+            </FormGroup>
           </Box>
         );
 
       case 'single choice':
       case 'yes/no':
         return (
-          <Box sx={{ pl: 5 }}>
+          <Box sx={{ mt: 1 }}>
             <RadioGroup
               value={responses[question_id] || ''}
               onChange={(e) =>
@@ -467,21 +493,18 @@ const DropdownPage = () => {
 
       case 'descriptive':
         return (
-          <Box sx={{ pl: 5 }}>
-            <TextareaAutosize
-              minRows={2}
+          <Box sx={{ mt: 1 }}>
+            <TextField
+              multiline
+              minRows={3}
+              fullWidth
               value={responses[question_id] || ''}
               onChange={(e) =>
                 handleResponseChange(question_id, e.target.value)
               }
               disabled={isDisabled}
-              style={{
-                width: '30%',
-                fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
-                fontSize: '1rem',
-                borderRadius: '4px',
-                border: '1px solid #ccc',
-              }}
+              variant="outlined"
+              size="small"
             />
           </Box>
         );
@@ -589,7 +612,7 @@ const DropdownPage = () => {
 
   return (
     <>
-      <Card sx={{ mt: 3, ml: 2, mr: 2, justifyContent: 'center' }}>
+      <Card sx={{ width: '100%' }}>
         <CardContent>
           {/* Title */}
           {loadingCycles ? (
@@ -600,9 +623,20 @@ const DropdownPage = () => {
               sx={{ borderRadius: 1, mb: 2 }}
             />
           ) : (
-            <Typography variant="h5" color="primary" fontWeight={'bold'}>
-              Self Assessment
-            </Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 2,
+                flexWrap: 'wrap',
+                mb: 2,
+              }}
+            >
+              <Typography variant="h6" color="primary" fontWeight="bold">
+                Self Assessment
+              </Typography>
+            </Box>
           )}
 
           {/* Cycle dropdown */}
@@ -724,6 +758,7 @@ const DropdownPage = () => {
             {/* Lead assessment link */}
             {(userRole === 'team lead' ||
               userRole === 'Team Lead' ||
+              userRole === 'lead' ||
               userRole === 'admin') && (
               <Box
                 sx={{
@@ -759,41 +794,46 @@ const DropdownPage = () => {
               </Box>
             )}
           </Box>
-        </CardContent>
 
-        <Card sx={{ width: '100%' }}>
-          <CardContent>
+          <Divider sx={{ my: 3 }} />
+          
+          <Box>
+            {/* Question list header */}
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              mb={2}
+            >
+              <Typography variant="h6" color="text.secondary">
+                Questions
+              </Typography>
+              {assessmentData.length > 0 && (
+                <Tooltip title="Refresh responses" arrow>
+                  <IconButton
+                    onClick={refreshAssessmentData}
+                    size="small"
+                    color="primary"
+                  >
+                    <RefreshIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </Box>
+
             {/* Question list */}
             {assessmentData.length > 0 ? (
               <Box mt={0}>
                 {assessmentData.map((question, index) => (
                   <Box key={question.question_id} mb={3}>
-                    {/* For the first question, showing question and  refresh button in same line */}
-                    {index === 0 ? (
-                      <Box
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="space-between"
-                      >
-                        <Typography variant="subtitle1" fontWeight={'bold'}>
-                          {index + 1}. {question.question_text}
-                        </Typography>
-                        <Tooltip title="Refresh responses" arrow>
-                          <IconButton
-                            onClick={refreshAssessmentData}
-                            size="small"
-                            color="primary"
-                          >
-                            <RefreshIcon />
-                          </IconButton>
-                        </Tooltip>
-                      </Box>
-                    ) : (
-                      // For remaining questions,showing question only
-                      <Typography variant="subtitle1" fontWeight={'bold'}>
-                        {index + 1}. {question.question_text}
-                      </Typography>
-                    )}
+                    {index > 0 && <Divider sx={{ my: 3 }} />}
+                    <Typography
+                      variant="subtitle1"
+                      fontWeight={'medium'}
+                      mb={1}
+                    >
+                      {index + 1}. {question.question_text}
+                    </Typography>
                     {renderInputField(question)}
                   </Box>
                 ))}
@@ -824,7 +864,7 @@ const DropdownPage = () => {
                   />
                 ) : (
                   <Typography variant="body1" color="text.secondary">
-                    No questions allocated for you.
+                    No questions assigned.
                   </Typography>
                 )}
               </Box>
@@ -843,24 +883,23 @@ const DropdownPage = () => {
               leadAssessmentCompleted={leadAssessmentCompleted}
               prefilledData={null}
             />
-          </CardContent>
-        </Card>
-
-        <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={4000}
-          onClose={() => setSnackbarOpen(false)}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        >
-          <Alert
-            onClose={() => setSnackbarOpen(false)}
-            severity={snackbarSeverity}
-            sx={{ width: '100%' }}
-          >
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
+          </Box>
+        </CardContent>
       </Card>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={4000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={() => setSnackbarOpen(false)}
+          severity={snackbarSeverity}
+          sx={{ width: '100%' }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
       <Backdrop
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={saving}

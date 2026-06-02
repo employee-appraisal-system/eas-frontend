@@ -58,8 +58,8 @@ export default function Navbar() {
   };
 
   return (
-    <AppBar position="static" color="primary">
-      <Toolbar sx={{ gap: 2 }}>
+    <AppBar position="sticky" color="primary" elevation={4} sx={{ top: 0, zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+      <Toolbar variant="dense" sx={{ gap: 2 }}>
         <Typography
           variant="h6"
           component="button"

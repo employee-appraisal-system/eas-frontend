@@ -219,489 +219,486 @@ export default function Questionnaire() {
 
   return (
     <>
-      <Grid container alignItems="center">
-        <Grid size={11}>
-          <Typography
-            variant="h6"
-            color="primary"
-            fontWeight={'bold'}
-            sx={{ padding: '10px' }}
+      <Card sx={{ width: '100%' }}>
+        <CardContent>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 2,
+              flexWrap: 'wrap',
+              mb: 2,
+            }}
           >
-            Questionnaire
-          </Typography>
-        </Grid>
-        <Grid size={1} sx={{ textAlign: 'right' }}>
-          <IconButton onClick={() => navigate('/hr-home')} color="error">
-            <CloseIcon />
-          </IconButton>
-        </Grid>
-      </Grid>
+            <Typography variant="h6" color="primary" fontWeight="bold">
+              Questionnaire
+            </Typography>
+          </Box>
 
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: { xs: 'column', md: 'row' },
-          mb: 2,
-        }}
-      >
-        <Card
-          sx={{
-            flex: 1,
-            ml: 1.5,
-            height: '93vh',
-            mr: 2,
-            border: '1px solid',
-            borderColor: '#e1e1e3',
-            borderRadius: 1,
-          }}
-        >
-          {/* Left Panel */}
-          {loadingQuestions ? (
-            <Box sx={{ width: '90%', p: 2 }}>
-              {[...Array(20)].map((_, index) => (
-                <Skeleton
-                  key={index}
-                  variant="rectangular"
-                  height={28}
-                  sx={{
-                    mb: 1,
-                    bgcolor: '#e6e9ed',
-                    opacity: 0.3,
-                  }}
-                />
-              ))}
-            </Box>
-          ) : (
-            <DataGrid
-              rows={rows}
-              columns={columns}
-              getRowId={(row) => row.question_id}
-              slots={{ toolbar: CustomToolbar }}
-              showToolbar
-              sx={{
-                '& .MuiDataGrid-columnHeaderTitle': {
-                  fontWeight: 'bold',
-                },
-                maxWidth: '100%',
-                border: 'none',
-              }}
-              hideFooter
-            />
-          )}
-        </Card>
-        {/* Right Panel */}
-        <Card
-          sx={{
-            flex: 1,
-            pr: '5px',
-            pl: '10px',
-            mr: 1.5,
-            height: '93vh',
-            border: '1px solid',
-            borderColor: '#e1e1e3',
-            borderRadius: 1,
-          }}
-        >
-          <CardContent
-            sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', md: 'row' },
+              mb: 2,
+              gap: 2,
+            }}
           >
-            <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'flex-start',
-                  mb: 2,
-                  color: '#3b7dda',
-                }}
-              >
-                <Typography
-                  variant="h6"
-                  color="primary"
-                  sx={{ fontSize: '16px' }}
-                >
-                  Add a new question
-                </Typography>
-              </Box>
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  gap: 2,
-                  width: '100%',
-                  mt: 2,
-                }}
-              >
-                {question_text ? (
-                  <Tooltip
-                    title={
-                      <span style={{ maxWidth: 500 }}>{question_text}</span>
-                    }
-                    arrow
-                  >
-                    <TextField
-                      value={question_text}
-                      onChange={(e) => setQuestionText(e.target.value)}
-                      placeholder="Type your question here"
-                      variant="standard"
-                      sx={{ flex: 1, mr: 10 }}
-                      InputProps={{
-                        sx: {
-                          '&::placeholder': {
-                            fontSize: '14px',
-                            color: '#888',
-                            opacity: 1,
-                          },
-                          fontSize: '14px',
-                        },
+            <Card
+              sx={{
+                flex: 1,
+                height: '80vh',
+                border: '1px solid',
+                borderColor: '#e1e1e3',
+                borderRadius: 1,
+              }}
+            >
+              {/* Left Panel */}
+              {loadingQuestions ? (
+                <Box sx={{ width: '100%', p: 2 }}>
+                  {[...Array(20)].map((_, index) => (
+                    <Skeleton
+                      key={index}
+                      variant="rectangular"
+                      height={28}
+                      sx={{
+                        mb: 1,
+                        bgcolor: '#e6e9ed',
+                        opacity: 0.3,
                       }}
                     />
-                  </Tooltip>
-                ) : (
-                  <TextField
-                    value={question_text}
-                    onChange={(e) => setQuestionText(e.target.value)}
-                    placeholder="Type your question here"
-                    variant="standard"
-                    sx={{ flex: 1, mr: 10 }}
-                    InputProps={{
-                      sx: {
-                        '&::placeholder': {
-                          fontSize: '14px',
-                          color: '#888',
-                          opacity: 1,
-                        },
-                        fontSize: '14px',
-                      },
-                    }}
-                  />
-                )}
-                <FormControl sx={{ minWidth: 160 }}>
-                  <InputLabel
-                    sx={{
-                      backgroundColor: 'white',
-                      top: '-5px',
-                      fontSize: '16px',
-                    }}
-                  >
-                    Question Type
-                  </InputLabel>
-                  <Select
-                    labelId="question-type-label"
-                    id="question-type-select"
-                    value={question_type}
-                    onChange={(e) => setQuestionType(e.target.value)}
-                    autoWidth
-                    label="Question_Type"
-                    sx={{
-                      height: 40,
-                      '& .MuiMenuItem-root': {
-                        fontSize: '10px',
-                        padding: '12px 16px',
-                        minHeight: '20px',
-                      },
-                    }}
-                  >
-                    <MenuItem value="MCQ">MCQ</MenuItem>
-                    <MenuItem value="Yes/No">Yes/No</MenuItem>
-                    <MenuItem value="Descriptive">Descriptive</MenuItem>
-                    <MenuItem value="Single Choice">Single Choice</MenuItem>
-                  </Select>
-                </FormControl>
-              </Box>
-
-              {question_type === 'MCQ' && (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    width: '50%',
-                    minWidth: '250px',
-                    padding: '7px',
-                    marginTop: '15px',
-                    borderRadius: '8px',
-                    bgcolor: 'background.paper',
-                    maxHeight: '600px',
-                  }}
-                >
-                  <Typography
-                    variant="subtitle1"
-                    sx={{
-                      fontSize: '16px',
-                      fontWeight: 500,
-                      color: '#202124',
-                      alignSelf: 'flex-start',
-                      marginBottom: '10px',
-                    }}
-                  >
-                    Options
-                  </Typography>
-
-                  <Box
-                    sx={{
-                      flex: 1,
-                      overflowY: 'auto',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      maxHeight: '250px',
-                      gap: '10px',
-                      paddingRight: '4px', // optional: for better scroll space
-                    }}
-                  >
-                    {mcqOptions.map((option, index) => (
-                      <Box
-                        key={index}
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                          borderRadius: '4px',
-                          padding: '2px 6px',
-                        }}
-                      >
-                        <TextField
-                          fullWidth
-                          variant="standard"
-                          placeholder={`Option ${index + 1}`}
-                          value={option}
-                          onChange={(e) =>
-                            handleMcqOptionChange(index, e.target.value)
-                          }
-                          InputProps={{
-                            disableUnderline: false,
-                            sx: {
-                              fontSize: '14px',
-                              padding: '8px 0',
-                              background: 'transparent',
-                            },
-                          }}
-                        />
-                        <IconButton
-                          onClick={() => handleRemoveMcqOption(index)}
-                          disabled={mcqOptions.length === 1}
-                          sx={{
-                            fontSize: '18px',
-                            color: '#5f6368',
-                            transition: 'color 0.2s',
-                            '&:hover': {
-                              color: '#d93025',
-                            },
-                          }}
-                        >
-                          <CloseIcon fontSize="inherit" />
-                        </IconButton>
-                      </Box>
-                    ))}
-                  </Box>
-
-                  <IconButton
-                    onClick={handleAddMcqOption}
-                    sx={{
-                      alignSelf: 'flex-start',
-                      fontSize: '25px',
-                      color: '#5f6368',
-                      textTransform: 'none',
-                      marginTop: '10px',
-                      '&:hover': {
-                        color: '#1a73e8',
-                      },
-                    }}
-                  >
-                    <AddIcon fontSize="inherit" />
-                  </IconButton>
-                </Box>
-              )}
-
-              {question_type === 'Single Choice' && (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    width: '50%',
-                    minWidth: '250px',
-                    padding: '7px',
-                    marginTop: '15px',
-                    borderRadius: '8px',
-                    bgcolor: 'background.paper',
-                    maxHeight: '600px',
-                  }}
-                >
-                  <Typography
-                    variant="subtitle1"
-                    sx={{
-                      fontSize: '16px',
-                      fontWeight: 500,
-                      color: '#202124',
-                      alignSelf: 'flex-start',
-                      marginBottom: '10px',
-                    }}
-                  >
-                    Options
-                  </Typography>
-
-                  <Box
-                    sx={{
-                      flex: 1,
-                      overflowY: 'auto',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      maxHeight: '250px',
-                      gap: '10px',
-                      paddingRight: '4px',
-                    }}
-                  >
-                    {mcqOptions.map((option, index) => (
-                      <Box
-                        key={index}
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                          borderRadius: '4px',
-                          padding: '2px 6px',
-                        }}
-                      >
-                        <TextField
-                          fullWidth
-                          variant="standard"
-                          placeholder={`Option ${index + 1}`}
-                          value={option}
-                          onChange={(e) =>
-                            handleMcqOptionChange(index, e.target.value)
-                          }
-                          InputProps={{
-                            disableUnderline: false,
-                            sx: {
-                              fontSize: '14px',
-                              padding: '8px 0',
-                              background: 'transparent',
-                            },
-                          }}
-                        />
-                        <IconButton
-                          onClick={() => handleRemoveMcqOption(index)}
-                          disabled={mcqOptions.length === 1}
-                          sx={{
-                            fontSize: '18px',
-                            color: '#5f6368',
-                            transition: 'color 0.2s',
-                            '&:hover': {
-                              color: '#d93025',
-                            },
-                          }}
-                        >
-                          <CloseIcon fontSize="inherit" />
-                        </IconButton>
-                      </Box>
-                    ))}
-                  </Box>
-
-                  <IconButton
-                    onClick={handleAddMcqOption}
-                    sx={{
-                      alignSelf: 'flex-start',
-                      fontSize: '25px',
-                      color: '#5f6368',
-                      textTransform: 'none',
-                      marginTop: '10px',
-                      '&:hover': {
-                        color: '#1a73e8',
-                      },
-                    }}
-                  >
-                    <AddIcon fontSize="inherit" />
-                  </IconButton>
-                </Box>
-              )}
-
-              {question_type === 'Yes/No' && (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 2,
-                    width: '50%', //changed width
-                    minWidth: '300px',
-                    padding: 2,
-                    mt: 2,
-                    borderRadius: '8px',
-                    bgcolor: 'background.paper',
-                    maxHeight: 200,
-                    overflowY: 'auto',
-                  }}
-                >
-                  <Typography
-                    variant="subtitle1"
-                    sx={{
-                      fontWeight: 500,
-                      fontSize: '16px',
-                      color: '#202124',
-                    }}
-                  >
-                    Labels
-                  </Typography>
-
-                  {[0, 1].map((index) => (
-                    <Box
-                      key={index}
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1,
-                        borderRadius: '4px',
-                      }}
-                    >
-                      <TextField
-                        sx={{ width: '90%' }}
-                        variant="standard"
-                        value={yesNoLabels[index]}
-                        onChange={(e) =>
-                          handleYesNoLabelChange(index, e.target.value)
-                        }
-                        placeholder={index === 0 ? 'Yes' : 'No'}
-                      />
-                    </Box>
                   ))}
                 </Box>
+              ) : (
+                <DataGrid
+                  rows={rows}
+                  columns={columns}
+                  getRowId={(row) => row.question_id}
+                  slots={{ toolbar: CustomToolbar }}
+                  showToolbar
+                  sx={{
+                    '& .MuiDataGrid-columnHeaderTitle': {
+                      fontWeight: 'bold',
+                    },
+                    maxWidth: '100%',
+                    border: 'none',
+                  }}
+                  hideFooter
+                />
               )}
+            </Card>
 
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  gap: 1,
-                  mt: 'auto',
-                  mb: 5,
-                  ml: 2,
-                }}
+            {/* Right Panel */}
+            <Card
+              sx={{
+                flex: 1,
+                height: '80vh',
+                border: '1px solid',
+                borderColor: '#e1e1e3',
+                borderRadius: 1,
+              }}
+            >
+              <CardContent
+                sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}
               >
-                <Button
-                  variant="contained"
-                  onClick={handleSave}
-                  color="primary"
-                >
-                  Save
-                </Button>
-                <Button
-                  variant="contained"
-                  onClick={handleCancel}
-                  color="error"
-                >
-                  Cancel
-                </Button>
-              </Box>
-            </Box>
-          </CardContent>
-        </Card>
-        <Snackbar
-          open={snackbar.open}
-          autoHideDuration={3000}
-          anchorOrigin={{ vertical, horizontal }}
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-        >
-          <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
-        </Snackbar>
-      </Box>
+                <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'flex-start',
+                      mb: 2,
+                      color: '#3b7dda',
+                    }}
+                  >
+                    <Typography
+                      variant="h6"
+                      color="primary"
+                      sx={{ fontSize: '16px' }}
+                    >
+                      Add a new question
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      gap: 2,
+                      width: '100%',
+                      mt: 2,
+                    }}
+                  >
+                    {question_text ? (
+                      <Tooltip
+                        title={
+                          <span style={{ maxWidth: 500 }}>{question_text}</span>
+                        }
+                        arrow
+                      >
+                        <TextField
+                          value={question_text}
+                          onChange={(e) => setQuestionText(e.target.value)}
+                          placeholder="Type your question here"
+                          variant="standard"
+                          sx={{ flex: 1, mr: { xs: 2, md: 10 } }}
+                          InputProps={{
+                            sx: {
+                              '&::placeholder': {
+                                fontSize: '14px',
+                                color: '#888',
+                                opacity: 1,
+                              },
+                              fontSize: '14px',
+                            },
+                          }}
+                        />
+                      </Tooltip>
+                    ) : (
+                      <TextField
+                        value={question_text}
+                        onChange={(e) => setQuestionText(e.target.value)}
+                        placeholder="Type your question here"
+                        variant="standard"
+                        sx={{ flex: 1, mr: { xs: 2, md: 10 } }}
+                        InputProps={{
+                          sx: {
+                            '&::placeholder': {
+                              fontSize: '14px',
+                              color: '#888',
+                              opacity: 1,
+                            },
+                            fontSize: '14px',
+                          },
+                        }}
+                      />
+                    )}
+                    <FormControl sx={{ minWidth: 160 }}>
+                      <InputLabel
+                        sx={{
+                          backgroundColor: 'white',
+                          top: '-5px',
+                          fontSize: '16px',
+                        }}
+                      >
+                        Question Type
+                      </InputLabel>
+                      <Select
+                        labelId="question-type-label"
+                        id="question-type-select"
+                        value={question_type}
+                        onChange={(e) => setQuestionType(e.target.value)}
+                        autoWidth
+                        label="Question_Type"
+                        sx={{
+                          height: 40,
+                          '& .MuiMenuItem-root': {
+                            fontSize: '10px',
+                            padding: '12px 16px',
+                            minHeight: '20px',
+                          },
+                        }}
+                      >
+                        <MenuItem value="MCQ">MCQ</MenuItem>
+                        <MenuItem value="Yes/No">Yes/No</MenuItem>
+                        <MenuItem value="Descriptive">Descriptive</MenuItem>
+                        <MenuItem value="Single Choice">Single Choice</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Box>
+
+                  {question_type === 'MCQ' && (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        width: { xs: '100%', md: '50%' },
+                        minWidth: '250px',
+                        padding: '7px',
+                        marginTop: '15px',
+                        borderRadius: '8px',
+                        bgcolor: 'background.paper',
+                        maxHeight: '400px',
+                      }}
+                    >
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontSize: '16px',
+                          fontWeight: 500,
+                          color: '#202124',
+                          alignSelf: 'flex-start',
+                          marginBottom: '10px',
+                        }}
+                      >
+                        Options
+                      </Typography>
+
+                      <Box
+                        sx={{
+                          flex: 1,
+                          overflowY: 'auto',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          maxHeight: '250px',
+                          gap: '10px',
+                          paddingRight: '4px', // optional: for better scroll space
+                        }}
+                      >
+                        {mcqOptions.map((option, index) => (
+                          <Box
+                            key={index}
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              borderRadius: '4px',
+                              padding: '2px 6px',
+                            }}
+                          >
+                            <TextField
+                              fullWidth
+                              variant="standard"
+                              placeholder={`Option ${index + 1}`}
+                              value={option}
+                              onChange={(e) =>
+                                handleMcqOptionChange(index, e.target.value)
+                              }
+                              InputProps={{
+                                disableUnderline: false,
+                                sx: {
+                                  fontSize: '14px',
+                                  padding: '8px 0',
+                                  background: 'transparent',
+                                },
+                              }}
+                            />
+                            <IconButton
+                              onClick={() => handleRemoveMcqOption(index)}
+                              disabled={mcqOptions.length === 1}
+                              sx={{
+                                fontSize: '18px',
+                                color: '#5f6368',
+                                transition: 'color 0.2s',
+                                '&:hover': {
+                                  color: '#d93025',
+                                },
+                              }}
+                            >
+                              <CloseIcon fontSize="inherit" />
+                            </IconButton>
+                          </Box>
+                        ))}
+                      </Box>
+
+                      <IconButton
+                        onClick={handleAddMcqOption}
+                        sx={{
+                          alignSelf: 'flex-start',
+                          fontSize: '25px',
+                          color: '#5f6368',
+                          textTransform: 'none',
+                          marginTop: '10px',
+                          '&:hover': {
+                            color: '#1a73e8',
+                          },
+                        }}
+                      >
+                        <AddIcon fontSize="inherit" />
+                      </IconButton>
+                    </Box>
+                  )}
+
+                  {question_type === 'Single Choice' && (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        width: { xs: '100%', md: '50%' },
+                        minWidth: '250px',
+                        padding: '7px',
+                        marginTop: '15px',
+                        borderRadius: '8px',
+                        bgcolor: 'background.paper',
+                        maxHeight: '400px',
+                      }}
+                    >
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontSize: '16px',
+                          fontWeight: 500,
+                          color: '#202124',
+                          alignSelf: 'flex-start',
+                          marginBottom: '10px',
+                        }}
+                      >
+                        Options
+                      </Typography>
+
+                      <Box
+                        sx={{
+                          flex: 1,
+                          overflowY: 'auto',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          maxHeight: '250px',
+                          gap: '10px',
+                          paddingRight: '4px',
+                        }}
+                      >
+                        {mcqOptions.map((option, index) => (
+                          <Box
+                            key={index}
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              borderRadius: '4px',
+                              padding: '2px 6px',
+                            }}
+                          >
+                            <TextField
+                              fullWidth
+                              variant="standard"
+                              placeholder={`Option ${index + 1}`}
+                              value={option}
+                              onChange={(e) =>
+                                handleMcqOptionChange(index, e.target.value)
+                              }
+                              InputProps={{
+                                disableUnderline: false,
+                                sx: {
+                                  fontSize: '14px',
+                                  padding: '8px 0',
+                                  background: 'transparent',
+                                },
+                              }}
+                            />
+                            <IconButton
+                              onClick={() => handleRemoveMcqOption(index)}
+                              disabled={mcqOptions.length === 1}
+                              sx={{
+                                fontSize: '18px',
+                                color: '#5f6368',
+                                transition: 'color 0.2s',
+                                '&:hover': {
+                                  color: '#d93025',
+                                },
+                              }}
+                            >
+                              <CloseIcon fontSize="inherit" />
+                            </IconButton>
+                          </Box>
+                        ))}
+                      </Box>
+
+                      <IconButton
+                        onClick={handleAddMcqOption}
+                        sx={{
+                          alignSelf: 'flex-start',
+                          fontSize: '25px',
+                          color: '#5f6368',
+                          textTransform: 'none',
+                          marginTop: '10px',
+                          '&:hover': {
+                            color: '#1a73e8',
+                          },
+                        }}
+                      >
+                        <AddIcon fontSize="inherit" />
+                      </IconButton>
+                    </Box>
+                  )}
+
+                  {question_type === 'Yes/No' && (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 2,
+                        width: { xs: '100%', md: '50%' }, //changed width
+                        minWidth: '250px',
+                        padding: 2,
+                        mt: 2,
+                        borderRadius: '8px',
+                        bgcolor: 'background.paper',
+                        maxHeight: 200,
+                        overflowY: 'auto',
+                      }}
+                    >
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 500,
+                          fontSize: '16px',
+                          color: '#202124',
+                        }}
+                      >
+                        Labels
+                      </Typography>
+
+                      {[0, 1].map((index) => (
+                        <Box
+                          key={index}
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1,
+                            borderRadius: '4px',
+                          }}
+                        >
+                          <TextField
+                            sx={{ width: '90%' }}
+                            variant="standard"
+                            value={yesNoLabels[index]}
+                            onChange={(e) =>
+                              handleYesNoLabelChange(index, e.target.value)
+                            }
+                            placeholder={index === 0 ? 'Yes' : 'No'}
+                          />
+                        </Box>
+                      ))}
+                    </Box>
+                  )}
+
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'flex-end',
+                      gap: 1,
+                      mt: 'auto',
+                      pt: 2,
+                    }}
+                  >
+                    <Button
+                      variant="contained"
+                      onClick={handleSave}
+                      color="primary"
+                    >
+                      Save
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={handleCancel}
+                      color="error"
+                    >
+                      Cancel
+                    </Button>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+          </Box>
+        </CardContent>
+      </Card>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        anchorOrigin={{ vertical, horizontal }}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
+        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
+      </Snackbar>
     </>
   );
 }

@@ -279,25 +279,21 @@ const EditAppraisalCycle = () => {
 
   return (
     <>
-      <Card sx={{ p: 3, width: '90%', margin: 'auto', mt: 5, mb: 3 }}>
-        <Grid container alignItems="center">
-          <Grid size={11}>
-            <Typography variant="h6" color="primary">
-              Edit Appraisal Cycle
-            </Typography>
-          </Grid>
-          <Grid size={0.5} sx={{ textAlign: 'right' }}>
-            <IconButton onClick={getCycleById}>
-              <RefreshOutlinedIcon color="primary" />
-            </IconButton>
-          </Grid>
-          <Grid size={0.5} sx={{ textAlign: 'right' }}>
-            <IconButton onClick={() => navigate('/hr-home')} color="error">
-              <CloseIcon />
-            </IconButton>
-          </Grid>
-        </Grid>
-        <CardContent>
+      <Card sx={{ width: '100%' }}>
+        <CardContent sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+              <Typography variant="h6" color="primary" fontWeight="bold">
+                Edit Appraisal Cycle
+              </Typography>
+              <Box>
+                <IconButton onClick={getCycleById}>
+                  <RefreshOutlinedIcon color="primary" />
+                </IconButton>
+                <IconButton onClick={() => navigate('/hr-home')} color="error">
+                  <CloseIcon />
+                </IconButton>
+              </Box>
+            </Box>
           <Card sx={{ p: 1, width: '100%' }}>
             <Typography color="primary" fontWeight="bold">
               Appraisal Cycle Details

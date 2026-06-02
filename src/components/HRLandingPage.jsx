@@ -322,7 +322,7 @@ const HRLandingPage = () => {
               mb: 2,
             }}
           >
-            <Typography variant="h6" color="primary" fontWeight={700}>
+            <Typography variant="h6" color="primary" fontWeight="bold">
               Appraisal Cycle
             </Typography>
 
