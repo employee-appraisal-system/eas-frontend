@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   Typography,
-  IconButton,
   FormControl,
   Box,
   Skeleton,
@@ -11,7 +9,6 @@ import {
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import CustomToolbar from './CustomeToolbar';
-import CloseIcon from '@mui/icons-material/Close';
 import { InputLabel, Select, MenuItem } from '@mui/material';
 import {
   fetchCycleResponses as getCylceResponses,
@@ -20,6 +17,9 @@ import {
 } from '../api';
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
+
+const isMissingCellValue = (value) =>
+  value === undefined || value === null ;
 
 const pivotData = (data, rows) => {
   if (!rows) return [];
@@ -41,18 +41,11 @@ const pivotData = (data, rows) => {
     employeeMap[emp.id] = {
       id: emp.id,
       employee_id: emp.employee_id ?? emp.id,
-      full_name: emp?.full_name || emp.employee_name || '-',
+      full_name: emp?.full_name || emp.employee_name,
       role: emp.role,
       reporting_manager: emp.reporting_manager,
       previous_reporting_manager: emp.previous_reporting_manager,
     };
-
-    // Step 3: If employee hasn't answered, add "-" for each question
-    if (!answeredEmployees.has(emp.id)) {
-      allQuestions.forEach((question) => {
-        employeeMap[emp.id][question] = '-';
-      });
-    }
   });
 
   // Step 4: Add responses for employees who answered
@@ -92,15 +85,11 @@ const generateColumns = (data, columns) => {
 };
 
 const SelfAssessmentRepo = ({ onSelect }) => {
-  const navigate = useNavigate();
-
   const [rows, setRows] = useState([]);
   const [rowSelectionModel, setRowSelectionModel] = useState({
     type: 'include',
     ids: new Set(),
   });
-  // const [employeeMap, setEmployeeMap] = useState({});
-  // const [originalRows, setOriginalRows] = useState([]);
 
   const [activeCycle, setActiveCycles] = useState([]);
   const [cycle_id, setCycleId] = useState(null);
@@ -146,16 +135,14 @@ const SelfAssessmentRepo = ({ onSelect }) => {
         const formattedData = response.map((emp) => ({
           id: emp.id,
           employee_id: emp.id,
-          full_name: emp?.full_name || emp.employee_name || '-',
+          full_name: emp?.full_name || emp.employee_name,
           role: emp.role,
-          reporting_manager: emp.reporting_manager_name || '-',
+          reporting_manager: emp.reporting_manager_name,
           previous_reporting_manager:
-            emp.previous_reporting_manager_name || '-',
+            emp.previous_reporting_manager_name,
         }));
 
-        // setEmployeeMap(empMap);
         setRows(formattedData);
-        // setOriginalRows(formattedData);
       } catch (error) {
         console.log('Error while fetching employees: ' + error);
       } finally {
@@ -295,7 +282,11 @@ const SelfAssessmentRepo = ({ onSelect }) => {
                 )}
               </Select>
             </FormControl>
-
+            {response && response.length === 0 && (
+              <Typography variant="body2" color="red">
+                No responses found for the selected cycle.
+              </Typography>
+            )}
             {loadingEmployees || loadingCycles ? (
               <Box sx={{ width: '100%', mt: 2 }}>
                 {[...Array(20)].map((_, index) => (
@@ -317,9 +308,13 @@ const SelfAssessmentRepo = ({ onSelect }) => {
                   maxWidth: '100%',
                   maxHeight: '50%',
                   height: '200px',
+                  mt: 1,
                   overflow: 'auto',
                   '& .MuiDataGrid-columnHeaderTitle': {
                     fontWeight: 'bold',
+                  },
+                  '& .missing-report-cell': {
+                    backgroundColor: '#fce4ec',
                   },
                 }}
                 rows={cycle_id ? pivotData(response, rows) : rows}
@@ -336,6 +331,9 @@ const SelfAssessmentRepo = ({ onSelect }) => {
                 rowSelectionModel={rowSelectionModel}
                 checkboxSelection
                 disableRowSelectionOnClick
+                getCellClassName={(params) =>
+                  isMissingCellValue(params.value) ? 'missing-report-cell' : ''
+                }
                 hideFooter
               />
             )}

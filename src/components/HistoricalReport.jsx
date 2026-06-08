@@ -19,12 +19,8 @@ import {
 
 // Helper function to format ratings
 const formatRating = (ratingValue) => {
-  if (
-    ratingValue === undefined ||
-    ratingValue === null ||
-    ratingValue === '-'
-  ) {
-    return '-';
+  if (ratingValue === undefined || ratingValue === null) {
+    return;
   }
 
   const numericRating = Number(ratingValue);
@@ -53,6 +49,8 @@ const MenuProps = {
     },
   },
 };
+
+const isMissingCellValue = (value) => value === undefined || value === null;
 
 export default function LeadAssessmentReportTable({ onSelect }) {
   const [rows, setRows] = React.useState([]);
@@ -102,9 +100,8 @@ export default function LeadAssessmentReportTable({ onSelect }) {
           employee_id: emp.id,
           full_name: emp.full_name,
           role: emp.role,
-          reporting_manager_name: emp.reporting_manager_name || '-',
-          previous_reporting_manager_name:
-            emp.previous_reporting_manager_name || '-',
+          reporting_manager_name: emp.reporting_manager_name,
+          previous_reporting_manager_name: emp.previous_reporting_manager_name,
         }));
 
         setRows(formattedData);
@@ -160,29 +157,22 @@ export default function LeadAssessmentReportTable({ onSelect }) {
     if (selectedCycleIds.length > 0) {
       // Fetch ratings for each cycle and update rows
       for (const cycleId of selectedCycleIds) {
-        try {
-          const ratingsData = await fetchEmployeeRatings(cycleId);
+        const ratingsData = await fetchEmployeeRatings(cycleId);
 
-          // Update rows with ratings data
-          rowsCopy.forEach((row) => {
-            // Convert employee_id to the same type as in ratingsData for comparison
-            const empId = Number(row.employee_id);
+        // Update rows with ratings data
+        rowsCopy.forEach((row) => {
+          // Convert employee_id to the same type as in ratingsData for comparison
+          const empId = Number(row.employee_id);
 
-            // Find the rating for this employee in this cycle
-            const employeeRating = ratingsData.find(
-              (r) => Number(r.employee_id) === empId
-            );
+          // Find the rating for this employee in this cycle
+          const employeeRating = ratingsData.find(
+            (r) => Number(r.employee_id) === empId
+          );
 
-            if (employeeRating) {
-              row[`cycle_${cycleId}`] = employeeRating.parameter_rating;
-              // console.log(`Set rating for employee ${empId} in cycle ${cycleId}:`, employeeRating.parameter_rating);
-            } else {
-              row[`cycle_${cycleId}`] = '-';
-            }
-          });
-        } catch {
-          // console.error(`Error fetching ratings for cycle ${cycleId}:`, error);
-        }
+          if (employeeRating) {
+            row[`cycle_${cycleId}`] = employeeRating.parameter_rating;
+          }
+        });
       }
 
       // Remove data for cycles that are no longer selected
@@ -262,116 +252,129 @@ export default function LeadAssessmentReportTable({ onSelect }) {
             </Typography>
           </Box>
 
-        <Box sx={{ px: 1.25, pb: 1.25 }}>
-          {/* Cycle Selection Dropdown with Checkboxes */}
-          <FormControl sx={{ mb: 1, width: 'auto', minWidth: '20%' }}>
-            <InputLabel
-              id="checkbox-cycles-label"
-              sx={{ backgroundColor: 'background.paper', px: 0.5 }}
-            >
-              Select Lead Assessment Cycles
-            </InputLabel>
-            <Select
-              labelId="checkbox-cycles-label"
-              id="checkbox-cycles"
-              multiple
-              value={selectedCycles}
-              onChange={handleCycleChange}
-              input={<OutlinedInput label="Select Lead Assessment Cycles" />}
-              renderValue={(selected) => (
-                <Box
-                  sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', py: 0.5 }}
-                >
-                  {selected?.length > 0 ? (
-                    selected.map((value) => {
-                      const cycleInfo = cycles.find(
-                        (c) => c.cycle_id === value
-                      );
+          <Box sx={{ px: 1.25, pb: 1.25 }}>
+            {/* Cycle Selection Dropdown with Checkboxes */}
+            <FormControl sx={{ mb: 1, width: 'auto', minWidth: '20%' }}>
+              <InputLabel
+                id="checkbox-cycles-label"
+                sx={{ backgroundColor: 'background.paper', px: 0.5 }}
+              >
+                Select Lead Assessment Cycles
+              </InputLabel>
+              <Select
+                labelId="checkbox-cycles-label"
+                id="checkbox-cycles"
+                multiple
+                value={selectedCycles}
+                onChange={handleCycleChange}
+                input={<OutlinedInput label="Select Lead Assessment Cycles" />}
+                renderValue={(selected) => (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: 0.5,
+                      flexWrap: 'wrap',
+                      py: 0.5,
+                    }}
+                  >
+                    {selected?.length > 0 ? (
+                      selected.map((value) => {
+                        const cycleInfo = cycles.find(
+                          (c) => c.cycle_id === value
+                        );
 
-                      return (
-                        <Chip
-                          key={value}
-                          label={
-                            cycleInfo ? cycleInfo.cycle_name : `Cycle ${value}`
-                          }
-                          size="small"
-                        />
-                      );
-                    })
-                  ) : (
+                        return (
+                          <Chip
+                            key={value}
+                            label={
+                              cycleInfo
+                                ? cycleInfo.cycle_name
+                                : `Cycle ${value}`
+                            }
+                            size="small"
+                          />
+                        );
+                      })
+                    ) : (
+                      <Typography variant="body2" color="textSecondary">
+                        Select lead assessment cycles to view ratings
+                      </Typography>
+                    )}
+                  </Box>
+                )}
+                MenuProps={MenuProps}
+                sx={{
+                  minHeight: '50px',
+                  width: 'auto',
+                  '& .MuiSelect-select': {
+                    paddingTop: '8px',
+                    paddingBottom: '8px',
+                  },
+                }}
+              >
+                {cycles && cycles.length > 0 ? (
+                  cycles.map((cycle) => (
+                    <MenuItem key={cycle.cycle_id} value={cycle.cycle_id}>
+                      <Checkbox
+                        checked={selectedCycles.indexOf(cycle.cycle_id) > -1}
+                      />
+                      <ListItemText primary={cycle.cycle_name} />
+                    </MenuItem>
+                  ))
+                ) : (
+                  <MenuItem disabled>
                     <Typography variant="body2" color="textSecondary">
-                      Select lead assessment cycles to view ratings
+                      No appraisal cycles available
                     </Typography>
-                  )}
-                </Box>
-              )}
-              MenuProps={MenuProps}
-              sx={{
-                minHeight: '50px',
-                width: 'auto',
-                '& .MuiSelect-select': {
-                  paddingTop: '8px',
-                  paddingBottom: '8px',
-                },
-              }}
-            >
-              {cycles && cycles.length > 0 ? (
-                cycles.map((cycle) => (
-                  <MenuItem key={cycle.cycle_id} value={cycle.cycle_id}>
-                    <Checkbox
-                      checked={selectedCycles.indexOf(cycle.cycle_id) > -1}
-                    />
-                    <ListItemText primary={cycle.cycle_name} />
                   </MenuItem>
-                ))
-              ) : (
-                <MenuItem disabled>
-                  <Typography variant="body2" color="textSecondary">
-                    No appraisal cycles available
-                  </Typography>
-                </MenuItem>
-              )}
-            </Select>
-          </FormControl>
+                )}
+              </Select>
+            </FormControl>
 
-          {/* DataGrid Table */}
-          {loadingEmployees || loadingCycles ? (
-            <Box sx={{ width: '100%', mt: 2 }}>
-              {[...Array(20)].map((_, index) => (
-                <Skeleton
-                  key={index}
-                  variant="rectangular"
-                  height={30}
-                  sx={{
-                    mb: 1,
-                    bgcolor: 'action.hover',
-                    opacity: 0.3,
-                  }}
-                />
-              ))}
-            </Box>
-          ) : (
-            <DataGrid
-              sx={{
-                overflow: 'auto',
-                '& .MuiDataGrid-columnHeaderTitle': {
-                  fontWeight: 'bold',
-                },
-              }}
-              rows={rows}
-              columns={columns}
-              pageSizeOptions={[5]}
-              showToolbar
-              checkboxSelection
-              disableRowSelectionOnClick
-              slots={{ toolbar: CustomToolbar }}
-              slotProps={{ toolbar: { exportSelectedOnly: true } }}
-              onRowSelectionModelChange={handleRowSelection}
-              rowSelectionModel={rowSelectionModel}
-              rowHeight={getRowHeight()}
-              hideFooter
-            />
-          )}
+            {/* DataGrid Table */}
+            {loadingEmployees || loadingCycles ? (
+              <Box sx={{ width: '100%', mt: 2 }}>
+                {[...Array(20)].map((_, index) => (
+                  <Skeleton
+                    key={index}
+                    variant="rectangular"
+                    height={30}
+                    sx={{
+                      mb: 1,
+                      bgcolor: 'action.hover',
+                      opacity: 0.3,
+                    }}
+                  />
+                ))}
+              </Box>
+            ) : (
+              <DataGrid
+                sx={{
+                  overflow: 'auto',
+                  '& .MuiDataGrid-columnHeaderTitle': {
+                    fontWeight: 'bold',
+                  },
+                  '& .missing-report-cell': {
+                    backgroundColor: '#fce4ec',
+                  },
+                }}
+                rows={rows}
+                columns={columns}
+                pageSizeOptions={[5]}
+                showToolbar
+                checkboxSelection
+                disableRowSelectionOnClick
+                slots={{ toolbar: CustomToolbar }}
+                slotProps={{ toolbar: { exportSelectedOnly: true } }}
+                onRowSelectionModelChange={handleRowSelection}
+                rowSelectionModel={rowSelectionModel}
+                rowHeight={getRowHeight()}
+                getCellClassName={(params) =>
+                  isMissingCellValue(params.value) ? 'missing-report-cell' : ''
+                }
+                hideFooter
+              />
+            )}
           </Box>
         </CardContent>
       </Card>

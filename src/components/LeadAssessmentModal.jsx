@@ -448,7 +448,7 @@ const LeadAssessmentModal = ({
                         .map((emp) => (
                           <MenuItem key={emp.id} value={emp.id}>
                             <Tooltip
-                              title={`${emp.id} - ${emp.full_name || '-'}`}
+                              title={`${emp.id} - ${emp.full_name}`}
                               placement="top"
                               arrow
                             >
@@ -461,7 +461,7 @@ const LeadAssessmentModal = ({
                                   maxWidth: '100%',
                                 }}
                               >
-                                {emp.id} - {emp.full_name || '-'}
+                                {emp.id} - {emp.full_name}
                               </span>
                             </Tooltip>
                           </MenuItem>

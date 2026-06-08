@@ -716,7 +716,7 @@ const DropdownPage = () => {
                     employees.map((emp) => (
                       <MenuItem key={emp.id} value={emp.id}>
                         <Tooltip
-                          title={emp.full_name || '-'}
+                          title={emp.full_name}
                           placement="top"
                           arrow
                         >
@@ -729,7 +729,7 @@ const DropdownPage = () => {
                               maxWidth: '200px',
                             }}
                           >
-                            {emp.id} - {emp.full_name || '-'}
+                            {emp.id} - {emp.full_name}
                           </span>
                         </Tooltip>
                       </MenuItem>
