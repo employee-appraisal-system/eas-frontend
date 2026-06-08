@@ -9,9 +9,7 @@ import Chip from '@mui/material/Chip';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
-import { Typography, IconButton, Skeleton, Card, CardContent } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import CloseIcon from '@mui/icons-material/Close';
+import { Typography, Skeleton, Card, CardContent } from '@mui/material';
 import CustomToolbar from './CustomeToolbar';
 import {
   fetchEmployeesList,
@@ -84,7 +82,6 @@ export default function LeadAssessmentReportTable({ onSelect }) {
     },
   ]);
   const [columns, setColumns] = React.useState(baseColumns);
-  const navigate = useNavigate();
   const [loadingEmployees, setLoadingEmployees] = React.useState(true);
   const [loadingCycles, setLoadingCycles] = React.useState(true);
 
