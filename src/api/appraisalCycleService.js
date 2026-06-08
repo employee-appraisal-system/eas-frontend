@@ -72,11 +72,11 @@ export const fetchSelfAssessmentCycles = async () => {
 };
 
 /**
- * Fetch cycles for the historical report page.
+ * Fetch cycles for the lead assessment report page.
  */
-export const fetchHistoricReportCycles = async () => {
+export const fetchLeadAssessmentReportCycles = async () => {
   const response = await apiClient.get(
-    '/appraisal_cycle/appraisal-cycles/historic-report'
+    '/appraisal_cycle/appraisal-cycles/lead-assessment-report'
   );
   return response.data;
 };

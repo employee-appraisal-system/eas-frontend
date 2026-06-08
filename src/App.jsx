@@ -10,7 +10,7 @@ import EditAppraisalCycle from './components/EditAppraisalCycle';
 import Questionnaire from './components/Questionnaire';
 import HRLandingPage from './components/HRLandingPage';
 import Login from './components/LoginCompo';
-import HistoricalReportTable from './components/HistoricalReport';
+import LeadAssessmentReportTable from './components/HistoricalReport';
 import ProtectedRoute from './components/ProtectedRoute';
 import SelfAssessmentRepo from './components/SelfAssessmentRepo';
 import DropdownPage from './components/employee_assessment';
@@ -69,12 +69,16 @@ export default function App() {
             }
           />
           <Route
-            path="/historical-report"
+            path="/lead-assessment-report"
             element={
               <ProtectedRoute allowedRoles={['hr', 'admin']}>
-                <HistoricalReportTable />
+                <LeadAssessmentReportTable />
               </ProtectedRoute>
             }
+          />
+          <Route
+            path="/historical-report"
+            element={<Navigate to="/lead-assessment-report" replace />}
           />
           <Route
             path="/edit-appraisal/:cycle_id"

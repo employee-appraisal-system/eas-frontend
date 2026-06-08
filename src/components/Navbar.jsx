@@ -21,7 +21,7 @@ const getNavItemsForRole = (role) => {
     { label: 'Dashboard', to: '/hr-home' },
     { label: 'Add Cycle', to: '/add-appraisal' },
     { label: 'Questionnaire', to: '/questionnaire' },
-    { label: 'Historical Report', to: '/historical-report' },
+    { label: 'Lead Assessment Report', to: '/lead-assessment-report' },
     { label: 'Self Assessment Report', to: '/self-assessment-report' },
   ];
 

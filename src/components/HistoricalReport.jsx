@@ -15,7 +15,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import CustomToolbar from './CustomeToolbar';
 import {
   fetchEmployeesList,
-  fetchHistoricReportCycles,
+  fetchLeadAssessmentReportCycles,
   fetchEmployeeRatings,
 } from '../api';
 
@@ -56,7 +56,7 @@ const MenuProps = {
   },
 };
 
-export default function HistoricalReportTable({ onSelect }) {
+export default function LeadAssessmentReportTable({ onSelect }) {
   const [rows, setRows] = React.useState([]);
 
   const [originalRows, setOriginalRows] = React.useState([]);
@@ -117,10 +117,10 @@ export default function HistoricalReportTable({ onSelect }) {
       .finally(() => setLoadingEmployees(false));
   }, []);
 
-  // Fetch completed and active cycles for which lead assessment is active or completed
+  // Fetch completed and active cycles for the lead assessment report
   React.useEffect(() => {
     setLoadingCycles(true);
-    fetchHistoricReportCycles()
+    fetchLeadAssessmentReportCycles()
       .then((data) => {
         setCycles(data);
       })
@@ -261,7 +261,7 @@ export default function HistoricalReportTable({ onSelect }) {
             }}
           >
             <Typography variant="h6" color="primary" fontWeight="bold">
-              Historical Report
+              Lead Assessment Report
             </Typography>
           </Box>
 
@@ -272,7 +272,7 @@ export default function HistoricalReportTable({ onSelect }) {
               id="checkbox-cycles-label"
               sx={{ backgroundColor: 'background.paper', px: 0.5 }}
             >
-              Select Appraisal Cycles
+              Select Lead Assessment Cycles
             </InputLabel>
             <Select
               labelId="checkbox-cycles-label"
@@ -280,7 +280,7 @@ export default function HistoricalReportTable({ onSelect }) {
               multiple
               value={selectedCycles}
               onChange={handleCycleChange}
-              input={<OutlinedInput label="Select App Cycles" />}
+              input={<OutlinedInput label="Select Lead Assessment Cycles" />}
               renderValue={(selected) => (
                 <Box
                   sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', py: 0.5 }}
@@ -303,7 +303,7 @@ export default function HistoricalReportTable({ onSelect }) {
                     })
                   ) : (
                     <Typography variant="body2" color="textSecondary">
-                      Select appraisal cycles to view ratings
+                      Select lead assessment cycles to view ratings
                     </Typography>
                   )}
                 </Box>

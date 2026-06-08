@@ -1,7 +1,7 @@
 import apiClient from './client';
 
 /**
- * Fetch employee ratings for a cycle (historical report).
+ * Fetch employee ratings for a cycle (lead assessment report).
  */
 export const fetchEmployeeRatings = async (cycleId) => {
   const response = await apiClient.get(
