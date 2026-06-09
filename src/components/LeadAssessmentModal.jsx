@@ -443,8 +443,9 @@ const LeadAssessmentModal = ({
                     }}
                   >
                     {Array.isArray(employees) &&
-                      employees
+                      [...employees]
                         .filter((emp) => String(emp.id) !== String(employeeId))
+                        .sort((a, b) => a.full_name.localeCompare(b.full_name))
                         .map((emp) => (
                           <MenuItem key={emp.id} value={emp.id}>
                             <Tooltip

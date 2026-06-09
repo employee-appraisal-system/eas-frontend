@@ -5,38 +5,30 @@ import {
   CardContent,
   Typography,
   Button,
-  // Link,
   IconButton,
   Snackbar,
   Alert,
-  // Menu,
-  // MenuItem,
   Skeleton,
   Box,
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import CustomToolbar from './CustomeToolbar';
+import CustomToolbar from '../../components/CustomToolbar';
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Edit, Delete, Visibility } from '@mui/icons-material';
-import { fetchAppraisalCycles, deleteAppraisalCycle } from '../api';
-import Assignment from './Assignment';
-import {
-  getGridNumericOperators,
-  GridFilterInputValue,
-} from '@mui/x-data-grid';
+import { fetchAppraisalCycles, deleteAppraisalCycle } from '../../api';
+import Assignment from '../../components/Assignment';
+import { getGridNumericOperators, GridFilterInputValue } from '@mui/x-data-grid';
 
-const HRLandingPage = () => {
+const AppraisalCyclePage = () => {
   const navigate = useNavigate();
 
   const [appraisalCycles, setAppraisalCycles] = useState([]);
-
   const [detailsVisible, setDetailsVisible] = useState(false);
   const [selectedCycleId, setSelectedCycleId] = useState(null);
   const [selectedCycleName, setSelectedCycleName] = useState(null);
   const [loadingAppraisalCycles, setLoadingAppraisalCycles] = useState(true);
   const [deleting, setDeleting] = useState(false);
-  // State for menu anchor element
 
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -48,30 +40,19 @@ const HRLandingPage = () => {
 
   const findCurrentStage = (cycle) => {
     const today = new Date().toISOString().split('T')[0];
-
-    if (!cycle || !cycle.stages) {
-      return 'Unknown';
-    }
-
+    if (!cycle || !cycle.stages) return 'Unknown';
     for (const stage of cycle.stages) {
-      if (
-        today >= stage.start_date_of_stage &&
-        today <= stage.end_date_of_stage
-      ) {
+      if (today >= stage.start_date_of_stage && today <= stage.end_date_of_stage) {
         return stage.stage_name;
       }
     }
-
-    if (cycle.start_date_of_cycle >= today) {
-      return 'Setup';
-    }
+    if (cycle.start_date_of_cycle >= today) return 'Setup';
     return 'Closure';
   };
 
   const findYear = (cycle) => {
     let date = cycle.end_date_of_cycle;
-    let year = parseInt(date.slice(0, 4));
-    return year;
+    return parseInt(date.slice(0, 4));
   };
 
   const labeledNumericOperators = getGridNumericOperators().map((op) => {
@@ -83,7 +64,6 @@ const HRLandingPage = () => {
       '>=': 'Greater or Equals',
       '<=': 'Less or Equals',
     };
-
     return {
       ...op,
       label: labelMap[op.value] || op.label,
@@ -91,7 +71,6 @@ const HRLandingPage = () => {
     };
   });
 
-  // Fetch appraisal cycle list
   const loadAppraisalCycles = async () => {
     try {
       setLoadingAppraisalCycles(true);
@@ -110,10 +89,9 @@ const HRLandingPage = () => {
     }
   };
 
-  // Delete appraisal cycle
   const handleDelete = async (cycle_id) => {
     try {
-      setDeleting(true); // Show loading backdrop
+      setDeleting(true);
       const cycle = appraisalCycles.find((c) => c.cycle_id === cycle_id);
       if (cycle && cycle.status === 'active') {
         setSnackbar({
@@ -139,15 +117,12 @@ const HRLandingPage = () => {
         severity: 'error',
       });
     } finally {
-      setDeleting(false); // Hide loading backdrop
+      setDeleting(false);
     }
   };
 
   const toggleDetailsView = (cycleId) => {
-    const selectedCycle = appraisalCycles.find(
-      (cycle) => cycle.cycle_id === cycleId
-    );
-
+    const selectedCycle = appraisalCycles.find((cycle) => cycle.cycle_id === cycleId);
     if (selectedCycleId === cycleId && detailsVisible) {
       setDetailsVisible(false);
       setSelectedCycleId(null);
@@ -159,7 +134,6 @@ const HRLandingPage = () => {
     }
   };
 
-  // Close handler for hiding Assignment component
   const handleCloseAssignment = () => {
     setDetailsVisible(false);
     setSelectedCycleId(null);
@@ -210,13 +184,8 @@ const HRLandingPage = () => {
       renderCell: (params) => {
         const dateStr = params.value;
         if (!dateStr) return '';
-        const date = new Date(dateStr);
-        return date
-          .toLocaleDateString('en-GB', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-          })
+        return new Date(dateStr)
+          .toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
           .replace(/ /g, ' ');
       },
     },
@@ -227,13 +196,8 @@ const HRLandingPage = () => {
       renderCell: (params) => {
         const dateStr = params.value;
         if (!dateStr) return '';
-        const date = new Date(dateStr);
-        return date
-          .toLocaleDateString('en-GB', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-          })
+        return new Date(dateStr)
+          .toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
           .replace(/ /g, ' ');
       },
     },
@@ -254,13 +218,10 @@ const HRLandingPage = () => {
               color="primary"
               onClick={(e) => {
                 e.stopPropagation();
-                if (isVisible) {
-                  toggleDetailsView(params.row.cycle_id);
-                }
+                if (isVisible) toggleDetailsView(params.row.cycle_id);
               }}
               disabled={
-                !isVisible ||
-                (detailsVisible && selectedCycleId !== params.row.cycle_id)
+                !isVisible || (detailsVisible && selectedCycleId !== params.row.cycle_id)
               }
             >
               <Visibility />
@@ -270,22 +231,18 @@ const HRLandingPage = () => {
               color="primary"
               onClick={(e) => {
                 e.stopPropagation();
-                if (isEditable) {
-                  const cycle_id = params.row.cycle_id;
-                  navigate(`/edit-appraisal/${cycle_id}`);
-                }
+                if (isEditable) navigate(`/edit-appraisal/${params.row.cycle_id}`);
               }}
               disabled={!isEditable}
             >
               <Edit />
             </IconButton>
+
             <IconButton
               color="error"
               onClick={(e) => {
                 e.stopPropagation();
-                if (isDeletable) {
-                  handleDelete(params.row.cycle_id);
-                }
+                if (isDeletable) handleDelete(params.row.cycle_id);
               }}
               disabled={!isDeletable}
             >
@@ -296,17 +253,8 @@ const HRLandingPage = () => {
       },
     },
   ];
+
   const getRowHeight = () => 38;
-
-  // const [anchorEl, setAnchorEl] = useState(null);
-
-  // const handleClick = (event) => {
-  //   setAnchorEl(event.currentTarget); // open menu
-  // };
-
-  // const handleClose = () => {
-  //   setAnchorEl(null); // close menu
-  // };
 
   return (
     <>
@@ -326,22 +274,13 @@ const HRLandingPage = () => {
               Appraisal Cycle
             </Typography>
 
-            <Box
-              sx={{
-                display: 'flex',
-                gap: 2,
-                alignItems: 'center',
-                flexWrap: 'wrap',
-              }}
+            <Button
+              variant="contained"
+              onClick={() => navigate('/add-appraisal')}
+              color="primary"
             >
-              <Button
-                variant="contained"
-                onClick={() => navigate('/add-appraisal')}
-                color="primary"
-              >
-                Add
-              </Button>
-            </Box>
+              Add
+            </Button>
           </Box>
 
           {loadingAppraisalCycles ? (
@@ -351,11 +290,7 @@ const HRLandingPage = () => {
                   key={index}
                   variant="rectangular"
                   height={30}
-                  sx={{
-                    mb: 1,
-                    bgcolor: 'action.hover',
-                    opacity: 0.3,
-                  }}
+                  sx={{ mb: 1, bgcolor: 'action.hover', opacity: 0.3 }}
                 />
               ))}
             </Box>
@@ -373,12 +308,9 @@ const HRLandingPage = () => {
                   p: 0.25,
                   minHeight: 'auto',
                   overflow: 'auto',
-                  '& .MuiDataGrid-columnHeaderTitle': {
-                    fontWeight: 'bold',
-                  },
+                  '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold' },
                 }}
                 rowHeight={getRowHeight()}
-                // hideFooterPagination
                 hideFooter
               />
             </Box>
@@ -415,4 +347,4 @@ const HRLandingPage = () => {
   );
 };
 
-export default HRLandingPage;
+export default AppraisalCyclePage;

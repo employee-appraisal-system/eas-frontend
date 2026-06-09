@@ -1,42 +1,31 @@
 import { useState, useEffect } from 'react';
-import {
-  Typography,
-  FormControl,
-  Box,
-  Skeleton,
-  Card,
-  CardContent,
-} from '@mui/material';
+import { Typography, FormControl, Box, Card, CardContent } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import CustomToolbar from './CustomeToolbar';
+import CustomToolbar from '../../components/CustomToolbar';
+import LoadingState from '../../components/LoadingState';
+import EmptyState from '../../components/EmptyState';
 import { InputLabel, Select, MenuItem } from '@mui/material';
 import {
-  fetchCycleResponses as getCylceResponses,
+  fetchCycleResponses as getCycleResponses,
   fetchSelfAssessmentCycles as activeCycles,
   fetchEmployeesList as getEmpList,
-} from '../api';
+} from '../../api';
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
 
-const isMissingCellValue = (value) =>
-  value === undefined || value === null ;
+const isMissingCellValue = (value) => value === undefined || value === null;
 
 const pivotData = (data, rows) => {
   if (!rows) return [];
-
   const employeeMap = {};
-  const answeredEmployees = new Set();
   const allQuestions = new Set();
 
-  // Step 1: Track all question texts and responses
   if (data) {
     data.forEach((item) => {
-      answeredEmployees.add(item.employee_id);
       allQuestions.add(item.question_text);
     });
   }
 
-  // Step 2: Initialize all employees with base data
   rows.forEach((emp) => {
     employeeMap[emp.id] = {
       id: emp.id,
@@ -48,7 +37,6 @@ const pivotData = (data, rows) => {
     };
   });
 
-  // Step 4: Add responses for employees who answered
   if (data) {
     data.forEach((item) => {
       const emp = employeeMap[item.employee_id];
@@ -67,81 +55,61 @@ const pivotData = (data, rows) => {
 
 const generateColumns = (data, columns) => {
   if (!data) return [];
-
-  // Collect unique question_texts
   const questionSet = new Set();
   data.forEach((item) => {
     questionSet.add(item.question_text);
-    // resizable: true;
   });
-
   const questionColumns = Array.from(questionSet).map((q) => ({
     field: q,
     headerName: q,
     width: 300,
   }));
-
   return [...columns, ...questionColumns];
 };
 
-const SelfAssessmentRepo = ({ onSelect }) => {
+const SelfAssessmentReportPage = ({ onSelect }) => {
   const [rows, setRows] = useState([]);
   const [rowSelectionModel, setRowSelectionModel] = useState({
     type: 'include',
     ids: new Set(),
   });
-
   const [activeCycle, setActiveCycles] = useState([]);
   const [cycle_id, setCycleId] = useState(null);
   const [response, setResponseData] = useState(null);
   const [baseColumns] = useState([
-    {
-      field: 'employee_id',
-      headerName: 'Employee ID',
-      flex: 5,
-      minWidth: 100,
-      maxWidth: 120,
-    },
-    { field: 'full_name', headerName: 'Name', flex: 5, minWidth: 130 },
-    { field: 'role', headerName: 'Role', flex: 5, minWidth: 100 },
+    { field: 'employee_id', headerName: 'Employee ID', width: 110 },
+    { field: 'full_name', headerName: 'Name', flex: 1, minWidth: 140 },
+    { field: 'role', headerName: 'Role', flex: 1, minWidth: 110 },
     {
       field: 'reporting_manager',
       headerName: 'Reporting Manager',
-      flex: 5,
-      minWidth: 130,
+      flex: 1,
+      minWidth: 150,
     },
     {
       field: 'previous_reporting_manager',
       headerName: 'Previous Manager',
-      flex: 5,
-      minWidth: 130,
+      flex: 1,
+      minWidth: 150,
     },
   ]);
-
-  const [loadingEmployees, setLoadingEmployees] = useState(true); //2
-  const [loadingCycles, setLoadingCycles] = useState(true); //3
+  const [loadingEmployees, setLoadingEmployees] = useState(true);
+  const [loadingCycles, setLoadingCycles] = useState(true);
   const [loadingResponses, setLoadingResponses] = useState(false);
 
   useEffect(() => {
     const getEmployees = async () => {
       try {
-        setLoadingEmployees(true); //4
+        setLoadingEmployees(true);
         const response = await getEmpList();
-        const empMap = {};
-        response.forEach((emp) => {
-          empMap[emp.employee_id] = emp.full_name;
-        });
-
         const formattedData = response.map((emp) => ({
           id: emp.id,
           employee_id: emp.id,
           full_name: emp?.full_name || emp.employee_name,
           role: emp.role,
           reporting_manager: emp.reporting_manager_name,
-          previous_reporting_manager:
-            emp.previous_reporting_manager_name,
+          previous_reporting_manager: emp.previous_reporting_manager_name,
         }));
-
         setRows(formattedData);
       } catch (error) {
         console.log('Error while fetching employees: ' + error);
@@ -156,23 +124,21 @@ const SelfAssessmentRepo = ({ onSelect }) => {
     const getResponses = async (cycle_id) => {
       try {
         setLoadingResponses(true);
-        const data = await getCylceResponses(cycle_id);
+        const data = await getCycleResponses(cycle_id);
         setResponseData(data);
         setLoadingResponses(false);
       } catch (error) {
         console.log('Error while fetching cycle: ' + error);
+        setLoadingResponses(false);
       }
     };
-
-    if (cycle_id) {
-      getResponses(cycle_id);
-    }
+    if (cycle_id) getResponses(cycle_id);
   }, [cycle_id]);
 
   useEffect(() => {
     const getActiveCycles = async () => {
       try {
-        setLoadingCycles(true); //5
+        setLoadingCycles(true);
         const response = await activeCycles();
         const filteredCycles = response.filter(
           (cycle) => cycle.status === 'completed' || cycle.status === 'active'
@@ -191,10 +157,7 @@ const SelfAssessmentRepo = ({ onSelect }) => {
   const ITEM_PADDING_TOP = 8;
   const MenuProps = {
     PaperProps: {
-      style: {
-        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-        width: 250,
-      },
+      style: { maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP, width: 250 },
     },
   };
 
@@ -203,29 +166,21 @@ const SelfAssessmentRepo = ({ onSelect }) => {
       type: newModel?.type === 'exclude' ? 'exclude' : 'include',
       ids: new Set(newModel?.ids ?? []),
     };
-
     setRowSelectionModel(normalizedModel);
-
     const isSelected = (rowId) =>
       normalizedModel.type === 'include'
         ? normalizedModel.ids.has(rowId)
         : !normalizedModel.ids.has(rowId);
-
     const selectedEmployees = rows.filter((row) => isSelected(row.id));
     const unselectedEmployees = rows.filter((row) => !isSelected(row.id));
-
-    const newOrderedRows = [...selectedEmployees, ...unselectedEmployees];
-    setRows(newOrderedRows);
-
-    if (onSelect) {
-      onSelect(selectedEmployees);
-    }
+    setRows([...selectedEmployees, ...unselectedEmployees]);
+    if (onSelect) onSelect(selectedEmployees);
   };
 
   return (
     <>
-      <Card sx={{ width: '100%' }}>
-        <CardContent>
+      <Card sx={{ width: '100%', mb: 2 }}>
+        <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
           <Box
             sx={{
               display: 'flex',
@@ -233,121 +188,105 @@ const SelfAssessmentRepo = ({ onSelect }) => {
               justifyContent: 'space-between',
               gap: 2,
               flexWrap: 'wrap',
-              mb: 2,
+              pb: 2,
+              mb: 3,
+              borderBottom: '1px solid #E5E7EB',
             }}
           >
-            <Typography variant="h6" color="primary" fontWeight="bold">
-              Self Assessment Report
-            </Typography>
-          </Box>
-          <Box sx={{ pr: '10px', pl: '10px', pb: '10px' }}>
-            <FormControl sx={{ mb: 1, width: 'auto', minWidth: '20%' }}>
-              <InputLabel
-                id="checkbox-cycles-label"
-                sx={{ backgroundColor: 'background.paper', px: 0.5 }}
+            <Box>
+              <Typography
+                variant="h5"
+                sx={{ fontWeight: 700, color: 'primary.main' }}
               >
+                Self Assessment Report
+              </Typography>
+            </Box>
+          </Box>
+
+          <Box sx={{ mb: 2 }}>
+            <FormControl sx={{ width: '100%', maxWidth: 400 }} size="small">
+              <InputLabel id="checkbox-cycles-label">
                 Select Appraisal Cycles
               </InputLabel>
               <Select
                 labelId="checkbox-cycles-label"
                 id="self-assessment-cycle"
                 value={cycle_id ?? ''}
-                displayEmpty
                 onChange={(e) => setCycleId(e.target.value)}
                 MenuProps={MenuProps}
-                sx={{
-                  minHeight: '50px',
-                  width: 'auto',
-                  '& .MuiSelect-select': {
-                    paddingTop: '8px',
-                    paddingBottom: '8px',
-                  },
-                }}
+                label="Select Appraisal Cycles"
               >
                 <MenuItem value="" disabled>
                   Select an appraisal cycle
                 </MenuItem>
                 {activeCycle && activeCycle.length > 0 ? (
-                  activeCycle.map((cycle) => (
-                    <MenuItem key={cycle.cycle_id} value={cycle.cycle_id}>
-                      {cycle.cycle_name}
-                    </MenuItem>
-                  ))
+                  [...activeCycle]
+                    .sort((a, b) => a.cycle_name.localeCompare(b.cycle_name))
+                    .map((cycle) => (
+                      <MenuItem key={cycle.cycle_id} value={cycle.cycle_id}>
+                        {cycle.cycle_name}
+                      </MenuItem>
+                    ))
                 ) : (
                   <MenuItem disabled>
-                    <Typography variant="body2" color="textSecondary">
+                    <Typography variant="body2" color="text.secondary">
                       No appraisal cycles available
                     </Typography>
                   </MenuItem>
                 )}
               </Select>
             </FormControl>
-            {response && response.length === 0 && (
-              <Typography variant="body2" color="red">
-                No responses found for the selected cycle.
-              </Typography>
-            )}
-            {loadingEmployees || loadingCycles ? (
-              <Box sx={{ width: '100%', mt: 2 }}>
-                {[...Array(20)].map((_, index) => (
-                  <Skeleton
-                    key={index}
-                    variant="rectangular"
-                    height={30}
-                    sx={{
-                      mb: 1,
-                      bgcolor: 'action.hover',
-                      opacity: 0.3,
-                    }}
-                  />
-                ))}
-              </Box>
-            ) : (
+          </Box>
+
+          {response && response.length == 0 && (
+            <Typography variant='body2' sx={{ mb:1, color:'red'}} > No Responce </Typography>
+          )}
+
+          {loadingEmployees || loadingCycles ? (
+            <LoadingState message="Loading appraisal cycles and records..." />
+          ) : rows.length === 0 ? (
+            <EmptyState
+              title="No Employee Records"
+              message="Could not find any self assessment records."
+            />
+          ) : (
+            <Box sx={{ height: 500, width: '100%' }}>
               <DataGrid
                 sx={{
-                  maxWidth: '100%',
-                  maxHeight: '50%',
-                  height: '200px',
-                  mt: 1,
-                  overflow: 'auto',
-                  '& .MuiDataGrid-columnHeaderTitle': {
-                    fontWeight: 'bold',
-                  },
+                  border: '1px solid #E5E7EB',
                   '& .missing-report-cell': {
-                    backgroundColor: '#fce4ec',
+                    backgroundColor: '#FEF2F2',
+                    color: '#EF4444',
                   },
                 }}
                 rows={cycle_id ? pivotData(response, rows) : rows}
                 columns={
-                  cycle_id ? generateColumns(response, baseColumns) : baseColumns
+                  cycle_id
+                    ? generateColumns(response, baseColumns)
+                    : baseColumns
                 }
-                autoHeight
-                pageSizeOptions={[5]}
+                pageSizeOptions={[10, 25, 50]}
                 showToolbar
-                slots={{ toolbar: CustomToolbar }}
-                slotProps={{ toolbar: { exportSelectedOnly: true } }}
-                rowHeight={35}
+                rowHeight={48}
                 onRowSelectionModelChange={handleRowSelection}
                 rowSelectionModel={rowSelectionModel}
                 checkboxSelection
                 disableRowSelectionOnClick
+                slots={{ toolbar: CustomToolbar }}
+                slotProps={{ toolbar: { exportSelectedOnly: true } }}
                 getCellClassName={(params) =>
                   isMissingCellValue(params.value) ? 'missing-report-cell' : ''
                 }
-                hideFooter
               />
-            )}
-          </Box>
+            </Box>
+          )}
         </CardContent>
       </Card>
-      <Backdrop
-        sx={{ color: '#fff', zIndex: 1201 }}
-        open={loadingResponses}
-      >
+      <Backdrop sx={{ color: '#fff', zIndex: 1201 }} open={loadingResponses}>
         <CircularProgress color="inherit" />
       </Backdrop>
     </>
   );
 };
 
-export default SelfAssessmentRepo;
+export default SelfAssessmentReportPage;

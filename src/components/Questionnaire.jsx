@@ -1,5 +1,4 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 // External libraries (MUI)
 import {
@@ -17,166 +16,110 @@ import {
   MenuItem,
   FormControl,
   Select,
-  Skeleton,
-  Tooltip,
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 
-//MUI Icons
+// MUI Icons
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 
-//Custom components
-import CustomToolbar from './CustomeToolbar';
+// Custom components
+import CustomToolbar from './CustomToolbar';
+import LoadingState from './LoadingState';
+import EmptyState from './EmptyState';
 
-//API services
+// API services
 import { fetchQuestions, addQuestion } from '../api';
 
 export default function Questionnaire() {
-  const navigate = useNavigate();
-  // To display question list.
+  // Question list state
   const [questions, setQuestions] = useState([]);
+  const [loadingQuestions, setLoadingquestions] = useState(true);
 
-  // Add question hooks.
+  // Add-question form state
   const [question_text, setQuestionText] = useState('');
   const [question_type, setQuestionType] = useState('');
   const [mcqOptions, setMcqOptions] = useState(['']);
   const [yesNoLabels, setYesNoLabels] = useState(['Yes', 'No']);
-  const [loadingQuestions, setLoadingquestions] = useState(true);
 
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
     severity: 'success',
   });
-  let vertical = 'bottom';
-  let horizontal = 'center';
-  // Add MCQ option
-  const handleAddMcqOption = () => {
-    setMcqOptions([...mcqOptions, '']);
-  };
 
-  // Update MCQ option
+  // ── MCQ helpers ───────────────────────────────────────────────────────────
+  const handleAddMcqOption = () => setMcqOptions([...mcqOptions, '']);
+
   const handleMcqOptionChange = (index, value) => {
-    const updatedOptions = [...mcqOptions];
-    updatedOptions[index] = value;
-    setMcqOptions(updatedOptions);
+    const updated = [...mcqOptions];
+    updated[index] = value;
+    setMcqOptions(updated);
   };
 
-  // Remove MCQ option
   const handleRemoveMcqOption = (index) => {
     if (mcqOptions.length > 1) {
       setMcqOptions(mcqOptions.filter((_, i) => i !== index));
     }
   };
 
-  // Update Yes/No labels
+  // ── Yes/No helpers ────────────────────────────────────────────────────────
   const handleYesNoLabelChange = (index, value) => {
-    setYesNoLabels((prevLabels) => {
-      const updatedLabels = [...prevLabels];
-      updatedLabels[index] = value;
-      return updatedLabels;
+    setYesNoLabels((prev) => {
+      const updated = [...prev];
+      updated[index] = value;
+      return updated;
     });
   };
 
-  // Save question
+  // ── Save ──────────────────────────────────────────────────────────────────
   const handleSave = async () => {
     if (!question_text || !question_type) {
-      setSnackbar({
-        open: true,
-        message: 'Question text and type are required.',
-        severity: 'error',
-      });
+      setSnackbar({ open: true, message: 'Question text and type are required.', severity: 'error' });
       return;
     }
-
     if (question_text.trim() === '') {
-      setSnackbar({
-        open: true,
-        message: 'Question text cannot be empty.',
-        severity: 'error',
-      });
+      setSnackbar({ open: true, message: 'Question text cannot be empty.', severity: 'error' });
       return;
     }
-
     if (question_text.length > 250) {
-      setSnackbar({
-        open: true,
-        message: 'Question text should be less than 250 characters.',
-        severity: 'error',
-      });
+      setSnackbar({ open: true, message: 'Question text should be less than 250 characters.', severity: 'error' });
       return;
     }
 
     let options = null;
 
     if (question_type === 'MCQ' || question_type === 'Single Choice') {
-      options = mcqOptions
-        .filter((opt) => opt.trim() !== '')
-        .map((opt) => ({ option_text: opt }));
+      options = mcqOptions.filter((opt) => opt.trim() !== '').map((opt) => ({ option_text: opt }));
       if (options.length === 0) {
-        setSnackbar({
-          open: true,
-          message:
-            'At least one option is required for MCQ or Single Choice questions.',
-          severity: 'error',
-        });
+        setSnackbar({ open: true, message: 'At least one option is required for MCQ or Single Choice questions.', severity: 'error' });
         return;
       }
-
       if (mcqOptions.some((opt) => opt.trim() === '')) {
-        setSnackbar({
-          open: true,
-          message: 'Options cannot be empty.',
-          severity: 'error',
-        });
+        setSnackbar({ open: true, message: 'Options cannot be empty.', severity: 'error' });
+        return;
       }
     }
 
     if (question_type === 'Yes/No') {
-      options = yesNoLabels
-        .filter((opt) => opt.trim() !== '')
-        .map((opt) => ({ option_text: opt }));
+      options = yesNoLabels.filter((opt) => opt.trim() !== '').map((opt) => ({ option_text: opt }));
       if (options.length === 0) {
-        setSnackbar({
-          open: true,
-          message: 'Yes/No options cannot be empty.',
-          severity: 'error',
-        });
+        setSnackbar({ open: true, message: 'Yes/No options cannot be empty.', severity: 'error' });
         return;
       }
-
       if (yesNoLabels.some((opt) => opt.trim() === '')) {
-        setSnackbar({
-          open: true,
-          message: 'Yes/No labels cannot be empty.',
-          severity: 'error',
-        });
+        setSnackbar({ open: true, message: 'Yes/No labels cannot be empty.', severity: 'error' });
         return;
       }
     }
 
-    const questionData = {
-      question_type,
-      question_text,
-      options,
-    };
-
     try {
-      await addQuestion(questionData);
+      await addQuestion({ question_type, question_text, options });
       loadQuestions();
       handleCancel();
-      setSnackbar({
-        open: true,
-        message: 'Question added successfully!',
-        severity: 'success',
-      });
+      setSnackbar({ open: true, message: 'Question added successfully!', severity: 'success' });
     } catch (err) {
-      setSnackbar({
-        open: true,
-        message: `Error: ${err.message}`,
-        severity: 'error',
-      });
+      setSnackbar({ open: true, message: `Error: ${err.message}`, severity: 'error' });
     }
   };
 
@@ -187,517 +130,225 @@ export default function Questionnaire() {
     setYesNoLabels(['Yes', 'No']);
   };
 
-  // Fetch question list.
+  // ── Load questions ────────────────────────────────────────────────────────
   const loadQuestions = async () => {
     try {
       setLoadingquestions(true);
       const data = await fetchQuestions();
       setQuestions(data);
     } catch (err) {
-      setSnackbar({
-        open: true,
-        message: `Error: ${err?.message || 'Failed to load questions.'}`,
-        severity: 'error',
-      });
+      setSnackbar({ open: true, message: `Error: ${err?.message || 'Failed to load questions.'}`, severity: 'error' });
     } finally {
       setLoadingquestions(false);
     }
   };
 
-  useEffect(() => {
-    loadQuestions();
-  }, []);
+  useEffect(() => { loadQuestions(); }, []);
 
-  const columns = useMemo(
-    () => [
-      { field: 'question_id', headerName: 'Q. No.', width: 90 },
-      { field: 'question_text', headerName: 'Questions', width: 500 },
-    ],
-    []
-  );
+  const columns = useMemo(() => [
+    { field: 'question_id', headerName: 'Q. No.', width: 80 },
+    { field: 'question_text', headerName: 'Question', flex: 1, minWidth: 200 },
+  ], []);
+
   const rows = useMemo(() => questions, [questions]);
 
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <>
-      <Card sx={{ width: '100%' }}>
-        <CardContent>
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 2,
-              flexWrap: 'wrap',
-              mb: 2,
-            }}
-          >
-            <Typography variant="h6" color="primary" fontWeight="bold">
-              Questionnaire
-            </Typography>
-          </Box>
+      {/* Page header */}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 2,
+          flexWrap: 'wrap',
+          pb: 2,
+          mb: 2,
+          borderBottom: '1px solid #E5E7EB',
+        }}
+      >
+        <Box>
+          <Typography variant="h5" sx={{ fontWeight: 700, color: 'primary.main' }}>
+            Questionnaire
+          </Typography>
+        </Box>
+      </Box>
 
-          <Box
+      {/* Two-column layout — true 50/50, no outer card border */}
+      <Grid container spacing={2} sx={{ alignItems: 'stretch' }}>
+        {/* ── Left: Questions list ── */}
+        <Grid item xs={12} md={6}>
+          <Card
             sx={{
+              height: { xs: 400, md: 'calc(100vh - 160px)' },
               display: 'flex',
-              flexDirection: { xs: 'column', md: 'row' },
-              mb: 2,
-              gap: 2,
+              flexDirection: 'column',
+              overflow: 'hidden',
             }}
           >
-            <Card
+            {loadingQuestions ? (
+              <LoadingState message="Loading questions database..." />
+            ) : questions.length === 0 ? (
+              <EmptyState
+                title="No Questions Available"
+                message="Use the panel on the right to create your first question."
+              />
+            ) : (
+              <DataGrid
+                rows={rows}
+                columns={columns}
+                getRowId={(row) => row.question_id}
+                slots={{ toolbar: CustomToolbar }}
+                showToolbar
+                sx={{ height: '100%', border: 'none' }}
+                rowHeight={48}
+              />
+            )}
+          </Card>
+        </Grid>
+
+        {/* ── Right: Add question form ── */}
+        <Grid item xs={12} md={6}>
+          <Card
+            sx={{
+              height: { xs: 'auto', md: 'calc(100vh - 160px)' },
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            <CardContent
               sx={{
-                flex: 1,
-                height: '80vh',
-                border: '1px solid',
-                borderColor: '#e1e1e3',
-                borderRadius: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%',
+                p: 3,
+                '&:last-child': { pb: 3 },
               }}
             >
-              {/* Left Panel */}
-              {loadingQuestions ? (
-                <Box sx={{ width: '100%', p: 2 }}>
-                  {[...Array(20)].map((_, index) => (
-                    <Skeleton
-                      key={index}
-                      variant="rectangular"
-                      height={28}
-                      sx={{
-                        mb: 1,
-                        bgcolor: '#e6e9ed',
-                        opacity: 0.3,
-                      }}
-                    />
-                  ))}
-                </Box>
-              ) : (
-                <DataGrid
-                  rows={rows}
-                  columns={columns}
-                  getRowId={(row) => row.question_id}
-                  slots={{ toolbar: CustomToolbar }}
-                  showToolbar
-                  sx={{
-                    '& .MuiDataGrid-columnHeaderTitle': {
-                      fontWeight: 'bold',
-                    },
-                    maxWidth: '100%',
-                    border: 'none',
-                  }}
-                  hideFooter
+              <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.primary', mb: 2 }}>
+                Add New Question
+              </Typography>
+
+              {/* Scrollable form fields */}
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, flex: 1, overflowY: 'auto', pr: 0.5 }}>
+                <TextField
+                  fullWidth
+                  label="Question Text"
+                  value={question_text}
+                  onChange={(e) => setQuestionText(e.target.value)}
+                  placeholder="e.g. Rate your alignment with core project goals."
+                  multiline
+                  rows={2}
                 />
-              )}
-            </Card>
 
-            {/* Right Panel */}
-            <Card
-              sx={{
-                flex: 1,
-                height: '80vh',
-                border: '1px solid',
-                borderColor: '#e1e1e3',
-                borderRadius: 1,
-              }}
-            >
-              <CardContent
-                sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}
-              >
-                <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'flex-start',
-                      mb: 2,
-                      color: '#3b7dda',
-                    }}
+                <FormControl fullWidth size="small">
+                  <InputLabel id="question-type-label">Question Type</InputLabel>
+                  <Select
+                    labelId="question-type-label"
+                    id="question-type-select"
+                    value={question_type}
+                    onChange={(e) => setQuestionType(e.target.value)}
+                    label="Question Type"
                   >
-                    <Typography
-                      variant="h6"
-                      color="primary"
-                      sx={{ fontSize: '16px' }}
-                    >
-                      Add a new question
+                    <MenuItem value="Descriptive">Descriptive (Text)</MenuItem>
+                    <MenuItem value="MCQ">Multiple Choice (MCQ)</MenuItem>
+                    <MenuItem value="Single Choice">Single Choice (Radio)</MenuItem>
+                    <MenuItem value="Yes/No">Yes/No</MenuItem>
+                  </Select>
+                </FormControl>
+
+                {/* MCQ Options */}
+                {(question_type === 'MCQ' || question_type === 'Single Choice') && (
+                  <Box sx={{ border: '1px solid #E5E7EB', borderRadius: 1, p: 2, backgroundColor: 'grey.50' }}>
+                    <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', mb: 1.5 }}>
+                      Answer Options
                     </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      gap: 2,
-                      width: '100%',
-                      mt: 2,
-                    }}
-                  >
-                    {question_text ? (
-                      <Tooltip
-                        title={
-                          <span style={{ maxWidth: 500 }}>{question_text}</span>
-                        }
-                        arrow
-                      >
-                        <TextField
-                          value={question_text}
-                          onChange={(e) => setQuestionText(e.target.value)}
-                          placeholder="Type your question here"
-                          variant="standard"
-                          sx={{ flex: 1, mr: { xs: 2, md: 10 } }}
-                          InputProps={{
-                            sx: {
-                              '&::placeholder': {
-                                fontSize: '14px',
-                                color: '#888',
-                                opacity: 1,
-                              },
-                              fontSize: '14px',
-                            },
-                          }}
-                        />
-                      </Tooltip>
-                    ) : (
-                      <TextField
-                        value={question_text}
-                        onChange={(e) => setQuestionText(e.target.value)}
-                        placeholder="Type your question here"
-                        variant="standard"
-                        sx={{ flex: 1, mr: { xs: 2, md: 10 } }}
-                        InputProps={{
-                          sx: {
-                            '&::placeholder': {
-                              fontSize: '14px',
-                              color: '#888',
-                              opacity: 1,
-                            },
-                            fontSize: '14px',
-                          },
-                        }}
-                      />
-                    )}
-                    <FormControl sx={{ minWidth: 160 }}>
-                      <InputLabel
-                        sx={{
-                          backgroundColor: 'white',
-                          top: '-5px',
-                          fontSize: '16px',
-                        }}
-                      >
-                        Question Type
-                      </InputLabel>
-                      <Select
-                        labelId="question-type-label"
-                        id="question-type-select"
-                        value={question_type}
-                        onChange={(e) => setQuestionType(e.target.value)}
-                        autoWidth
-                        label="Question_Type"
-                        sx={{
-                          height: 40,
-                          '& .MuiMenuItem-root': {
-                            fontSize: '10px',
-                            padding: '12px 16px',
-                            minHeight: '20px',
-                          },
-                        }}
-                      >
-                        <MenuItem value="MCQ">MCQ</MenuItem>
-                        <MenuItem value="Yes/No">Yes/No</MenuItem>
-                        <MenuItem value="Descriptive">Descriptive</MenuItem>
-                        <MenuItem value="Single Choice">Single Choice</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </Box>
-
-                  {question_type === 'MCQ' && (
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        width: { xs: '100%', md: '50%' },
-                        minWidth: '250px',
-                        padding: '7px',
-                        marginTop: '15px',
-                        borderRadius: '8px',
-                        bgcolor: 'background.paper',
-                        maxHeight: '400px',
-                      }}
-                    >
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          fontSize: '16px',
-                          fontWeight: 500,
-                          color: '#202124',
-                          alignSelf: 'flex-start',
-                          marginBottom: '10px',
-                        }}
-                      >
-                        Options
-                      </Typography>
-
-                      <Box
-                        sx={{
-                          flex: 1,
-                          overflowY: 'auto',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          maxHeight: '250px',
-                          gap: '10px',
-                          paddingRight: '4px', // optional: for better scroll space
-                        }}
-                      >
-                        {mcqOptions.map((option, index) => (
-                          <Box
-                            key={index}
-                            sx={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '4px',
-                              borderRadius: '4px',
-                              padding: '2px 6px',
-                            }}
-                          >
-                            <TextField
-                              fullWidth
-                              variant="standard"
-                              placeholder={`Option ${index + 1}`}
-                              value={option}
-                              onChange={(e) =>
-                                handleMcqOptionChange(index, e.target.value)
-                              }
-                              InputProps={{
-                                disableUnderline: false,
-                                sx: {
-                                  fontSize: '14px',
-                                  padding: '8px 0',
-                                  background: 'transparent',
-                                },
-                              }}
-                            />
-                            <IconButton
-                              onClick={() => handleRemoveMcqOption(index)}
-                              disabled={mcqOptions.length === 1}
-                              sx={{
-                                fontSize: '18px',
-                                color: '#5f6368',
-                                transition: 'color 0.2s',
-                                '&:hover': {
-                                  color: '#d93025',
-                                },
-                              }}
-                            >
-                              <CloseIcon fontSize="inherit" />
-                            </IconButton>
-                          </Box>
-                        ))}
-                      </Box>
-
-                      <IconButton
-                        onClick={handleAddMcqOption}
-                        sx={{
-                          alignSelf: 'flex-start',
-                          fontSize: '25px',
-                          color: '#5f6368',
-                          textTransform: 'none',
-                          marginTop: '10px',
-                          '&:hover': {
-                            color: '#1a73e8',
-                          },
-                        }}
-                      >
-                        <AddIcon fontSize="inherit" />
-                      </IconButton>
-                    </Box>
-                  )}
-
-                  {question_type === 'Single Choice' && (
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        width: { xs: '100%', md: '50%' },
-                        minWidth: '250px',
-                        padding: '7px',
-                        marginTop: '15px',
-                        borderRadius: '8px',
-                        bgcolor: 'background.paper',
-                        maxHeight: '400px',
-                      }}
-                    >
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          fontSize: '16px',
-                          fontWeight: 500,
-                          color: '#202124',
-                          alignSelf: 'flex-start',
-                          marginBottom: '10px',
-                        }}
-                      >
-                        Options
-                      </Typography>
-
-                      <Box
-                        sx={{
-                          flex: 1,
-                          overflowY: 'auto',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          maxHeight: '250px',
-                          gap: '10px',
-                          paddingRight: '4px',
-                        }}
-                      >
-                        {mcqOptions.map((option, index) => (
-                          <Box
-                            key={index}
-                            sx={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '4px',
-                              borderRadius: '4px',
-                              padding: '2px 6px',
-                            }}
-                          >
-                            <TextField
-                              fullWidth
-                              variant="standard"
-                              placeholder={`Option ${index + 1}`}
-                              value={option}
-                              onChange={(e) =>
-                                handleMcqOptionChange(index, e.target.value)
-                              }
-                              InputProps={{
-                                disableUnderline: false,
-                                sx: {
-                                  fontSize: '14px',
-                                  padding: '8px 0',
-                                  background: 'transparent',
-                                },
-                              }}
-                            />
-                            <IconButton
-                              onClick={() => handleRemoveMcqOption(index)}
-                              disabled={mcqOptions.length === 1}
-                              sx={{
-                                fontSize: '18px',
-                                color: '#5f6368',
-                                transition: 'color 0.2s',
-                                '&:hover': {
-                                  color: '#d93025',
-                                },
-                              }}
-                            >
-                              <CloseIcon fontSize="inherit" />
-                            </IconButton>
-                          </Box>
-                        ))}
-                      </Box>
-
-                      <IconButton
-                        onClick={handleAddMcqOption}
-                        sx={{
-                          alignSelf: 'flex-start',
-                          fontSize: '25px',
-                          color: '#5f6368',
-                          textTransform: 'none',
-                          marginTop: '10px',
-                          '&:hover': {
-                            color: '#1a73e8',
-                          },
-                        }}
-                      >
-                        <AddIcon fontSize="inherit" />
-                      </IconButton>
-                    </Box>
-                  )}
-
-                  {question_type === 'Yes/No' && (
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 2,
-                        width: { xs: '100%', md: '50%' }, //changed width
-                        minWidth: '250px',
-                        padding: 2,
-                        mt: 2,
-                        borderRadius: '8px',
-                        bgcolor: 'background.paper',
-                        maxHeight: 200,
-                        overflowY: 'auto',
-                      }}
-                    >
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          fontWeight: 500,
-                          fontSize: '16px',
-                          color: '#202124',
-                        }}
-                      >
-                        Labels
-                      </Typography>
-
-                      {[0, 1].map((index) => (
-                        <Box
-                          key={index}
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 1,
-                            borderRadius: '4px',
-                          }}
-                        >
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mb: 1.5 }}>
+                      {mcqOptions.map((option, index) => (
+                        <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <TextField
-                            sx={{ width: '90%' }}
-                            variant="standard"
-                            value={yesNoLabels[index]}
-                            onChange={(e) =>
-                              handleYesNoLabelChange(index, e.target.value)
-                            }
-                            placeholder={index === 0 ? 'Yes' : 'No'}
+                            fullWidth
+                            size="small"
+                            placeholder={`Option ${index + 1}`}
+                            value={option}
+                            onChange={(e) => handleMcqOptionChange(index, e.target.value)}
+                            sx={{ backgroundColor: '#ffffff' }}
                           />
+                          <IconButton
+                            onClick={() => handleRemoveMcqOption(index)}
+                            disabled={mcqOptions.length === 1}
+                            color="error"
+                            size="small"
+                          >
+                            <CloseIcon fontSize="small" />
+                          </IconButton>
                         </Box>
                       ))}
                     </Box>
-                  )}
-
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'flex-end',
-                      gap: 1,
-                      mt: 'auto',
-                      pt: 2,
-                    }}
-                  >
-                    <Button
-                      variant="contained"
-                      onClick={handleSave}
-                      color="primary"
-                    >
-                      Save
-                    </Button>
-                    <Button
-                      variant="contained"
-                      onClick={handleCancel}
-                      color="error"
-                    >
-                      Cancel
+                    <Button variant="outlined" size="small" startIcon={<AddIcon />} onClick={handleAddMcqOption}>
+                      Add Option
                     </Button>
                   </Box>
-                </Box>
-              </CardContent>
-            </Card>
-          </Box>
-        </CardContent>
-      </Card>
+                )}
+
+                {/* Yes/No Labels */}
+                {question_type === 'Yes/No' && (
+                  <Box sx={{ border: '1px solid #E5E7EB', borderRadius: 1, p: 2, backgroundColor: 'grey.50' }}>
+                    <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', mb: 1.5 }}>
+                      Yes/No Labels
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      {[0, 1].map((index) => (
+                        <TextField
+                          key={index}
+                          fullWidth
+                          size="small"
+                          label={index === 0 ? 'Yes Label' : 'No Label'}
+                          value={yesNoLabels[index]}
+                          onChange={(e) => handleYesNoLabelChange(index, e.target.value)}
+                          placeholder={index === 0 ? 'Yes' : 'No'}
+                          sx={{ backgroundColor: '#ffffff' }}
+                        />
+                      ))}
+                    </Box>
+                  </Box>
+                )}
+              </Box>
+
+              {/* Action buttons — pinned to bottom */}
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  gap: 2,
+                  pt: 2,
+                  mt: 2,
+                  borderTop: '1px solid #E5E7EB',
+                  flexShrink: 0,
+                }}
+              >
+                <Button variant="outlined" onClick={handleCancel} color="inherit">
+                  Clear
+                </Button>
+                <Button variant="contained" onClick={handleSave} color="primary" sx={{ px: 4 }}>
+                  Save Question
+                </Button>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
-        anchorOrigin={{ vertical, horizontal }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
       >
-        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
+        <Alert severity={snackbar.severity} sx={{ width: '100%', boxShadow: 3 }}>
+          {snackbar.message}
+        </Alert>
       </Snackbar>
     </>
   );
