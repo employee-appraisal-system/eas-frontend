@@ -155,10 +155,10 @@ export default function CheckboxList({ onSelect }) {
             sx={{ height: 40, mt: -2 }}
           >
             <MenuItem value="">Select Question Type</MenuItem>
-            <MenuItem value="MCQ">MCQ</MenuItem>
-            <MenuItem value="Yes/No">Yes/No</MenuItem>
             <MenuItem value="Descriptive">Descriptive</MenuItem>
+            <MenuItem value="MCQ">MCQ</MenuItem>
             <MenuItem value="Single Choice">Single choice</MenuItem>
+            <MenuItem value="Yes/No">Yes/No</MenuItem>
           </Select>
         </FormControl>
 

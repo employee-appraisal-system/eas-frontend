@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import { DataGrid } from '@mui/x-data-grid';
-import CustomToolbar from './CustomeToolbar';
+import CustomToolbar from './CustomToolbar';
 import { fetchAllEmployees } from '../api';
 
 export default function DataGridDemo() {

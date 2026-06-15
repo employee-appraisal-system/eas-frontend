@@ -1,15 +1,16 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { completeSSOCallback } from '../api';
-import { getDefaultRouteForRole, storeEmployeeSession } from '../utils/auth';
+import { Box, CircularProgress, Typography } from '@mui/material';
+import { completeSSOCallback } from '../../api';
+import { getDefaultRouteForRole, storeEmployeeSession } from '../../utils/auth';
+import ROUTES from '../../config/routes';
 
-function SSOCallback() {
+function SSOCallbackPage() {
   const hasRun = useRef(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (hasRun.current) return;
-
     hasRun.current = true;
 
     const params = new URLSearchParams(window.location.search);
@@ -25,7 +26,7 @@ function SSOCallback() {
             : '';
 
           if (!token) {
-            navigate('/login', {
+            navigate(ROUTES.LOGIN, {
               replace: true,
               state: {
                 ssoError:
@@ -43,12 +44,11 @@ function SSOCallback() {
             access_token: token,
           });
 
-          const targetRoute = getDefaultRouteForRole(role);
-          navigate(targetRoute, { replace: true });
+          navigate(getDefaultRouteForRole(role), { replace: true });
         })
         .catch((error) => {
           console.error('SSO LOGIN ERROR', error);
-          navigate('/login', {
+          navigate(ROUTES.LOGIN, {
             replace: true,
             state: { ssoError: 'SSO login failed. Please try again.' },
           });
@@ -56,7 +56,21 @@ function SSOCallback() {
     }
   }, [navigate]);
 
-  return <h2>Logging in...</h2>;
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 2,
+        color: '#1E3A8A',
+      }}
+    >
+      <CircularProgress color="inherit" />
+      <Typography sx={{ fontWeight: 600, color: '#1E3A8A' }}>Signing you in…</Typography>
+    </Box>
+  );
 }
 
-export default SSOCallback;
+export default SSOCallbackPage;
