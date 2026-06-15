@@ -56,7 +56,7 @@ const AddAppraisalPage = () => {
   const [parameters, setParameters] = useState([
     {
       name: 'Overall Performance Rating',
-      helptext: '',
+      helptext: 'Performance Rating',
       employee: true,
       teamLead: true,
       fixed: true,
@@ -79,7 +79,7 @@ const AddAppraisalPage = () => {
     setParameters([
       {
         name: 'Overall Performance Rating',
-        helptext: '',
+        helptext: 'Performance Rating',
         employee: true,
         teamLead: true,
         fixed: true,
@@ -223,33 +223,31 @@ const AddAppraisalPage = () => {
 
   return (
     <>
+      {/* Page header */}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 2,
+          flexWrap: 'wrap',
+          pb: 2,
+          mb: 2,
+          borderBottom: '1px solid #E5E7EB',
+        }}
+      >
+        <Box>
+          <Typography variant="h5" sx={{ fontWeight: 700, color: 'primary.main' }}>
+            Add Appraisal Cycle
+          </Typography>
+        </Box>
+        <IconButton onClick={() => navigate('/hr-home')} sx={{ color: 'grey.500', '&:hover': { color: 'error.main' } }}>
+          <CloseIcon />
+        </IconButton>
+      </Box>
+
       <Card sx={{ width: '100%', mb: 2 }}>
         <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 2,
-              flexWrap: 'wrap',
-              pb: 2,
-              mb: 3,
-              borderBottom: '1px solid #E5E7EB',
-            }}
-          >
-            <Box>
-              <Typography variant="h5" sx={{ fontWeight: 700, color: 'primary.main' }}>
-                Add Appraisal Cycle
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                Configure a new appraisal cycle, timelines, and parameters.
-              </Typography>
-            </Box>
-            <IconButton onClick={() => navigate('/hr-home')} sx={{ color: 'grey.500', '&:hover': { color: 'error.main' } }}>
-              <CloseIcon />
-            </IconButton>
-          </Box>
-
           {/* Cycle Details */}
           <Box sx={{ mb: 4 }}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: 'text.primary' }}>

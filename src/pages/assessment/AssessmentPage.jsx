@@ -359,30 +359,31 @@ const AssessmentPage = () => {
 
   return (
     <>
+      {/* Page header */}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 2,
+          flexWrap: 'wrap',
+          pb: 2,
+          mb: 2,
+          borderBottom: '1px solid #E5E7EB',
+        }}
+      >
+        <Box>
+          <Typography variant="h5" sx={{ fontWeight: 700, color: 'primary.main' }}>
+            Self Assessment
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            Fill out and submit your appraisal questions for the active cycle.
+          </Typography>
+        </Box>
+      </Box>
+
       <Card sx={{ width: '100%', mb: 2 }}>
         <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 2,
-              flexWrap: 'wrap',
-              pb: 2,
-              mb: 3,
-              borderBottom: '1px solid #E5E7EB',
-            }}
-          >
-            <Box>
-              <Typography variant="h5" sx={{ fontWeight: 700, color: 'primary.main' }}>
-                Self Assessment
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                Fill out and submit your appraisal questions for the active cycle.
-              </Typography>
-            </Box>
-          </Box>
-
           {loadingCycles ? (
             <LoadingState message="Loading appraisal cycles and employee assignments..." />
           ) : (

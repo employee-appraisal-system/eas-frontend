@@ -179,109 +179,106 @@ const SelfAssessmentReportPage = ({ onSelect }) => {
 
   return (
     <>
-      <Card sx={{ width: '100%', mb: 2 }}>
-        <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 2,
-              flexWrap: 'wrap',
-              pb: 2,
-              mb: 3,
-              borderBottom: '1px solid #E5E7EB',
-            }}
+      {/* Page header */}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 2,
+          flexWrap: 'wrap',
+          pb: 2,
+          mb: 2,
+          borderBottom: '1px solid #E5E7EB',
+        }}
+      >
+        <Box>
+          <Typography
+            variant="h5"
+            sx={{ fontWeight: 700, color: 'primary.main' }}
           >
-            <Box>
-              <Typography
-                variant="h5"
-                sx={{ fontWeight: 700, color: 'primary.main' }}
-              >
-                Self Assessment Report
-              </Typography>
-            </Box>
-          </Box>
+            Self Assessment Report
+          </Typography>
+        </Box>
+      </Box>
 
-          <Box sx={{ mb: 2 }}>
-            <FormControl sx={{ width: '100%', maxWidth: 400 }} size="small">
-              <InputLabel id="checkbox-cycles-label">
-                Select Appraisal Cycles
-              </InputLabel>
-              <Select
-                labelId="checkbox-cycles-label"
-                id="self-assessment-cycle"
-                value={cycle_id ?? ''}
-                onChange={(e) => setCycleId(e.target.value)}
-                MenuProps={MenuProps}
-                label="Select Appraisal Cycles"
-              >
-                <MenuItem value="" disabled>
-                  Select an appraisal cycle
-                </MenuItem>
-                {activeCycle && activeCycle.length > 0 ? (
-                  [...activeCycle]
-                    .sort((a, b) => a.cycle_name.localeCompare(b.cycle_name))
-                    .map((cycle) => (
-                      <MenuItem key={cycle.cycle_id} value={cycle.cycle_id}>
-                        {cycle.cycle_name}
-                      </MenuItem>
-                    ))
-                ) : (
-                  <MenuItem disabled>
-                    <Typography variant="body2" color="text.secondary">
-                      No appraisal cycles available
-                    </Typography>
+      <Box sx={{ mb: 3 }}>
+        <FormControl sx={{ width: '100%', maxWidth: 400 }} size="small">
+          <InputLabel id="checkbox-cycles-label">
+            Select Appraisal Cycles
+          </InputLabel>
+          <Select
+            labelId="checkbox-cycles-label"
+            id="self-assessment-cycle"
+            value={cycle_id ?? ''}
+            onChange={(e) => setCycleId(e.target.value)}
+            MenuProps={MenuProps}
+            label="Select Appraisal Cycles"
+          >
+            <MenuItem value="" disabled>
+              Select an appraisal cycle
+            </MenuItem>
+            {activeCycle && activeCycle.length > 0 ? (
+              [...activeCycle]
+                .sort((a, b) => a.cycle_name.localeCompare(b.cycle_name))
+                .map((cycle) => (
+                  <MenuItem key={cycle.cycle_id} value={cycle.cycle_id}>
+                    {cycle.cycle_name}
                   </MenuItem>
-                )}
-              </Select>
-            </FormControl>
-          </Box>
+                ))
+            ) : (
+              <MenuItem disabled>
+                <Typography variant="body2" color="text.secondary">
+                  No appraisal cycles available
+                </Typography>
+              </MenuItem>
+            )}
+          </Select>
+        </FormControl>
+      </Box>
 
-          {response && response.length == 0 && (
-            <Typography variant='body2' sx={{ mb:1, color:'red'}} > No Responce </Typography>
-          )}
+      {response && response.length === 0 && (
+        <Typography variant="body2" sx={{ mb: 2, color: 'red' }} > No Response </Typography>
+      )}
 
-          {loadingEmployees || loadingCycles ? (
-            <LoadingState message="Loading appraisal cycles and records..." />
-          ) : rows.length === 0 ? (
-            <EmptyState
-              title="No Employee Records"
-              message="Could not find any self assessment records."
-            />
-          ) : (
-            <Box sx={{ height: 500, width: '100%' }}>
-              <DataGrid
-                sx={{
-                  border: '1px solid #E5E7EB',
-                  '& .missing-report-cell': {
-                    backgroundColor: '#FEF2F2',
-                    color: '#EF4444',
-                  },
-                }}
-                rows={cycle_id ? pivotData(response, rows) : rows}
-                columns={
-                  cycle_id
-                    ? generateColumns(response, baseColumns)
-                    : baseColumns
-                }
-                pageSizeOptions={[10, 25, 50]}
-                showToolbar
-                rowHeight={48}
-                onRowSelectionModelChange={handleRowSelection}
-                rowSelectionModel={rowSelectionModel}
-                checkboxSelection
-                disableRowSelectionOnClick
-                slots={{ toolbar: CustomToolbar }}
-                slotProps={{ toolbar: { exportSelectedOnly: true } }}
-                getCellClassName={(params) =>
-                  isMissingCellValue(params.value) ? 'missing-report-cell' : ''
-                }
-              />
-            </Box>
-          )}
-        </CardContent>
-      </Card>
+      {loadingEmployees || loadingCycles ? (
+        <LoadingState message="Loading appraisal cycles and records..." />
+      ) : rows.length === 0 ? (
+        <EmptyState
+          title="No Employee Records"
+          message="Could not find any self assessment records."
+        />
+      ) : (
+        <Card sx={{ height: 500, width: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          <DataGrid
+            sx={{
+              border: 'none',
+              '& .missing-report-cell': {
+                backgroundColor: '#FEF2F2',
+                color: '#EF4444',
+              },
+            }}
+            rows={cycle_id ? pivotData(response, rows) : rows}
+            columns={
+              cycle_id
+                ? generateColumns(response, baseColumns)
+                 : baseColumns
+            }
+            pageSizeOptions={[10, 25, 50]}
+            showToolbar
+            rowHeight={48}
+            onRowSelectionModelChange={handleRowSelection}
+            rowSelectionModel={rowSelectionModel}
+            checkboxSelection
+            disableRowSelectionOnClick
+            slots={{ toolbar: CustomToolbar }}
+            slotProps={{ toolbar: { exportSelectedOnly: true } }}
+            getCellClassName={(params) =>
+              isMissingCellValue(params.value) ? 'missing-report-cell' : ''
+            }
+          />
+        </Card>
+      )}
       <Backdrop sx={{ color: '#fff', zIndex: 1201 }} open={loadingResponses}>
         <CircularProgress color="inherit" />
       </Backdrop>

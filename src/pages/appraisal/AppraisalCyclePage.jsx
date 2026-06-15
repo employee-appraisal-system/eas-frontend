@@ -258,65 +258,64 @@ const AppraisalCyclePage = () => {
 
   return (
     <>
-      <Card sx={{ width: '100%' }}>
-        <CardContent sx={{ height: detailsVisible ? 300 : '100%' }}>
-          <Box
+      {/* Page header */}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 2,
+          flexWrap: 'wrap',
+          pb: 2,
+          mb: 2,
+          borderBottom: '1px solid #E5E7EB',
+        }}
+      >
+        <Box>
+          <Typography variant="h5" sx={{ fontWeight: 700, color: 'primary.main' }}>
+            Appraisal Cycles
+          </Typography>
+        </Box>
+
+        <Button
+          variant="contained"
+          onClick={() => navigate('/add-appraisal')}
+          color="primary"
+        >
+          Add
+        </Button>
+      </Box>
+
+      {loadingAppraisalCycles ? (
+        <Box sx={{ width: '100%', mt: 2 }}>
+          {[...Array(20)].map((_, index) => (
+            <Skeleton
+              key={index}
+              variant="rectangular"
+              height={30}
+              sx={{ mb: 1, bgcolor: 'action.hover', opacity: 0.3 }}
+            />
+          ))}
+        </Box>
+      ) : (
+        <Card sx={{ height: detailsVisible ? 250 : 'calc(100vh - 160px)', width: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          <DataGrid
+            rows={rowsWithStage}
+            columns={columnsWithStage}
+            getRowId={(row) => row.cycle_id}
+            slots={{ toolbar: CustomToolbar }}
+            pageSizeOptions={[5]}
+            showToolbar
             sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 2,
-              flexWrap: 'wrap',
-              mb: 2,
+              height: '100%',
+              border: 'none',
+              '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold' },
             }}
-          >
-            <Typography variant="h6" color="primary" fontWeight="bold">
-              Appraisal Cycle
-            </Typography>
-
-            <Button
-              variant="contained"
-              onClick={() => navigate('/add-appraisal')}
-              color="primary"
-            >
-              Add
-            </Button>
-          </Box>
-
-          {loadingAppraisalCycles ? (
-            <Box sx={{ width: '100%', mt: 2 }}>
-              {[...Array(20)].map((_, index) => (
-                <Skeleton
-                  key={index}
-                  variant="rectangular"
-                  height={30}
-                  sx={{ mb: 1, bgcolor: 'action.hover', opacity: 0.3 }}
-                />
-              ))}
-            </Box>
-          ) : (
-            <Box sx={{ height: '100%', width: '100%' }}>
-              <DataGrid
-                rows={rowsWithStage}
-                columns={columnsWithStage}
-                getRowId={(row) => row.cycle_id}
-                slots={{ toolbar: CustomToolbar }}
-                pageSizeOptions={[5]}
-                showToolbar
-                sx={{
-                  height: detailsVisible ? 250 : '93vh',
-                  p: 0.25,
-                  minHeight: 'auto',
-                  overflow: 'auto',
-                  '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold' },
-                }}
-                rowHeight={getRowHeight()}
-                hideFooter
-              />
-            </Box>
-          )}
-        </CardContent>
-      </Card>
+            rowHeight={getRowHeight()}
+            hideFooter
+          />
+        </Card>
+      )}
 
       <Box sx={{ mb: 2 }}>
         {detailsVisible && selectedCycleId && (

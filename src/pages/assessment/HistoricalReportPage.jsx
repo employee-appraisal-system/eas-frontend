@@ -146,112 +146,111 @@ export default function HistoricalReportPage({ onSelect }) {
   };
 
   return (
-    <Card sx={{ width: '100%', mb: 2 }}>
-        <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 2,
-              flexWrap: 'wrap',
-              pb: 2,
-              mb: 3,
-              borderBottom: '1px solid #E5E7EB',
-            }}
-          >
-            <Box>
-              <Typography variant="h5" sx={{ fontWeight: 700, color: 'primary.main' }}>
-                Lead Assessment Report
-              </Typography>
-            </Box>
-          </Box>
+    <>
+      {/* Page header */}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 2,
+          flexWrap: 'wrap',
+          pb: 2,
+          mb: 2,
+          borderBottom: '1px solid #E5E7EB',
+        }}
+      >
+        <Box>
+          <Typography variant="h5" sx={{ fontWeight: 700, color: 'primary.main' }}>
+            Lead Assessment Report
+          </Typography>
+        </Box>
+      </Box>
 
-          <Box sx={{ mb: 2 }}>
-            <FormControl sx={{ width: '100%', maxWidth: 400 }} size="small">
-              <InputLabel id="checkbox-cycles-label">
-                Select Lead Assessment Cycles
-              </InputLabel>
-              <Select
-                labelId="checkbox-cycles-label"
-                id="checkbox-cycles"
-                multiple
-                value={selectedCycles}
-                onChange={handleCycleChange}
-                input={<OutlinedInput label="Select Lead Assessment Cycles" />}
-                renderValue={(selected) => (
-                  <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-                    {selected?.length > 0 ? (
-                      selected.map((value) => {
-                        const cycleInfo = cycles.find((c) => c.cycle_id === value);
-                        return (
-                          <Chip 
-                            key={value} 
-                            label={cycleInfo ? cycleInfo.cycle_name : `Cycle ${value}`} 
-                            size="small" 
-                            color="primary"
-                            variant="outlined"
-                          />
-                        );
-                      })
-                    ) : (
-                      <Typography variant="body2" color="text.secondary">Select cycles...</Typography>
-                    )}
-                  </Box>
-                )}
-                MenuProps={MenuProps}
-              >
-                {cycles && cycles.length > 0 ? (
-                  [...cycles]
-                    .sort((a, b) => a.cycle_name.localeCompare(b.cycle_name))
-                    .map((cycle) => (
-                      <MenuItem key={cycle.cycle_id} value={cycle.cycle_id}>
-                        <Checkbox checked={selectedCycles.indexOf(cycle.cycle_id) > -1} />
-                        <ListItemText primary={cycle.cycle_name} />
-                      </MenuItem>
-                    ))
+      <Box sx={{ mb: 3 }}>
+        <FormControl sx={{ width: '100%', maxWidth: 400 }} size="small">
+          <InputLabel id="checkbox-cycles-label">
+            Select Lead Assessment Cycles
+          </InputLabel>
+          <Select
+            labelId="checkbox-cycles-label"
+            id="checkbox-cycles"
+            multiple
+            value={selectedCycles}
+            onChange={handleCycleChange}
+            input={<OutlinedInput label="Select Lead Assessment Cycles" />}
+            renderValue={(selected) => (
+              <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                {selected?.length > 0 ? (
+                  selected.map((value) => {
+                    const cycleInfo = cycles.find((c) => c.cycle_id === value);
+                    return (
+                      <Chip 
+                        key={value} 
+                        label={cycleInfo ? cycleInfo.cycle_name : `Cycle ${value}`} 
+                        size="small" 
+                        color="primary"
+                        variant="outlined"
+                      />
+                    );
+                  })
                 ) : (
-                  <MenuItem disabled>
-                    <Typography variant="body2" color="text.secondary">No cycles available</Typography>
-                  </MenuItem>
+                  <Typography variant="body2" color="text.secondary">Select cycles...</Typography>
                 )}
-              </Select>
-            </FormControl>
-          </Box>
+              </Box>
+            )}
+            MenuProps={MenuProps}
+          >
+            {cycles && cycles.length > 0 ? (
+              [...cycles]
+                .sort((a, b) => a.cycle_name.localeCompare(b.cycle_name))
+                .map((cycle) => (
+                  <MenuItem key={cycle.cycle_id} value={cycle.cycle_id}>
+                    <Checkbox checked={selectedCycles.indexOf(cycle.cycle_id) > -1} />
+                    <ListItemText primary={cycle.cycle_name} />
+                  </MenuItem>
+                ))
+            ) : (
+              <MenuItem disabled>
+                <Typography variant="body2" color="text.secondary">No cycles available</Typography>
+              </MenuItem>
+            )}
+          </Select>
+        </FormControl>
+      </Box>
 
-          {loadingEmployees || loadingCycles ? (
-            <LoadingState message="Loading historical report records and cycles..." />
-          ) : rows.length === 0 ? (
-            <EmptyState 
-              title="No Employee Records" 
-              message="Could not find any employee assessment rating history." 
-            />
-          ) : (
-            <Box sx={{ height: 500, width: '100%' }}>
-              <DataGrid
-                sx={{
-                  border: '1px solid #E5E7EB',
-                  '& .missing-report-cell': {
-                    backgroundColor: '#FEF2F2',
-                    color: '#EF4444',
-                  }
-                }}
-                rows={rows}
-                columns={columns}
-                pageSizeOptions={[10, 25, 50]}
-                showToolbar
-                checkboxSelection
-                disableRowSelectionOnClick
-                slots={{ toolbar: CustomToolbar }}
-                slotProps={{ toolbar: { exportSelectedOnly: true } }}
-                onRowSelectionModelChange={handleRowSelection}
-                rowSelectionModel={rowSelectionModel}
-                rowHeight={48}
-                getCellClassName={(params) => isMissingCellValue(params.value) ? 'missing-report-cell' : ''}
-              />
-            </Box>
-          )}
-        </CardContent>
-      </Card>
+      {loadingEmployees || loadingCycles ? (
+        <LoadingState message="Loading historical report records and cycles..." />
+      ) : rows.length === 0 ? (
+        <EmptyState 
+          title="No Employee Records" 
+          message="Could not find any employee assessment rating history." 
+        />
+      ) : (
+        <Card sx={{ height: 500, width: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          <DataGrid
+            sx={{
+              border: 'none',
+              '& .missing-report-cell': {
+                backgroundColor: '#FEF2F2',
+                color: '#EF4444',
+              }
+            }}
+            rows={rows}
+            columns={columns}
+            pageSizeOptions={[10, 25, 50]}
+            showToolbar
+            checkboxSelection
+            disableRowSelectionOnClick
+            slots={{ toolbar: CustomToolbar }}
+            slotProps={{ toolbar: { exportSelectedOnly: true } }}
+            onRowSelectionModelChange={handleRowSelection}
+            rowSelectionModel={rowSelectionModel}
+            rowHeight={48}
+            getCellClassName={(params) => isMissingCellValue(params.value) ? 'missing-report-cell' : ''}
+          />
+        </Card>
+      )}
+    </>
   );
 }

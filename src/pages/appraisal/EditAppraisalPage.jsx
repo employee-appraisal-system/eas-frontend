@@ -206,38 +206,39 @@ const EditAppraisalPage = () => {
 
   return (
     <>
+      {/* Page header */}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 2,
+          flexWrap: 'wrap',
+          pb: 2,
+          mb: 2,
+          borderBottom: '1px solid #E5E7EB',
+        }}
+      >
+        <Box>
+          <Typography variant="h5" sx={{ fontWeight: 700, color: 'primary.main' }}>
+            Edit Appraisal Cycle
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            Update appraisal cycle details, timelines, and parameters.
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <IconButton onClick={getCycleById} title="Refresh details" sx={{ color: 'grey.500', '&:hover': { color: 'primary.main' } }}>
+            <RefreshOutlinedIcon />
+          </IconButton>
+          <IconButton onClick={() => navigate('/hr-home')} sx={{ color: 'grey.500', '&:hover': { color: 'error.main' } }}>
+            <CloseIcon />
+          </IconButton>
+        </Box>
+      </Box>
+
       <Card sx={{ width: '100%', mb: 2 }}>
         <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 2,
-              flexWrap: 'wrap',
-              pb: 2,
-              mb: 3,
-              borderBottom: '1px solid #E5E7EB',
-            }}
-          >
-            <Box>
-              <Typography variant="h5" sx={{ fontWeight: 700, color: 'primary.main' }}>
-                Edit Appraisal Cycle
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                Update appraisal cycle details, timelines, and parameters.
-              </Typography>
-            </Box>
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <IconButton onClick={getCycleById} title="Refresh details" sx={{ color: 'grey.500', '&:hover': { color: 'primary.main' } }}>
-                <RefreshOutlinedIcon />
-              </IconButton>
-              <IconButton onClick={() => navigate('/hr-home')} sx={{ color: 'grey.500', '&:hover': { color: 'error.main' } }}>
-                <CloseIcon />
-              </IconButton>
-            </Box>
-          </Box>
-
           {/* Cycle Details */}
           <Box sx={{ mb: 4 }}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: 'text.primary' }}>
